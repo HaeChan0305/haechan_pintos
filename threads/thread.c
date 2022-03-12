@@ -1,5 +1,6 @@
-//version of make_alarm
-
+/*version of make_alarm*/
+/*version of make_alarm*/
+/*version of make_alarm*/
 
 #include "threads/thread.h"
 #include <debug.h>
@@ -42,6 +43,13 @@ static struct lock tid_lock;
 
 /* Thread destruction requests */
 static struct list destruction_req;
+
+/* List of processes in SLEEP state */
+static struct list sleep_list;
+
+/* Fastest tick(absolute) to some thread wake up.
+   It need to be initialized with INT64_MAX for satisfing if condition */
+static int64_t fastest_wakeup = INT64_MAX;
 
 /* Statistics. */
 static long long idle_ticks;    /* # of timer ticks spent idle. */
@@ -112,6 +120,7 @@ thread_init (void) {
 	lock_init (&tid_lock);
 	list_init (&ready_list);
 	list_init (&destruction_req);
+	list_init (&sleep_list);
 
 	/* Set up a thread structure for the running thread. */
 	initial_thread = running_thread ();
@@ -309,6 +318,58 @@ thread_yield (void) {
 		list_push_back (&ready_list, &curr->elem);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
+}
+
+/* Update the fastest_wakeup variable */
+void
+update_fastest_wakeup(int64_t t) {
+	if (t < fastest_wakeup) fastest_wakeup = t;
+}
+
+/* Get static variable fastest_wakeup for "timer.c". */
+int64_t 
+get_fastest_wakeup(void) {
+	return fastest_wakeup;
+}
+
+/* Make thread sleep until absolute time T, and add thread to 
+   sleep_list. */
+void
+thread_sleep (int64_t t) {
+	struct thread *curr = thread_current();
+	enum intr_level old_level;
+
+	old_level = intr_disable ();
+	ASSERT(curr != idle_thread);
+
+	curr->wakeup_tick = t;
+	update_fastest_wakeup(t);
+	list_push_back (&sleep_list, &curr->elem);
+	thread_block ();
+
+	intr_set_level (old_level);
+}
+
+/* Find threads that have to wakeup and wake them up.
+   Also, update_fastest_wakeup variable for next thread_wakeup func*/
+void
+thread_wakeup (int64_t t) {
+	struct list_elem *temp = list_begin(&sleep_list);
+	
+	while(temp != list_end(&sleep_list)){
+		struct thread *thrd = list_entry(temp, struct thread, elem);
+
+		if (thrd->wakeup_tick <= t){
+			temp = list_remove(&thrd->elem);
+			thread_unblock(thrd);
+		}
+
+		else {
+			temp = list_next(temp);
+			update_fastest_wakeup(thrd->wakeup_tick);
+		}
+
+	}
 }
 
 /* Sets the current thread's priority to NEW_PRIORITY. */

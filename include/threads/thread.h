@@ -1,3 +1,7 @@
+/*version of make_alarm*/
+/*version of make_alarm*/
+/*version of make_alarm*/
+
 #ifndef THREADS_THREAD_H
 #define THREADS_THREAD_H
 
@@ -95,6 +99,9 @@ struct thread {
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
 
+	/* Absolute tick to wakeup*/
+	int64_t wakeup_tick;
+
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4;                     /* Page map level 4 */
@@ -132,6 +139,12 @@ const char *thread_name (void);
 
 void thread_exit (void) NO_RETURN;
 void thread_yield (void);
+
+/* modified */
+void thread_sleep (int64_t);
+void thread_wakeup (int64_t t);
+void update_fastest_wakeup(int64_t t); 
+int64_t get_fastest_wakeup(void);
 
 int thread_get_priority (void);
 void thread_set_priority (int);

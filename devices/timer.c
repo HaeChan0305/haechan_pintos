@@ -1,3 +1,7 @@
+/*version of make_alarm*/
+/*version of make_alarm*/
+/*version of make_alarm*/
+
 #include "devices/timer.h"
 #include <debug.h>
 #include <inttypes.h>
@@ -93,8 +97,12 @@ timer_sleep (int64_t ticks) {
 	int64_t start = timer_ticks ();
 
 	ASSERT (intr_get_level () == INTR_ON);
-	while (timer_elapsed (start) < ticks)
-		thread_yield ();
+
+	/* busy waiting */
+	//while (timer_elapsed (start) < ticks)
+	//	thread_yield ();
+	
+	thread_sleep(start + ticks);
 }
 
 /* Suspends execution for approximately MS milliseconds. */
@@ -126,6 +134,10 @@ static void
 timer_interrupt (struct intr_frame *args UNUSED) {
 	ticks++;
 	thread_tick ();
+
+	/* Check thread should wake up and do it */
+	if (get_fastest_wakeup() <= ticks)
+		thread_wakeup(ticks);
 }
 
 /* Returns true if LOOPS iterations waits for more than one timer
