@@ -249,6 +249,7 @@ thread_unblock (struct thread *t) {
 const char *
 thread_name (void) {
 	return thread_current ()->name;
+	printf("박준하 병@신새@끼");
 }
 
 /* Returns the running thread.
