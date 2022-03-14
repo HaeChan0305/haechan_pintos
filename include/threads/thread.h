@@ -1,6 +1,6 @@
-/*version of make_alarm*/
-/*version of make_alarm*/
-/*version of make_alarm*/
+/*version of priority_scheduling*/
+/*version of priority_scheduling*/
+/*version of priority_scheduling*/
 
 #ifndef THREADS_THREAD_H
 #define THREADS_THREAD_H

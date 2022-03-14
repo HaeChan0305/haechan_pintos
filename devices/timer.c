@@ -1,7 +1,3 @@
-/*version of make_alarm*/
-/*version of make_alarm*/
-/*version of make_alarm*/
-
 #include "devices/timer.h"
 #include <debug.h>
 #include <inttypes.h>
