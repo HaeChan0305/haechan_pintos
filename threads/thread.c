@@ -1,6 +1,7 @@
-/*version of make_alarm*/
-/*version of make_alarm*/
-/*version of make_alarm*/
+/*version of priority_scheduling*/
+/*version of priority_scheduling*/
+/*version of priority_scheduling*/
+/*Complete before donation */
 
 #include "threads/thread.h"
 #include <debug.h>
@@ -219,6 +220,9 @@ thread_create (const char *name, int priority,
 	/* Add to run queue. */
 	thread_unblock (t);
 
+	if(!list_empty(&ready_list) && (priority > thread_get_priority()))
+		 thread_yield();
+
 	return tid;
 }
 
@@ -252,7 +256,7 @@ thread_unblock (struct thread *t) {
 
 	old_level = intr_disable ();
 	ASSERT (t->status == THREAD_BLOCKED);
-	list_push_back (&ready_list, &t->elem);
+	list_insert_ordered(&ready_list, &t->elem, compare_priority, NULL);
 	t->status = THREAD_READY;
 	intr_set_level (old_level);
 }
@@ -315,7 +319,7 @@ thread_yield (void) {
 
 	old_level = intr_disable ();
 	if (curr != idle_thread)
-		list_push_back (&ready_list, &curr->elem);
+		list_insert_ordered(&ready_list, &curr->elem, *compare_priority, NULL);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
 }
@@ -377,6 +381,12 @@ thread_wakeup (int64_t t) {
 void
 thread_set_priority (int new_priority) {
 	thread_current ()->priority = new_priority;
+	
+	/* If highest priority in ready_list is higer than NEW_PRIORITY, 
+	   then context switch to it.*/
+	if(list_entry(list_begin(&ready_list), struct thread, elem)->priority 
+	   > thread_get_priority())
+		 thread_yield();
 }
 
 /* Returns the current thread's priority. */
@@ -384,6 +394,17 @@ int
 thread_get_priority (void) {
 	return thread_current ()->priority;
 }
+
+/* Compare priority of A and B, then return true when A > B or 
+   return false when else. */
+bool
+compare_priority (struct list_elem *a, struct list_elem *b, void *aux UNUSED){
+	int priority_a = list_entry(a, struct thread, elem) -> priority;
+	int priority_b = list_entry(b, struct thread, elem) -> priority;
+	
+	return  priority_a > priority_b ;
+}
+
 
 /* Sets the current thread's nice value to NICE. */
 void

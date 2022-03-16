@@ -1,6 +1,6 @@
-/*version of make_alarm*/
-/*version of make_alarm*/
-/*version of make_alarm*/
+/*version of priority_scheduling*/
+/*version of priority_scheduling*/
+/*version of priority_scheduling*/
 
 #ifndef THREADS_THREAD_H
 #define THREADS_THREAD_H
@@ -145,6 +145,7 @@ void thread_sleep (int64_t);
 void thread_wakeup (int64_t t);
 void update_fastest_wakeup(int64_t t); 
 int64_t get_fastest_wakeup(void);
+bool compare_priority (struct list_elem *a, struct list_elem *b, void *aux UNUSED);
 
 int thread_get_priority (void);
 void thread_set_priority (int);
