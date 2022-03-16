@@ -1,6 +1,7 @@
 /*version of priority_scheduling*/
 /*version of priority_scheduling*/
 /*version of priority_scheduling*/
+/*Complete before donation */
 
 #include "threads/thread.h"
 #include <debug.h>
