@@ -364,6 +364,7 @@ thread_wakeup (int64_t t) {
 		struct thread *thrd = list_entry(temp, struct thread, elem);
 
 		if (thrd->wakeup_tick <= t){
+			thrd->wakeup_tick = 0;
 			temp = list_remove(&thrd->elem);
 			thread_unblock(thrd);
 		}
