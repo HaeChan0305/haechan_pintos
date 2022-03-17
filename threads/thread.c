@@ -319,7 +319,7 @@ thread_yield (void) {
 
 	old_level = intr_disable ();
 	if (curr != idle_thread)
-		list_insert_ordered(&ready_list, &curr->elem, *compare_priority, NULL);
+		list_insert_ordered(&ready_list, &curr->elem, compare_priority, NULL);
 	do_schedule (THREAD_READY);
 	intr_set_level (old_level);
 }
@@ -397,7 +397,8 @@ thread_get_priority (void) {
 /* Compare priority of A and B, then return true when A > B or 
    return false when else. */
 bool
-compare_priority (struct list_elem *a, struct list_elem *b, void *aux UNUSED){
+compare_priority (struct list_elem *a, struct list_elem *b, void *aux UNUSED)
+{
 	int priority_a = list_entry(a, struct thread, elem) -> priority;
 	int priority_b = list_entry(b, struct thread, elem) -> priority;
 	
