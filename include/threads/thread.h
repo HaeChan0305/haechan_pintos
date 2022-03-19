@@ -99,8 +99,14 @@ struct thread {
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
 
-	/* Absolute tick to wakeup*/
+	/* Absolute tick to wakeup. */
 	int64_t wakeup_tick;
+
+	/* For priority donation. */
+	struct list donating_list;
+	struct list_elem donating_elem;
+	int ori_priority;
+	struct lock *lock;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
@@ -145,7 +151,10 @@ void thread_sleep (int64_t);
 void thread_wakeup (int64_t t);
 void update_fastest_wakeup(int64_t t); 
 int64_t get_fastest_wakeup(void);
-bool compare_priority (struct list_elem *, struct list_elem *, void *);
+bool compare_priority (const struct list_elem *, const struct list_elem *, void *);
+void compare_and_switch (void);
+void priority_updating(struct thread *t);
+void donation_priority(struct thread * t);
 
 int thread_get_priority (void);
 void thread_set_priority (int);

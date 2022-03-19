@@ -66,10 +66,12 @@ sema_down (struct semaphore *sema) {
 
 	old_level = intr_disable ();
 	while (sema->value == 0) {
-		list_push_back (&sema->waiters, &thread_current ()->elem);
+		list_insert_ordered (&sema->waiters, &thread_current ()->elem, 
+							 compare_priority, NULL);
 		thread_block ();
 	}
 	sema->value--;
+	thread_current()->lock = NULL;
 	intr_set_level (old_level);
 }
 
@@ -109,10 +111,19 @@ sema_up (struct semaphore *sema) {
 	ASSERT (sema != NULL);
 
 	old_level = intr_disable ();
-	if (!list_empty (&sema->waiters))
+
+	if (!list_empty (&sema->waiters)){
+		list_sort(&sema->waiters, compare_priority, NULL);
 		thread_unblock (list_entry (list_pop_front (&sema->waiters),
-					struct thread, elem));
+					    struct thread, elem));
+	}
+
 	sema->value++;
+
+	/* By list_sort, begin elem of ready_list can be higer than
+	   current thread's priority. */
+	compare_and_switch();
+	
 	intr_set_level (old_level);
 }
 
@@ -150,7 +161,7 @@ sema_test_helper (void *sema_) {
 		sema_up (&sema[1]);
 	}
 }
-
+
 /* Initializes LOCK.  A lock can be held by at most a single
    thread at any given time.  Our locks are not "recursive", that
    is, it is an error for the thread currently holding a lock to
@@ -188,8 +199,16 @@ lock_acquire (struct lock *lock) {
 	ASSERT (!intr_context ());
 	ASSERT (!lock_held_by_current_thread (lock));
 
+	struct thread *holder = lock->holder;
+	struct thread *curr = thread_current();
+
+	if(holder != NULL){
+		curr -> lock = lock;
+		donation_priority(curr);
+	}
+
 	sema_down (&lock->semaphore);
-	lock->holder = thread_current ();
+	lock->holder = curr;
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -222,6 +241,13 @@ lock_release (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (lock_held_by_current_thread (lock));
 
+	struct thread *curr = thread_current();
+
+	if(!list_empty(&curr->donating_list)){
+		list_pop_front(&curr->donating_list);
+		priority_updating(curr);
+	}
+
 	lock->holder = NULL;
 	sema_up (&lock->semaphore);
 }
@@ -235,7 +261,7 @@ lock_held_by_current_thread (const struct lock *lock) {
 
 	return lock->holder == thread_current ();
 }
-
+
 /* One semaphore in a list. */
 struct semaphore_elem {
 	struct list_elem elem;              /* List element. */
