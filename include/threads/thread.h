@@ -152,9 +152,10 @@ void thread_wakeup (int64_t t);
 void update_fastest_wakeup(int64_t t); 
 int64_t get_fastest_wakeup(void);
 bool compare_priority (const struct list_elem *, const struct list_elem *, void *);
+bool compare_donated_priority (const struct list_elem *, const struct list_elem *, void *);
 void compare_and_switch (void);
-void priority_updating(struct thread *t);
-void donation_priority(struct thread * t);
+void priority_updating(struct thread *);
+void donation_priority(struct thread *);
 
 int thread_get_priority (void);
 void thread_set_priority (int);

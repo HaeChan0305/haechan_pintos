@@ -402,8 +402,8 @@ priority_updating(struct thread *t) {
 		int donated_priority = list_entry(list_begin(&t->donating_list), 
 		                                  struct thread, donating_elem)->priority;
 
-		t->priority = t->ori_priority > donated_priority 
-					? t->ori_priority : donated_priority;
+		t->priority = donated_priority > t->ori_priority 
+					? donated_priority : t->ori_priority;
 	}
 }
 
@@ -427,7 +427,7 @@ donation_priority(struct thread * t){
 	struct thread *holder = t->lock->holder;
 
 	list_insert_ordered(&holder->donating_list, &t->donating_elem,
-						compare_priority, NULL);
+						compare_donated_priority, NULL);
 	priority_updating(holder);
 
 	if(holder->lock) {
@@ -454,6 +454,15 @@ compare_priority (const struct list_elem *a, const struct list_elem *b,
 	return  priority_a > priority_b ;
 }
 
+bool
+compare_donated_priority (const struct list_elem *a, const struct list_elem *b, 
+                  		  void *aux UNUSED)
+{
+	int priority_a = list_entry(a, struct thread, donating_elem) -> priority;
+	int priority_b = list_entry(b, struct thread, donating_elem) -> priority;
+	
+	return  priority_a > priority_b ;
+}
 
 /* Sets the current thread's nice value to NICE. */
 void

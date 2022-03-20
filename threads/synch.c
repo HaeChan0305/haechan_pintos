@@ -118,6 +118,7 @@ sema_up (struct semaphore *sema) {
 	}
 
 	sema->value++;
+	compare_and_switch();
 	intr_set_level (old_level);
 }
 
@@ -242,12 +243,12 @@ lock_release (struct lock *lock) {
 		for(struct list_elem *temp = list_begin(donating_list) ; 
 		    temp != list_end(donating_list); temp = list_next(temp))
 				if(list_entry(temp, struct thread, donating_elem)->lock == lock)
-					list_remove(temp);
+					list_remove(&list_entry(temp, struct thread, donating_elem)
+					            ->donating_elem);
 
 		priority_updating(thread_current());
 	}
 	
-
 	lock->holder = NULL;
 	sema_up (&lock->semaphore);
 }
