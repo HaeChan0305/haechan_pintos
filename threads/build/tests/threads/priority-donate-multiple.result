@@ -1,30 +1,13 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (priority-donate-multiple) begin
-  (priority-donate-multiple) Main thread should have priority 32.  Actual priority: 32.
-  (priority-donate-multiple) Main thread should have priority 33.  Actual priority: 33.
-  (priority-donate-multiple) Thread b acquired lock b.
-  (priority-donate-multiple) Thread b finished.
-  (priority-donate-multiple) Thread b should have just finished.
-  (priority-donate-multiple) Main thread should have priority 32.  Actual priority: 32.
-  (priority-donate-multiple) Thread a acquired lock a.
-  (priority-donate-multiple) Thread a finished.
-  (priority-donate-multiple) Thread a should have just finished.
-  (priority-donate-multiple) Main thread should have priority 31.  Actual priority: 31.
-  (priority-donate-multiple) end
-Differences in `diff -u' format:
-  (priority-donate-multiple) begin
-  (priority-donate-multiple) Main thread should have priority 32.  Actual priority: 32.
-- (priority-donate-multiple) Main thread should have priority 33.  Actual priority: 33.
-- (priority-donate-multiple) Thread b acquired lock b.
-- (priority-donate-multiple) Thread b finished.
-+ (priority-donate-multiple) Main thread should have priority 33.  Actual priority: 32.
-  (priority-donate-multiple) Thread b should have just finished.
-  (priority-donate-multiple) Main thread should have priority 32.  Actual priority: 32.
-- (priority-donate-multiple) Thread a acquired lock a.
-- (priority-donate-multiple) Thread a finished.
-  (priority-donate-multiple) Thread a should have just finished.
-  (priority-donate-multiple) Main thread should have priority 31.  Actual priority: 31.
-  (priority-donate-multiple) end
+Kernel panic in run: PANIC at ../../threads/interrupt.c:361 in intr_handler(): Unexpected interrupt
+Call stack: 0x80042137e1 0x8004208c36 0x8004208fe8 0x8004207d4a 0x800420deca 0x8004216ba7 0x8004216a1c 0x80042067f3 0x800420613d
+Translation of call stack:
+0x00000080042137e1: debug_panic (lib/kernel/debug.c:32)
+0x0000008004208c36: intr_handler (threads/interrupt.c:365)
+0x0000008004208fe8: intr_entry (threads/intr-stubs.o:?)
+0x0000008004207d4a: intr_set_level (threads/interrupt.c:131 (discriminator 1))
+0x000000800420deca: vga_putc (devices/vga.c:92)
+0x0000008004216ba7: putchar_have_lock (lib/kernel/console.c:177)
+0x0000008004216a1c: puts (lib/kernel/console.c:136)
+0x00000080042067f3: power_off (threads/init.c:348)
+0x000000800420613d: main (threads/init.c:127)

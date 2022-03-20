@@ -390,7 +390,7 @@ thread_set_priority (int new_priority) {
 	compare_and_switch();
 }
 
-/* return input thread(T)'s higest priority. 
+/* update input thread(T)'s priority to highest priority. 
    Compare ori_priority and higest priority in donating_list */
 void
 priority_updating(struct thread *t) {
@@ -398,6 +398,7 @@ priority_updating(struct thread *t) {
 		t->priority = t->ori_priority;
 
 	else{
+		list_sort(&t->donating_list, compare_priority, NULL);
 		int donated_priority = list_entry(list_begin(&t->donating_list), 
 		                                  struct thread, donating_elem)->priority;
 
@@ -418,6 +419,8 @@ compare_and_switch(void){
 		 thread_yield();
 }
 
+/* Donate t->priority to t->lock->holder. If holder is also blocked
+   by something, then it call itself recursively. */
 void
 donation_priority(struct thread * t){
 	ASSERT(t->lock);

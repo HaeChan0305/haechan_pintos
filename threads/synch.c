@@ -202,8 +202,8 @@ lock_acquire (struct lock *lock) {
 	}
 
 	sema_down (&lock->semaphore);
-	thread_current()->lock = NULL;
 	lock->holder = curr;
+	thread_current()->lock = NULL;
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -239,8 +239,6 @@ lock_release (struct lock *lock) {
 	struct list *donating_list = & thread_current()->donating_list;
 
 	if(!list_empty(donating_list)){
-		list_sort(donating_list, compare_priority, NULL);
-
 		for(struct list_elem *temp = list_begin(donating_list) ; 
 		    temp != list_end(donating_list); temp = list_next(temp))
 				if(list_entry(temp, struct thread, donating_elem)->lock == lock)
@@ -248,6 +246,7 @@ lock_release (struct lock *lock) {
 
 		priority_updating(thread_current());
 	}
+	
 
 	lock->holder = NULL;
 	sema_up (&lock->semaphore);
