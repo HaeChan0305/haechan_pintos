@@ -1,7 +1,7 @@
 /*version of priority_scheduling*/
 /*version of priority_scheduling*/
 /*version of priority_scheduling*/
-/*Complete before donation */
+/*Complete ALL donation */
 
 #include "threads/thread.h"
 #include <debug.h>
@@ -374,7 +374,6 @@ thread_wakeup (int64_t t) {
 			temp = list_next(temp);
 			update_fastest_wakeup(thrd->wakeup_tick);
 		}
-
 	}
 }
 
@@ -398,7 +397,7 @@ priority_updating(struct thread *t) {
 		t->priority = t->ori_priority;
 
 	else{
-		list_sort(&t->donating_list, compare_priority, NULL);
+		list_sort(&t->donating_list, compare_donated_priority, NULL);
 		int donated_priority = list_entry(list_begin(&t->donating_list), 
 		                                  struct thread, donating_elem)->priority;
 
@@ -413,7 +412,7 @@ priority_updating(struct thread *t) {
 void
 compare_and_switch(void){
 	if(list_empty(&ready_list)) return;
-	
+
 	if(list_entry(list_begin(&ready_list), struct thread, elem)->priority 
 	   > thread_get_priority())
 		 thread_yield();

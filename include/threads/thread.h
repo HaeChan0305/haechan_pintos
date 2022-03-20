@@ -1,6 +1,7 @@
 /*version of priority_scheduling*/
 /*version of priority_scheduling*/
 /*version of priority_scheduling*/
+/*Complete ALL donation */
 
 #ifndef THREADS_THREAD_H
 #define THREADS_THREAD_H
