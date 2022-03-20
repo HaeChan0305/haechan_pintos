@@ -411,7 +411,7 @@ priority_updating(struct thread *t) {
    (Made this function for preventing duplicating part.)*/
 void
 compare_and_switch(void){
-	if(!list_empty(&ready_list)) return;
+	if(list_empty(&ready_list)) return;
 	
 	if(list_entry(list_begin(&ready_list), struct thread, elem)->priority 
 	   > thread_get_priority())
@@ -420,14 +420,14 @@ compare_and_switch(void){
 
 void
 donation_priority(struct thread * t){
-	ASSERT(t->lock != NULL);
+	ASSERT(t->lock);
 	struct thread *holder = t->lock->holder;
 
 	list_insert_ordered(&holder->donating_list, &t->donating_elem,
 						compare_priority, NULL);
 	priority_updating(holder);
 
-	if(holder->lock != NULL) {
+	if(holder->lock) {
 		list_remove(&holder->donating_elem);
 		donation_priority(holder);
 	}	

@@ -71,7 +71,6 @@ sema_down (struct semaphore *sema) {
 		thread_block ();
 	}
 	sema->value--;
-	thread_current()->lock = NULL;
 	intr_set_level (old_level);
 }
 
@@ -119,11 +118,6 @@ sema_up (struct semaphore *sema) {
 	}
 
 	sema->value++;
-
-	/* By list_sort, begin elem of ready_list can be higer than
-	   current thread's priority. */
-	compare_and_switch();
-	
 	intr_set_level (old_level);
 }
 
@@ -202,12 +196,13 @@ lock_acquire (struct lock *lock) {
 	struct thread *holder = lock->holder;
 	struct thread *curr = thread_current();
 
-	if(holder != NULL){
+	if(holder){
 		curr -> lock = lock;
 		donation_priority(curr);
 	}
 
 	sema_down (&lock->semaphore);
+	thread_current()->lock = NULL;
 	lock->holder = curr;
 }
 
@@ -241,11 +236,17 @@ lock_release (struct lock *lock) {
 	ASSERT (lock != NULL);
 	ASSERT (lock_held_by_current_thread (lock));
 
-	struct thread *curr = thread_current();
+	struct list *donating_list = & thread_current()->donating_list;
 
-	if(!list_empty(&curr->donating_list)){
-		list_pop_front(&curr->donating_list);
-		priority_updating(curr);
+	if(!list_empty(donating_list)){
+		list_sort(donating_list, compare_priority, NULL);
+
+		for(struct list_elem *temp = list_begin(donating_list) ; 
+		    temp != list_end(donating_list); temp = list_next(temp))
+				if(list_entry(temp, struct thread, donating_elem)->lock == lock)
+					list_remove(temp);
+
+		priority_updating(thread_current());
 	}
 
 	lock->holder = NULL;

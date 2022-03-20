@@ -1,11 +1,25 @@
 FAIL
-Kernel panic in run: PANIC at ../../lib/kernel/list.c:242 in list_remove(): assertion `is_interior (elem)' failed.
-Call stack: 0x8004213740 0x8004213f96 0x8004213ffb 0x800420a294 0x8004207ca8 0x800420698e 0x8004206068
-Translation of call stack:
-0x0000008004213740: debug_panic (lib/kernel/debug.c:32)
-0x0000008004213f96: list_remove (lib/kernel/list.c:243)
-0x0000008004213ffb: list_pop_front (lib/kernel/list.c:254)
-0x000000800420a294: lock_release (threads/synch.c:248)
-0x0000008004207ca8: allocate_tid (threads/thread.c:722)
-0x000000800420698e: thread_init (threads/thread.c:130)
-0x0000008004206068: main (threads/init.c:83)
+Test output failed to match any acceptable form.
+
+Acceptable output:
+  (mlfqs-block) begin
+  (mlfqs-block) Main thread acquiring lock.
+  (mlfqs-block) Main thread creating block thread, sleeping 25 seconds...
+  (mlfqs-block) Block thread spinning for 20 seconds...
+  (mlfqs-block) Block thread acquiring lock...
+  (mlfqs-block) Main thread spinning for 5 seconds...
+  (mlfqs-block) Main thread releasing lock.
+  (mlfqs-block) ...got it.
+  (mlfqs-block) Block thread should have already acquired lock.
+  (mlfqs-block) end
+Differences in `diff -u' format:
+  (mlfqs-block) begin
+  (mlfqs-block) Main thread acquiring lock.
+  (mlfqs-block) Main thread creating block thread, sleeping 25 seconds...
+  (mlfqs-block) Block thread spinning for 20 seconds...
+  (mlfqs-block) Block thread acquiring lock...
+  (mlfqs-block) Main thread spinning for 5 seconds...
+  (mlfqs-block) Main thread releasing lock.
+- (mlfqs-block) ...got it.
+  (mlfqs-block) Block thread should have already acquired lock.
+  (mlfqs-block) end
