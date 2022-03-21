@@ -1,7 +1,6 @@
-/*version of priority_scheduling*/
-/*version of priority_scheduling*/
-/*version of priority_scheduling*/
-/*Complete ALL donation */
+/*version of mlfqs*/
+/*version of mlfqs*/
+/*version of mlfqs*/
 
 #ifndef THREADS_THREAD_H
 #define THREADS_THREAD_H

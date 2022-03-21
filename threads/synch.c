@@ -1,7 +1,6 @@
-/*version of priority_scheduling*/
-/*version of priority_scheduling*/
-/*version of priority_scheduling*/
-/*Complete ALL donation */
+/*version of mlfqs*/
+/*version of mlfqs*/
+/*version of mlfqs*/
 
 /* This file is derived from source code for the Nachos
    instructional operating system.  The Nachos copyright notice
