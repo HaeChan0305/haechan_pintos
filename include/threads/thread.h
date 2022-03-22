@@ -172,6 +172,13 @@ void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
 
+void mlfqs_calculating_priority(struct thread *);
+void mlfqs_calculating_recent_cpu(struct thread *);
+void mlfqs_updating_priority(void);
+void mlfqs_updating_recent_cpu(void);
+void mlfqs_incrementing_recent_cpu(struct thread *);
+void mlfqs_updating_load_avg(void);
+
 void do_iret (struct intr_frame *tf);
 
 #endif /* threads/thread.h */

@@ -508,6 +508,17 @@ thread_get_nice (void) {
 	return nice;
 }
 
+/* Returns 100 times the current thread's recent_cpu value. */
+int
+thread_get_recent_cpu (void) {
+	enum intr_level old_level;
+	old_level = intr_disable ();
+
+	int recent_cpu = fp_to_int_nearest(mul_x_n(thread_current()->recent_cpu, 100));
+	intr_set_level (old_level);
+	return recent_cpu;
+}
+
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void) {
@@ -520,16 +531,6 @@ thread_get_load_avg (void) {
 	return load_avg_;
 }
 
-/* Returns 100 times the current thread's recent_cpu value. */
-int
-thread_get_recent_cpu (void) {
-	enum intr_level old_level;
-	old_level = intr_disable ();
-
-	int recent_cpu = fp_to_int_nearest(mul_x_n(thread_current()->recent_cpu, 100));
-	intr_set_level (old_level);
-	return recent_cpu;
-}
 
 /* Recalculate thread priority.
    priority = PRI_MAX - (recent_cpu / 4) - (nice * 2) */
