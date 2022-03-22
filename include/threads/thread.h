@@ -99,6 +99,9 @@ struct thread {
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
 
+	/* Link with thread_list. */
+	struct list_elem thread_list_elem; 
+
 	/* Absolute tick to wakeup. */
 	int64_t wakeup_tick;
 
@@ -107,6 +110,10 @@ struct thread {
 	struct list_elem donating_elem;
 	int ori_priority;
 	struct lock *lock;
+
+	/* For mlfqs. */
+	int nice;
+	int recent_cpu;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
