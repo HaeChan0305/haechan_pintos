@@ -100,6 +100,9 @@ struct thread {
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
 
+	/* */
+	struct list_elem thread_list_elem;
+
 	/* Absolute tick to wakeup. */
 	int64_t wakeup_tick;
 
@@ -108,6 +111,10 @@ struct thread {
 	struct list_elem donating_elem;
 	int ori_priority;
 	struct lock *lock;
+
+	/* mlfqs */
+	int nice;
+	int recent_cpu;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
@@ -165,6 +172,8 @@ int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+
+void mlfqs_calculating_priority(struct thread *);
 
 void do_iret (struct intr_frame *tf);
 

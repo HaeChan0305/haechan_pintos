@@ -15,8 +15,8 @@
 #include "threads/palloc.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
+#include "threads/fixed_point.h"
 #include "intrinsic.h"
-#include "fixed_point.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -33,6 +33,9 @@
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
+
+/* All existance thread in thread_list. */
+static struct list thread_list;
 
 /* Idle thread. */
 static struct thread *idle_thread;
@@ -121,6 +124,7 @@ thread_init (void) {
 	/* Init the globla thread context */
 	lock_init (&tid_lock);
 	list_init (&ready_list);
+	list_init (&thread_list);
 	list_init (&destruction_req);
 	list_init (&sleep_list);
 
@@ -220,6 +224,9 @@ thread_create (const char *name, int priority,
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
 
+	/* Add to thread_list. */
+	list_push_back(&thread_list, &t->thread_list_elem);
+	
 	/* Add to run queue. */
 	thread_unblock (t);
 
@@ -298,6 +305,9 @@ thread_tid (void) {
 void
 thread_exit (void) {
 	ASSERT (!intr_context ());
+
+	/* Remove to thread_list. */
+	list_remove(&thread_current()->thread_list_elem);
 
 #ifdef USERPROG
 	process_exit ();
@@ -381,6 +391,9 @@ thread_wakeup (int64_t t) {
 /* Sets the current thread's priority to NEW_PRIORITY. */
 void
 thread_set_priority (int new_priority) {
+	/* Can not access when mlfqs run. */
+	if(thread_mlfqs) return;
+	
 	struct thread *curr = thread_current();
 	curr->ori_priority = new_priority;
 	priority_updating(curr);
@@ -424,6 +437,8 @@ compare_and_switch(void){
 void
 donation_priority(struct thread * t){
 	ASSERT(t->lock);
+	ASSERT(!thread_mlfqs);
+
 	struct thread *holder = t->lock->holder;
 
 	list_insert_ordered(&holder->donating_list, &t->donating_elem,
@@ -477,6 +492,13 @@ thread_get_nice (void) {
 	return 0;
 }
 
+/* Returns 100 times the current thread's recent_cpu value. */
+int
+thread_get_recent_cpu (void) {
+	/* TODO: Your implementation goes here */
+	return 0;
+}
+
 /* Returns 100 times the system load average. */
 int
 thread_get_load_avg (void) {
@@ -484,11 +506,16 @@ thread_get_load_avg (void) {
 	return 0;
 }
 
-/* Returns 100 times the current thread's recent_cpu value. */
-int
-thread_get_recent_cpu (void) {
-	/* TODO: Your implementation goes here */
-	return 0;
+/* Recalculate thread priority.
+   priority = PRI_MAX - (recent_cpu / 4) - (nice * 2) */
+void
+mlfqs_calculating_priority(struct thread *t){
+	if(t == idle_thread) return;
+
+	int x = div_x_n(t->recent_cpu, -4);
+	int n = PRI_MAX - t->nice * 2;
+	
+	t->priority = fp_to_int_zero(add_x_n(x, n)); 
 }
 
 /* Idle thread.  Executes when no other thread is ready to run.
