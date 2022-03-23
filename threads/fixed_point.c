@@ -41,7 +41,7 @@ sub_x_n(int x, int n){
 
 int
 mul_x_y(int x, int y){
-    return ((int64_t) x) * y / F;
+    return (int)(((int64_t) x) * y / F);
 }
 
 int 
@@ -51,7 +51,7 @@ mul_x_n(int x, int n){
 
 int
 div_x_y(int x, int y){
-    return ((int64_t) x) * F / y;
+    return (int)(((int64_t) x) * F / y);
 }
 
 int
