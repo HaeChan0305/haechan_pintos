@@ -16,7 +16,7 @@ fp_to_int_zero(int x){
 
 int
 fp_to_int_nearest(int x){
-    return (x >= 0) ? (x + F/2) / F : (x - F/2) / F ; 
+    return (x >= 0) ? ((x + F / 2) / F) : ((x - F / 2) / F) ; 
 }
 
 int
@@ -41,7 +41,7 @@ sub_x_n(int x, int n){
 
 int
 mul_x_y(int x, int y){
-    return (int)(((int64_t) x) * y / F);
+    return ((int64_t) x) * y / F;
 }
 
 int 
@@ -51,7 +51,7 @@ mul_x_n(int x, int n){
 
 int
 div_x_y(int x, int y){
-    return (int)(((int64_t) x) * F / y);
+    return ((int64_t) x) * F / y;
 }
 
 int

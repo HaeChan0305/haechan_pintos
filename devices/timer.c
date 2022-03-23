@@ -142,8 +142,8 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 
 		/* Update recent_cpu and load_avg every 1 second. */
 		if(ticks % TIMER_FREQ == 0){
-			mlfqs_updating_load_avg();
 			mlfqs_updating_recent_cpu();
+			mlfqs_updating_load_avg();
 		}
 
 		/* Update priority every four ticks. */
