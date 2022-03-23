@@ -31,12 +31,12 @@ sub_x_y(int x, int y){
 
 int
 add_x_n(int x, int n){
-    return x + n * F;
+    return x + (n * F);
 }
 
 int 
 sub_x_n(int x, int n){
-    return x - n * F;
+    return x - (n * F);
 }
 
 int

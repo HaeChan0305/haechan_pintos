@@ -519,14 +519,8 @@ thread_get_recent_cpu (void) {
 	enum intr_level old_level;
 	old_level = intr_disable ();
 
-	printf("get : recent_cpu = %d\n", thread_current()->recent_cpu);
-	// printf("nice       : %d\n", thread_get_nice());
-	// printf("load_avg   : %d.%02d\n", thread_get_load_avg()/100, thread_get_load_avg()%100);
-
 	int recent_cpu_ = fp_to_int_nearest(mul_x_n(thread_current()->recent_cpu, 100));
 	//ASSERT(recent_cpu_ <= 700);
-	printf("get after: recent_cpu_ = %d\n", recent_cpu_);
-
 
 	intr_set_level (old_level);
 	return recent_cpu_;
@@ -550,7 +544,7 @@ void
 mlfqs_calculating_priority(struct thread *t){
 	if(t != idle_thread){
 		int x = div_x_n(t->recent_cpu, -4);
-		int n = PRI_MAX - t->nice * 2;
+		int n = PRI_MAX - (t->nice * 2);
 		
 		t->priority = fp_to_int_zero(add_x_n(x, n)); 
 	}
@@ -560,16 +554,11 @@ mlfqs_calculating_priority(struct thread *t){
    recent_cpu = (2 * load_avg)/(2 * load_avg + 1) * recent_cpu + nice */
 void
 mlfqs_calculating_recent_cpu(struct thread *t){
-	printf(t==idle_thread ? "true\n" : "false\n");
-	printf("before calculating : recent_cpu = %d\n", t->recent_cpu);
-	// printf("nice       : %d\n", t->nice);
-	// printf("load_avg   : %d.%02d\n", thread_get_load_avg()/100, thread_get_load_avg()%100);
-
-	int x = mul_x_n(load_avg, 2);
-	int y = mul_x_y(div_x_y(x, add_x_n(x, 1)), t->recent_cpu);
-	t->recent_cpu = add_x_y(y, int_to_fp(t->nice));
-
-	printf("after calculating : recent_cpu = %d\n", t->recent_cpu);
+	int coef = div_x_y(mul_x_n(load_avg, 2), add_x_n(mul_x_n(load_avg,2), 1));
+	t->recent_cpu = add_x_n(mul_x_y(coef, t->recent_cpu), t->nice);
+	// int x = mul_x_n(load_avg, 2);
+	// int y = mul_x_y(div_x_y(x, add_x_n(x, 1)), t->recent_cpu);
+	// t->recent_cpu = add_x_y(y, int_to_fp(t->nice));
 }
 
 /* Update priority of all threads exist */ 
@@ -598,8 +587,9 @@ mlfqs_updating_recent_cpu(void){
 
 void
 mlfqs_incrementing_recent_cpu(void){
-	if(thread_current() != idle_thread)
+	if(thread_current() != idle_thread){
 		thread_current()->recent_cpu = add_x_n(thread_current()->recent_cpu, 1);
+	}
 }
 
 /* Recalculate thread load_avg. 

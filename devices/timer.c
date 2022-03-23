@@ -134,16 +134,18 @@ timer_interrupt (struct intr_frame *args UNUSED) {
 	/* Check thread should wake up and do it */
 	if (get_fastest_wakeup() <= ticks)
 		thread_wakeup(ticks);
-
+	
 	/* mlfqs */
 	if (thread_mlfqs){
+		//printf("init : %x\n", thread_current()->recent_cpu);
 		/* Increment running thread's recent_cpu. */
 		mlfqs_incrementing_recent_cpu();
-
+		//printf("incr : %x\n", thread_current()->recent_cpu);
 		/* Update recent_cpu and load_avg every 1 second. */
 		if(ticks % TIMER_FREQ == 0){
-			mlfqs_updating_recent_cpu();
 			mlfqs_updating_load_avg();
+			mlfqs_updating_recent_cpu();
+			//printf("upda : %x\n", thread_current()->recent_cpu);
 		}
 
 		/* Update priority every four ticks. */
