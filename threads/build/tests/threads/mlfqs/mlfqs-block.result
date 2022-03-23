@@ -1,25 +1,9 @@
 FAIL
-Test output failed to match any acceptable form.
-
-Acceptable output:
-  (mlfqs-block) begin
-  (mlfqs-block) Main thread acquiring lock.
-  (mlfqs-block) Main thread creating block thread, sleeping 25 seconds...
-  (mlfqs-block) Block thread spinning for 20 seconds...
-  (mlfqs-block) Block thread acquiring lock...
-  (mlfqs-block) Main thread spinning for 5 seconds...
-  (mlfqs-block) Main thread releasing lock.
-  (mlfqs-block) ...got it.
-  (mlfqs-block) Block thread should have already acquired lock.
-  (mlfqs-block) end
-Differences in `diff -u' format:
-  (mlfqs-block) begin
-  (mlfqs-block) Main thread acquiring lock.
-  (mlfqs-block) Main thread creating block thread, sleeping 25 seconds...
-  (mlfqs-block) Block thread spinning for 20 seconds...
-  (mlfqs-block) Block thread acquiring lock...
-  (mlfqs-block) Main thread spinning for 5 seconds...
-  (mlfqs-block) Main thread releasing lock.
-- (mlfqs-block) ...got it.
-  (mlfqs-block) Block thread should have already acquired lock.
-  (mlfqs-block) end
+Kernel panic in run: PANIC at ../../threads/thread.c:444 in donation_priority(): assertion `!thread_mlfqs' failed.
+Call stack: 0x800421422a 0x800420751d 0x800420a82e 0x800421b88f 0x8004207d67
+Translation of call stack:
+0x000000800421422a: debug_panic (lib/kernel/debug.c:32)
+0x000000800420751d: donation_priority (threads/thread.c:446)
+0x000000800420a82e: lock_acquire (threads/synch.c:210)
+0x000000800421b88f: block_thread (tests/threads/mlfqs/mlfqs-block.c:63)
+0x0000008004207d67: kernel_thread (threads/thread.c:651)

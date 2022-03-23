@@ -12,13 +12,11 @@ Executing 'mlfqs-block':
 (mlfqs-block) Main thread creating block thread, sleeping 25 seconds...
 (mlfqs-block) Block thread spinning for 20 seconds...
 (mlfqs-block) Block thread acquiring lock...
-(mlfqs-block) Main thread spinning for 5 seconds...
-(mlfqs-block) Main thread releasing lock.
-(mlfqs-block) Block thread should have already acquired lock.
-(mlfqs-block) end
-Execution of 'mlfqs-block' complete.
-Timer: 3042 ticks
-Thread: 500 idle ticks, 2542 kernel ticks, 0 user ticks
-Console: 794 characters output
-Keyboard: 0 keys pressed
-Powering off...
+Kernel PANIC at ../../threads/thread.c:444 in donation_priority(): assertion `!thread_mlfqs' failed.
+Call stack: 0x800421422a 0x800420751d 0x800420a82e 0x800421b88f 0x8004207d67.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 2042 ticks
+Thread: 0 idle ticks, 2042 kernel ticks, 0 user ticks
+Console: 

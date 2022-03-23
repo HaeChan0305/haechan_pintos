@@ -33,6 +33,11 @@ typedef int tid_t;
 #define PRI_DEFAULT 31                  /* Default priority. */
 #define PRI_MAX 63                      /* Highest priority. */
 
+/* mlfqs */
+#define NICE_DEFAULT 0
+#define RECENT_CPU_DEFAULT 0
+#define LOAD_AVG_DEFAULT 0
+
 /* A kernel thread or user process.
  *
  * Each thread structure is stored in its own 4 kB page.  The
@@ -100,6 +105,9 @@ struct thread {
 	/* Shared between thread.c and synch.c. */
 	struct list_elem elem;              /* List element. */
 
+	/* list_elem for thread_list. */
+	struct list_elem thread_list_elem;
+
 	/* Absolute tick to wakeup. */
 	int64_t wakeup_tick;
 
@@ -108,6 +116,10 @@ struct thread {
 	struct list_elem donating_elem;
 	int ori_priority;
 	struct lock *lock;
+
+	/* mlfqs */
+	int nice;
+	int recent_cpu;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
@@ -165,6 +177,13 @@ int thread_get_nice (void);
 void thread_set_nice (int);
 int thread_get_recent_cpu (void);
 int thread_get_load_avg (void);
+
+void mlfqs_calculating_priority(struct thread *);
+void mlfqs_calculating_recent_cpu(struct thread *);
+void mlfqs_updating_priority(void);
+void mlfqs_updating_recent_cpu(void);
+void mlfqs_incrementing_recent_cpu(void);
+void mlfqs_updating_load_avg(void);
 
 void do_iret (struct intr_frame *tf);
 
