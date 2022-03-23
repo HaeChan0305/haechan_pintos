@@ -556,9 +556,6 @@ void
 mlfqs_calculating_recent_cpu(struct thread *t){
 	int coef = div_x_y(mul_x_n(load_avg, 2), add_x_n(mul_x_n(load_avg,2), 1));
 	t->recent_cpu = add_x_n(mul_x_y(coef, t->recent_cpu), t->nice);
-	// int x = mul_x_n(load_avg, 2);
-	// int y = mul_x_y(div_x_y(x, add_x_n(x, 1)), t->recent_cpu);
-	// t->recent_cpu = add_x_y(y, int_to_fp(t->nice));
 }
 
 /* Update priority of all threads exist */ 
