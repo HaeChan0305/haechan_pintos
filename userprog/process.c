@@ -175,20 +175,23 @@ process_exec (void *f_name) {
 
 	/* We first kill the current context */
 	process_cleanup ();
-
+	printf("process_exec : before load()\n");
+	
 	/* And then load the binary */
 	success = load (file_name, &_if);
+	printf("process_exec : after load()\n");
 
 	/* If load failed, quit. */
-	palloc_free_page (file_name);
+	//palloc_free_page (file_name);
 	if (!success)
 		return -1;
+
+	hex_dump(_if.rsp, _if.rsp, KERN_BASE-_if.rsp, true);
 
 	/* Start switched process. */
 	do_iret (&_if);
 	NOT_REACHED ();
 }
-
 
 /* Waits for thread TID to die and returns its exit status.  If
  * it was terminated by the kernel (i.e. killed due to an
@@ -204,6 +207,7 @@ process_wait (tid_t child_tid UNUSED) {
 	/* XXX: Hint) The pintos exit if process_wait (initd), we recommend you
 	 * XXX:       to add infinite loop here before
 	 * XXX:       implementing the process_wait. */
+	while(1);
 	return -1;
 }
 
@@ -316,6 +320,41 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		uint32_t read_bytes, uint32_t zero_bytes,
 		bool writable);
 
+void
+stack_argument (int argc, char **argv, struct intr_frame *if_){
+	/* First, push elements of argv. */
+	for(int i = argc -1; i < 0; i--){
+		if_->rsp -= (strlen(argv[i])+1);
+		memcpy(if_->rsp, argv[i], strlen(argv[i])+1);
+		argv[i] = (char *) if_->rsp; 
+	}
+
+	/* Second, word-aligned */
+	int correction = if_->rsp % 8;
+	if(correction){
+		if_->rsp -= correction;
+		memset(if_->rsp, 0, correction);
+	}
+
+	/* Third, push address of elements of argv. */
+	if_->rsp -= 8;
+	memset(if_->rsp, 0, 8);
+	
+	for(int i = argc-1; i < 0; i--){
+		if_->rsp -= 8;
+		memcpy(if_->rsp, &argv[i], 8);
+	}
+
+	/* Forth, point %rsi to argv, %rdi to argc */
+	if_->R.rsi = if_->rsp;
+	if_->R.rdi = argc;
+	
+	/* Finally, push a fake return address */
+	if_->rsp -= 8;
+	memset(if_->rsp, 0, 8);
+
+}
+
 /* Loads an ELF executable from FILE_NAME into the current thread.
  * Stores the executable's entry point into *RIP
  * and its initial stack pointer into *RSP.
@@ -335,8 +374,18 @@ load (const char *file_name, struct intr_frame *if_) {
 		goto done;
 	process_activate (thread_current ());
 
+	/* Parsing argument */
+    int argc = 0 ;
+    char *argv[64];
+    char *token;
+    char *save_ptr;
+
+    for (token = strtok_r (file_name, " ", &save_ptr); token != NULL;
+    token = strtok_r (NULL, " ", &save_ptr))
+        argv[argc++] = token;
+
 	/* Open executable file. */
-	file = filesys_open (file_name);
+	file = filesys_open (argv[0]);
 	if (file == NULL) {
 		printf ("load: %s: open failed\n", file_name);
 		goto done;
@@ -416,6 +465,7 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* TODO: Your code goes here.
 	 * TODO: Implement argument passing (see project2/argument_passing.html). */
+	stack_argument(argc, argv, if_);
 
 	success = true;
 

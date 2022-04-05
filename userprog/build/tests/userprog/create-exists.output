@@ -16,7 +16,7 @@ of the Pintos documentation for more information.
 Timer: 74 ticks
 Thread: 30 idle ticks, 44 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 0 reads, 0 writes
+hd0:1: 0 reads, 1 writes
 hd1:0: 0 reads, 0 writes
 Console: 1037 characters output
 Key

@@ -123,7 +123,8 @@ sema_up (struct semaphore *sema) {
 	}
 
 	sema->value++;
-	compare_and_switch();
+	//compare_and_switch();
+	//thread_yield();
 	intr_set_level (old_level);
 }
 
