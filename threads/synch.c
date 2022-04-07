@@ -123,8 +123,15 @@ sema_up (struct semaphore *sema) {
 	}
 
 	sema->value++;
-	//compare_and_switch();
-	//thread_yield();
+
+	struct list *ready_list = get_ready_list();
+	
+	if(list_entry(list_begin(ready_list), struct thread, elem)->priority 
+	   > thread_get_priority()){
+		   if(!intr_context()) compare_and_switch();
+		   else intr_yield_on_return();
+	   }
+
 	intr_set_level (old_level);
 }
 

@@ -175,19 +175,18 @@ process_exec (void *f_name) {
 
 	/* We first kill the current context */
 	process_cleanup ();
-	printf("process_exec : before load()\n");
-	
+
 	/* And then load the binary */
 	success = load (file_name, &_if);
-	printf("process_exec : after load()\n");
+
+	//hex_dump(_if.rsp, _if.rsp, USER_STACK -_if.rsp, true);
 
 	/* If load failed, quit. */
 	//palloc_free_page (file_name);
+
 	if (!success)
 		return -1;
-
-	hex_dump(_if.rsp, _if.rsp, KERN_BASE-_if.rsp, true);
-
+	
 	/* Start switched process. */
 	do_iret (&_if);
 	NOT_REACHED ();
@@ -219,7 +218,7 @@ process_exit (void) {
 	 * TODO: Implement process termination message (see
 	 * TODO: project2/process_termination.html).
 	 * TODO: We recommend you to implement process resource cleanup here. */
-
+	printf ("%s: exit(%d)\n", curr->name, curr->exit_status);
 	process_cleanup ();
 }
 
@@ -323,24 +322,22 @@ static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 void
 stack_argument (int argc, char **argv, struct intr_frame *if_){
 	/* First, push elements of argv. */
-	for(int i = argc -1; i < 0; i--){
+	for(int i = argc -1; i > -1 ; i--){
 		if_->rsp -= (strlen(argv[i])+1);
 		memcpy(if_->rsp, argv[i], strlen(argv[i])+1);
-		argv[i] = (char *) if_->rsp; 
+		argv[i] = if_->rsp; 
 	}
 
 	/* Second, word-aligned */
 	int correction = if_->rsp % 8;
-	if(correction){
-		if_->rsp -= correction;
-		memset(if_->rsp, 0, correction);
-	}
+	if_->rsp -= correction;
+	memset(if_->rsp, 0, correction);
 
 	/* Third, push address of elements of argv. */
-	if_->rsp -= 8;
-	memset(if_->rsp, 0, 8);
+	if_->rsp -= sizeof(char *);
+	memset(if_->rsp, 0, sizeof(char *));
 	
-	for(int i = argc-1; i < 0; i--){
+	for(int i = argc-1; i > -1; i--){
 		if_->rsp -= 8;
 		memcpy(if_->rsp, &argv[i], 8);
 	}
@@ -352,7 +349,6 @@ stack_argument (int argc, char **argv, struct intr_frame *if_){
 	/* Finally, push a fake return address */
 	if_->rsp -= 8;
 	memset(if_->rsp, 0, 8);
-
 }
 
 /* Loads an ELF executable from FILE_NAME into the current thread.
@@ -387,7 +383,7 @@ load (const char *file_name, struct intr_frame *if_) {
 	/* Open executable file. */
 	file = filesys_open (argv[0]);
 	if (file == NULL) {
-		printf ("load: %s: open failed\n", file_name);
+		printf ("load: %s: open failed\n",argv[0]);
 		goto done;
 	}
 
@@ -399,7 +395,7 @@ load (const char *file_name, struct intr_frame *if_) {
 			|| ehdr.e_version != 1
 			|| ehdr.e_phentsize != sizeof (struct Phdr)
 			|| ehdr.e_phnum > 1024) {
-		printf ("load: %s: error loading executable\n", file_name);
+		printf ("load: %s: error loading executable\n", argv[0]);
 		goto done;
 	}
 

@@ -121,6 +121,9 @@ struct thread {
 	int nice;
 	int recent_cpu;
 
+	/* exit_status */
+	int exit_status;
+
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */
 	uint64_t *pml4;                     /* Page map level 4 */
@@ -167,6 +170,7 @@ int64_t get_fastest_wakeup(void);
 bool compare_priority (const struct list_elem *, const struct list_elem *, void *);
 bool compare_donated_priority (const struct list_elem *, const struct list_elem *, void *);
 void compare_and_switch (void);
+struct list *get_ready_list(void);
 void priority_updating(struct thread *);
 void donation_priority(struct thread *);
 

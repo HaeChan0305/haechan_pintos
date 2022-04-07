@@ -438,6 +438,11 @@ compare_and_switch(void){
 		 thread_yield();
 }
 
+struct list *
+get_ready_list(void){
+	return &ready_list;
+}
+
 /* Donate t->priority to t->lock->holder. If holder is also blocked
    by something, then it call itself recursively. */
 void

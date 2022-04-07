@@ -1,12 +1,12 @@
 FAIL
-Kernel panic in run: PANIC at ../../threads/thread.c:336 in thread_yield(): assertion `!intr_context ()' failed.
-Call stack: 0x8004218651 0x800420723b 0x8004207601 0x800420a679 0x8004214c18 0x8004209471 0x800420988f 0x8004207e90
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x80042186c6 0x800421d00a 0x800421d189 0x8004209481 0x800420989f 0x800421bfc3 0x800421bcfe 0x8004207ea0
 Translation of call stack:
-0x0000008004218651: debug_panic (lib/kernel/debug.c:32)
-0x000000800420723b: thread_yield (threads/thread.c:338)
-0x0000008004207601: compare_and_switch (threads/thread.c:438)
-0x000000800420a679: sema_up (threads/synch.c:127)
-0x0000008004214c18: interrupt_handler (devices/disk.c:526)
-0x0000008004209471: intr_handler (threads/interrupt.c:352)
-0x000000800420988f: intr_entry (threads/intr-stubs.o:?)
-0x0000008004207e90: kernel_thread (threads/thread.c:650)
+0x00000080042186c6: debug_panic (lib/kernel/debug.c:32)
+0x000000800421d00a: kill (userprog/exception.c:103)
+0x000000800421d189: page_fault (userprog/exception.c:159 (discriminator 12))
+0x0000008004209481: intr_handler (threads/interrupt.c:352)
+0x000000800420989f: intr_entry (threads/intr-stubs.o:?)
+0x000000800421bfc3: process_exec (userprog/process.c:187)
+0x000000800421bcfe: initd (userprog/process.c:69)
+0x0000008004207ea0: kernel_thread (threads/thread.c:655)
