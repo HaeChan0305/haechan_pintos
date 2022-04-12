@@ -4,19 +4,44 @@ Kernel command line: -q -f put rox-child put child-rox run rox-child
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 313 sector (156 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+Calibrating timer...  111,206,400 loops/s.
+hd0:0: detected 329 sector (164 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
-hd1:0: detected 220 sector (110 kB) disk, model "QEMU HARDDISK", serial "QM00003"
-Formatting file system...Kernel PANIC at ../../threads/thread.c:336 in thread_yield(): assertion `!intr_context ()' failed.
-Call stack: 0x8004218651 0x800420723b 0x8004207601 0x800420a679 0x8004214c18 0x8004209471 0x800420988f 0x8004207e90.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 72 ticks
-Thread: 30 idle ticks, 42 kernel ticks, 0 user ticks
+hd1:0: detected 223 sector (111 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+Formatting file system...done.
+Boot complete.
+Putting 'rox-child' into the file system...
+Putting 'child-rox' into the file system...
+Executing 'rox-child':
+(rox-child) begin
+(rox-child) open "child-rox"
+(rox-child) read "child-rox"
+(rox-child) write "child-rox"
+(rox-child) exec "child-rox 1"
+Page fault at 0x404560: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004217f0a
+ cr2=0000000000404560 error=               0
+rax 0000000000404560 rbx 0000000000000000 rcx 000000800424e000 rdx 000000800424cb58
+rsp 000000800424cad0 rbp 000000800424cb00 rsi 0000008004226671 rdi 0000000000404560
+rip 0000008004217f0a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000216 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000206
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x80042187a5 0x800421dabc 0x800421dc3b 0x8004209560 0x800420997e 0x800421cf55 0x800421c75c 0x800421e124 0x800421de34 0x800421dcb0Page fault at 0x404560: not present error reading page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004217f0a
+ cr2=0000000000404560 error=               0
+rax 0000000000404560 rbx 0000000000000000 rcx 0000008004245000 rdx 0000008004243b58
+rsp 0000008004243ad0 rbp 0000008004243b00 rsi 0000008004226671 rdi 0000000000404560
+rip 0000008004217f0a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000216 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000000
+r15 0000000000000000 rflags 00000206
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
+Timer: 99 ticks
+Thread: 39 idle ticks, 49 kernel ticks, 11 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 0 reads, 0 writes
-hd1:0: 0 reads, 0 writes
-Console: 1044 characters output
+hd0:1: 114 reads, 485 writes
+hd1:0: 223 reads, 0 writes
+Console: 2433 characters output
 Key

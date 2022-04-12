@@ -9,7 +9,10 @@
 #include <debug.h>
 #include <list.h>
 #include <stdint.h>
+#include "threads/synch.h"
 #include "threads/interrupt.h"
+#include "filesys/file.h"
+#include "filesys/filesys.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -37,6 +40,28 @@ typedef int tid_t;
 #define NICE_DEFAULT 0
 #define RECENT_CPU_DEFAULT 0
 #define LOAD_AVG_DEFAULT 0
+
+/* file descriptor */
+struct fdesc{
+	int fd;
+
+	struct file *file;
+	struct list_elem fd_elem;
+};
+
+/* information for sharing with parent thread */
+struct sharing_info{
+	tid_t tid_;
+	int exit_status;
+	bool kernel_kill;				/* Is it killed by kernel? */
+	bool termination;				/* Have it already been killed? */
+	bool waited;					/* Is it waited by parent thread? */
+	bool orphan;					/* Is is orphan? */
+	
+	struct semaphore exit_sema;		/* sema for waiting child's exit() */
+
+	struct list_elem info_elem;
+};
 
 /* A kernel thread or user process.
  *
@@ -121,8 +146,21 @@ struct thread {
 	int nice;
 	int recent_cpu;
 
-	/* exit_status */
-	int exit_status;
+	/* ----------project 2------------ */
+	/* fork_status */
+	bool fork_status;
+
+	/* file descriptor table */
+	struct list fd_table;
+
+	/* semaphore for waiting child thread's fork() */
+	struct semaphore fork_sema;
+
+	/* informating for sharing with parent thread */
+	struct sharing_info *sharing_info_;
+
+	/* List of child sharing information */
+	struct list child_list;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

@@ -1,2 +1,15 @@
 FAIL
-Run didn't produce any output
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x80042187a5 0x800421dabc 0x800421dc3b 0x8004209560 0x800420997e 0x800421e0f0 0x800421de0d 0x800421dcb0 0x4001d0 0x40046e 0x400f0f
+Translation of call stack:
+0x00000080042187a5: debug_panic (lib/kernel/debug.c:32)
+0x000000800421dabc: kill (userprog/exception.c:103)
+0x000000800421dc3b: page_fault (userprog/exception.c:159 (discriminator 12))
+0x0000008004209560: intr_handler (threads/interrupt.c:352)
+0x000000800420997e: intr_entry (threads/intr-stubs.o:?)
+0x000000800421e0f0: fork (userprog/syscall.c:162)
+0x000000800421de0d: syscall_handler (userprog/syscall.c:82)
+0x000000800421dcb0: no_sti (userprog/syscall-entry.o:?)
+0x00000000004001d0: (unknown)
+0x000000000040046e: (unknown)
+0x0000000000400f0f: (unknown)

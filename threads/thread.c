@@ -13,6 +13,7 @@
 #include "threads/interrupt.h"
 #include "threads/intr-stubs.h"
 #include "threads/palloc.h"
+#include "threads/malloc.h"
 #include "threads/synch.h"
 #include "threads/vaddr.h"
 #include "threads/fixed_point.h"
@@ -185,6 +186,7 @@ thread_print_stats (void) {
 			idle_ticks, kernel_ticks, user_ticks);
 }
 
+
 /* Creates a new kernel thread named NAME with the given initial
    PRIORITY, which executes FUNCTION passing AUX as the argument,
    and adds it to the ready queue.  Returns the thread identifier
@@ -216,9 +218,21 @@ thread_create (const char *name, int priority,
 	/* Initialize thread. */
 	init_thread (t, name, priority);
 	tid = t->tid = allocate_tid ();
-	list_init(&t->donating_list);
 	
-
+#ifdef USERPROG
+	/* Create stdin and stdout */
+	if(! fd_list_init(&t->fd_table)){
+		palloc_free_page((void*)t);
+		return TID_ERROR; 
+	}
+	
+	/* Create and Initialize sharing_info */
+	t->sharing_info_ = create_sharing_info(thread_current(), tid);
+	if(t->sharing_info_ == NULL){
+		palloc_free_page((void*)t);
+		return TID_ERROR;
+	}
+#endif
 	/* Call the kernel_thread if it scheduled.
 	 * Note) rdi is 1st argument, and rsi is 2nd argument. */
 	t->tf.rip = (uintptr_t) kernel_thread;
@@ -235,7 +249,7 @@ thread_create (const char *name, int priority,
 	
 	/* Add to run queue. */
 	thread_unblock (t);
-
+	
 	compare_and_switch();
 
 	return tid;
@@ -675,6 +689,12 @@ init_thread (struct thread *t, const char *name, int priority) {
 	t->lock = NULL;
 	t->nice = NICE_DEFAULT;
 	t->recent_cpu = RECENT_CPU_DEFAULT;
+
+	/* ----------project 2---------- */
+	list_init(&t->fd_table);
+	list_init(&t->child_list);
+	sema_init(&t->fork_sema, 0);
+	t->fork_status = true;
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should

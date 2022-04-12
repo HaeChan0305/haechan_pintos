@@ -7,9 +7,31 @@
 #include "userprog/gdt.h"
 #include "threads/flags.h"
 #include "intrinsic.h"
+#include "userprog/process.h"
+#include "threads/init.h"
+#include "threads/mmu.h"
 
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
+
+void halt (void);
+void exit (int status);
+tid_t fork (const char *thread_name, struct intr_frame *f);
+int exec (const char *cmd_line);
+int wait (tid_t tid);
+bool create (const char *file, unsigned initial_size);
+bool remove (const char *file);
+int open (const char *file);
+int filesize (int fd);
+int read (int fd, void *buffer, unsigned length);
+int write (int fd, const void *buffer, unsigned length);
+void seek (int fd, unsigned position);
+unsigned tell (int fd);
+void close (int fd);
+
+// int dup2(int oldfd, int newfd);
+
+static struct lock file_lock;
 
 /* System call.
  *
@@ -35,6 +57,8 @@ syscall_init (void) {
 	 * mode stack. Therefore, we masked the FLAG_FL. */
 	write_msr(MSR_SYSCALL_MASK,
 			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
+
+	lock_init(&file_lock);
 }
 
 /* The main system call interface */
@@ -102,9 +126,9 @@ syscall_handler (struct intr_frame *f UNUSED) {
 			close(f->R.rdi);
 			break;
 
-		case SYS_DUP2:                   /* Duplicate the file descriptor */
-			f->R.rax = dup2(f->R.rdi, f->R.rsi);
-			break;
+		// case SYS_DUP2:                   /* Duplicate the file descriptor */
+		// 	f->R.rax = dup2(f->R.rdi, f->R.rsi);
+		// 	break;
 
 		default:
 			break;
@@ -112,7 +136,7 @@ syscall_handler (struct intr_frame *f UNUSED) {
 }
 
 void
-check_address(uint64_t *ptr){
+check_address(void *ptr){
 	if(  ptr == NULL 				/* 1. Invalid pointer */
 	  || is_kernel_vaddr(ptr)		/* 2. PTR point kernel virual memory */
 	  || ! pml4_get_page(thread_current()->pml4, ptr))
@@ -127,26 +151,202 @@ halt (void){
 
 void 
 exit (int status){
-	thread_current()->exit_status = status;
+	thread_current()->sharing_info_->exit_status = status;
+	printf ("%s: exit(%d)\n", thread_name(), status);
 	thread_exit();
-
 }
-tid_t fork (const char *thread_name, struct intr_frame *f){
+
+tid_t 
+fork (const char *thread_name, struct intr_frame *f){
 	return process_fork(thread_name, f);
 }
 
-/*
-int exec (const char *file);
-int wait (pid_t);
-bool create (const char *file, unsigned initial_size);
-bool remove (const char *file);
-int open (const char *file);
-int filesize (int fd);
-int read (int fd, void *buffer, unsigned length);
-int write (int fd, const void *buffer, unsigned length);
-void seek (int fd, unsigned position);
-unsigned tell (int fd);
-void close (int fd);
+int 
+exec (const char *cmd_line){
+	check_address((void *)cmd_line);
 
-int dup2(int oldfd, int newfd);
-*/
+	if(process_exec(cmd_line) == -1)
+		exit(-1);
+}
+
+int 
+wait (tid_t tid){
+	return process_wait(tid);
+}
+
+bool 
+create (const char *file, unsigned initial_size){
+	check_address((void *)file);
+	return filesys_create(file, (off_t)initial_size);
+}
+
+bool 
+remove (const char *file){
+	check_address((void *)file);
+	return filesys_remove(file);
+}
+
+/* Success: return allocated fd value to FILE 
+ * Fail   : return -1 */
+int 
+open (const char *file){
+	check_address((void *)file);
+
+	lock_acquire(&file_lock);
+	
+	struct file *new_file = filesys_open(file);
+	if(new_file == NULL){
+		lock_release(&file_lock);
+		return -1;			/* filesys_open() fail */
+	}
+	
+	int result = create_fd(new_file);		
+	if(result == -1) file_close(new_file);	/* creat_fd() fail */
+
+	lock_release(&file_lock);
+	return result;
+}
+
+/* Success: return filesize corresponding to fd 
+ * Fail   : return -1 */
+ int 
+ filesize (int fd){
+	lock_acquire(&file_lock);
+
+	struct fdesc *fdesc_ = find_fd(fd);
+	if(fdesc_ == NULL){
+		lock_release(&file_lock);
+		return -1; 	/* No such a fd in fd_list OR stdin, stdout*/
+	}
+
+	int result = file_length(fdesc_->file);
+	lock_release(&file_lock);
+	return result;
+ }
+
+/* Success: Returns the number of bytes actually read (0 at end of file) 
+ * Fail   : return -1 */
+ int 
+ read (int fd, void *buffer, unsigned length){
+	check_address(buffer);
+
+	lock_acquire(&file_lock);
+
+	/* Case of STDIN (fd == 0)*/
+	if(fd == 0){
+		for(int i = 0; i < length; i++){
+			uint8_t c = input_getc();
+			*(uint8_t *)(buffer+i) = c;
+			
+			if(c == '\0'){
+				lock_release(&file_lock);
+				return i;
+			}
+		}
+	}
+
+	/* Case of STDOUT => invalid input */
+	else if(fd == 1){
+		lock_release(&file_lock);
+		return -1;
+	}
+
+	/* Case of general file */
+	else{
+		ASSERT(!(fd == 0 || fd == 1));
+
+		struct fdesc *fdesc_ = find_fd(fd);
+		/* No such a fd in fd_table */
+		if(fdesc_ == NULL){
+			lock_release(&file_lock);
+			return -1;
+		}
+
+		int result = (int) file_read(fdesc_->file, buffer, length);
+		lock_release(&file_lock);
+		return result;
+	}
+ }
+
+
+/* Success: Returns the number of bytes actually read (0 at end of file) 
+ * Fail   : return 0 */
+int 
+write (int fd, const void *buffer, unsigned length){
+
+	check_address(buffer);
+
+	lock_acquire(&file_lock);
+
+	/* Case of STDIN : return 0 */
+	if(fd == 0){
+		lock_release(&file_lock);
+		return 0;
+	}
+
+	/* Case of STDOUT */
+	else if(fd == 1){
+		putbuf(buffer, length);
+		lock_release(&file_lock);
+		return length;
+	}
+	
+	/* Case of general file */
+	else{
+		ASSERT(!(fd == 0 || fd == 1));
+
+		struct fdesc *fdesc_ = find_fd(fd);
+		/* No such a fd in fd_table */
+		if(fdesc_ == NULL){
+			lock_release(&file_lock);
+			return 0;
+		}
+
+		int result = (int) file_write(fdesc_->file, buffer, length);
+		lock_release(&file_lock);
+		return result;
+	}
+}
+
+void seek (int fd, unsigned position){
+	lock_acquire(&file_lock);
+	
+	struct fdesc *fdesc_ = find_fd(fd);
+	if(fdesc_!= NULL && fdesc_->file != NULL)
+		file_seek(fdesc_->file, position);
+
+	lock_release(&file_lock);
+}
+
+unsigned tell (int fd){
+	unsigned result = 0;
+
+	lock_acquire(&file_lock);
+	
+	struct fdesc *fdesc_ = find_fd(fd);
+	if(fdesc_!= NULL && fdesc_->file != NULL)
+		result = file_tell(fdesc_->file);
+
+	lock_release(&file_lock);
+	return result;
+}
+
+
+/* Closes file descriptor FD. Exiting or terminating a process 
+ * implicitly closes all its open file descriptors, 
+ * as if by calling this function for each one.*/
+void 
+close (int fd){
+	lock_acquire(&file_lock);
+
+	struct fdesc *fdesc_ = find_fd(fd);
+	if(fdesc_!= NULL && fdesc_->file != NULL){
+		file_close(fdesc_->file);
+		list_remove(&fdesc_->fd_elem);
+		free(fdesc_);
+	}
+	
+	lock_release(&file_lock);
+}
+
+// int dup2(int oldfd, int newfd);

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <debug.h>
 #include <stddef.h>
+#include "threads/thread.h"
 
 /* Process identifier. */
 typedef int pid_t;
@@ -24,8 +25,8 @@ typedef int off_t;
 void halt (void) NO_RETURN;
 void exit (int status) NO_RETURN;
 pid_t fork (const char *thread_name);
-int exec (const char *file);
-int wait (pid_t);
+int exec (const char *cmd_line);
+int wait (pid_t tid);
 bool create (const char *file, unsigned initial_size);
 bool remove (const char *file);
 int open (const char *file);
