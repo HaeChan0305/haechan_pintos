@@ -17,7 +17,7 @@ Page fault at 0x8004000000: rights violation error reading page in user context.
 bad-jump2: exit(-1)
 Execution of 'bad-jump2' complete.
 Timer: 83 ticks
-Thread: 33 idle ticks, 48 kernel ticks, 2 user ticks
+Thread: 32 idle ticks, 50 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 238 writes
 hd1:0: 105 reads, 0 writes

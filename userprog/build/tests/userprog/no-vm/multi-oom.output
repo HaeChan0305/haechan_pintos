@@ -1309,23 +1309,52 @@ child_39_O: exit(46)
 child_38_O: exit(46)
 child_37_O: exit(46)
 child_36_O: exit(46)
-Interrupt 0x0d (#GP General Protection Exception) at rip=8004218d9d
- cr2=0000008004000000 error=               0
-rax cccccccccccccccc rbx 0000000000000000 rcx 0000000000000080 rdx 00000080045bb418
-rsp 000000800478ae20 rbp 000000800478ae30 rsi 00000080045bb418 rdi 00000080045bb418
-rip 0000008004218d9d r8 000000800478ae08  r9 000000800421bc62 r10 0000000000000000
-r11 0000000000000206 r12 000000800421de13 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x80042187e9 0x800421db48 0x80042095a4 0x80042099c2 0x8004218f9b 0x800420c69f 0x800421cb98 0x8004207238 0x800421e152 0x800421de78 0x800421dd3c 0x400413 0x4004b1 0x400fb0.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 21345 ticks
-Thread: 1953 idle ticks, 234 kernel ticks, 19158 user ticks
+child_35_O: exit(46)
+child_34_O: exit(46)
+child_33_O: exit(46)
+child_32_O: exit(46)
+child_31_O: exit(46)
+child_30_O: exit(46)
+child_29_O: exit(46)
+child_28_O: exit(46)
+child_27_O: exit(46)
+child_26_O: exit(46)
+child_25_O: exit(46)
+child_24_O: exit(46)
+child_23_O: exit(46)
+child_22_O: exit(46)
+child_21_O: exit(46)
+child_20_O: exit(46)
+child_19_O: exit(46)
+child_18_O: exit(46)
+child_17_O: exit(46)
+child_16_O: exit(46)
+child_15_O: exit(46)
+child_14_O: exit(46)
+child_13_O: exit(46)
+child_12_O: exit(46)
+child_11_O: exit(46)
+child_10_O: exit(46)
+child_9_O: exit(46)
+child_8_O: exit(46)
+child_7_O: exit(46)
+child_6_O: exit(46)
+child_5_O: exit(46)
+child_4_O: exit(46)
+child_3_O: exit(46)
+child_2_O: exit(46)
+child_1_O: exit(46)
+child_0_O: exit(46)
+(multi-oom) success. Program forked 10 iterations.
+(multi-oom) end
+multi-oom: exit(0)
+Execution of 'multi-oom' complete.
+Timer: 21729 ticks
+Thread: 2148 idle ticks, 232 kernel ticks, 19349 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 238475 reads, 246 writes
 hd1:0: 109 reads, 0 writes
-Console: 49296 characters output
-Keybo
+Console: 49204 characters output
+Keyboard: 0 keys pressed
+Exception: 385 page faults
+Powering off...

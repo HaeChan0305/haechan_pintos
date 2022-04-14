@@ -40,12 +40,6 @@ static struct lock fd_lock;
 /* init process sync control */
 static struct semaphore process_sema;
 
-/* General process initializer for initd and other process. */
-static void
-process_init (void) {
-	struct thread *current = thread_current ();
-}
-
 /* Starts the first userland program, called "initd", loaded from FILE_NAME.
  * The new thread may be scheduled (and may even exit)
  * before process_create_initd() returns. Returns the initd's
@@ -66,7 +60,7 @@ process_create_initd (const char *file_name) {
 	strlcpy (fn_copy, file_name, PGSIZE);
 
 	/* Make thread name for first argument */
-	char *c = file_name;
+	char *c = (char *)file_name;
 	while(*c != ' ' && *c != '\0')
 		c++;
 	*c = '\0';
@@ -85,8 +79,6 @@ initd (void *f_name) {
 #ifdef VM
 	supplemental_page_table_init (&thread_current ()->spt);
 #endif
-
-	//process_init ();
 
 	if (process_exec (f_name) < 0)
 		PANIC("Fail to launch initd\n");
@@ -256,7 +248,7 @@ find_fd(int fd_){
 	for(struct list_elem *temp = list_begin(fd_table_) ;
 		temp != list_end(fd_table_) ; temp = list_next(temp))
 			if(list_entry(temp, struct fdesc, fd_elem)->fd == fd_)
-				return list_entry(temp, struct fdesc, fd_elem);
+				return (struct fdsec *)list_entry(temp, struct fdesc, fd_elem);
 
 	return NULL;
 }
@@ -312,8 +304,6 @@ __do_fork (void *aux) {
 	if(!duplicate_fd(parent, current))
 		goto error; 	
 
-	//process_init();
-	
 	/* Finally, switch to the newly created process. */
 	parent->fork_status = true;
 	sema_up(&parent->fork_sema);
@@ -560,35 +550,36 @@ struct ELF64_PHDR {
 #define ELF ELF64_hdr
 #define Phdr ELF64_PHDR
 
+static void stack_argument (int argc, char **argv, struct intr_frame *if_);
 static bool setup_stack (struct intr_frame *if_);
 static bool validate_segment (const struct Phdr *, struct file *);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		uint32_t read_bytes, uint32_t zero_bytes,
 		bool writable);
 
-void
+static void
 stack_argument (int argc, char **argv, struct intr_frame *if_){
 	uintptr_t add[argc];
 
 	/* First, push elements of argv. */
 	for(int i = argc -1; i > -1 ; i--){
 		if_->rsp -= (strlen(argv[i])+1);
-		memcpy(if_->rsp, argv[i], strlen(argv[i])+1);
+		memcpy((void *)(if_->rsp), argv[i], strlen(argv[i])+1);
 		add[i] = if_->rsp;
 	}
 
 	/* Second, word-aligned */
 	int correction = if_->rsp % 8;
 	if_->rsp -= correction;
-	memset(if_->rsp, 0, correction);
+	memset((void *)(if_->rsp), 0, correction);
 
 	/* Third, push address of elements of argv. */
 	if_->rsp -= sizeof(char *);
-	memset(if_->rsp, 0, sizeof(char *));
+	memset((void *)(if_->rsp), 0, sizeof(char *));
 	
 	for(int i = argc-1; i > -1; i--){
 		if_->rsp -= 8;
-		memcpy(if_->rsp, &add[i], 8);
+		memcpy((void *)(if_->rsp), &add[i], 8);
 	}
 
 	/* Forth, point %rsi to argv, %rdi to argc */
@@ -597,7 +588,7 @@ stack_argument (int argc, char **argv, struct intr_frame *if_){
 	
 	/* Finally, push a fake return address */
 	if_->rsp -= 8;
-	memset(if_->rsp, 0, 8);
+	memset((void *)(if_->rsp), 0, 8);
 }
 
 /* Loads an ELF executable from FILE_NAME into the current thread.
@@ -625,9 +616,11 @@ load (const char *file_name, struct intr_frame *if_) {
     char *token;
     char *save_ptr;
 
-    for (token = strtok_r (file_name, " ", &save_ptr); token != NULL;
-    	 token = strtok_r (NULL, " ", &save_ptr))
-        argv[argc++] = token;
+    for (token = strtok_r ((char *)file_name, " ", &save_ptr); token != NULL;
+    	 token = strtok_r (NULL, " ", &save_ptr)){
+			 argv[argc++] = token;
+	}
+        
 
 	/* Open executable file. */
 	file = filesys_open (argv[0]);
