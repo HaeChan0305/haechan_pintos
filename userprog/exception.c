@@ -85,7 +85,7 @@ kill (struct intr_frame *f) {
 			   expected.  Kill the user process.  */
 			thread_current()->sharing_info_->exit_status = -1;
 			thread_current()->sharing_info_->kernel_kill = true;
-			thread_current()->sharing_info_->termination = true;
+			printf ("%s: exit(%d)\n", thread_name(), -1);
 			thread_exit ();
 
 		case SEL_KCSEG:

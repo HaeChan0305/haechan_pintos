@@ -4,7 +4,7 @@ Kernel command line: -q -f put wait-killed put child-bad run wait-killed
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  104,755,200 loops/s.
+Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 329 sector (164 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 210 sector (105 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -14,36 +14,19 @@ Putting 'wait-killed' into the file system...
 Putting 'child-bad' into the file system...
 Executing 'wait-killed':
 (wait-killed) begin
-Page fault at 0x404350: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004217f0a
- cr2=0000000000404350 error=               0
-rax 0000000000404350 rbx 0000000000000000 rcx 000000800424d000 rdx 000000800424bb58
-rsp 000000800424bad0 rbp 000000800424bb00 rsi 0000008004226671 rdi 0000000000404350
-rip 0000008004217f0a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000216 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x80042187a5 0x800421dabc 0x800421dc3b 0x8004209560 0x800420997e 0x800421cf55 0x800421c75c 0x800421e124 0x800421de34 0x800421dcb0Page fault at 0x4747ff70: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=80042157df
- cr2=000000004747ff70 error=               0
-rax 000000004747ff70 rbx 0000000000000000 rcx 00000080040b8000 rdx 00000000000003d4
-rsp 000000800424b8d0 rbp 000000800424b8e0 rsi 000000000000bd0f rdi 0000000000000000
-rip 00000080042157df r8 000000800424b7e8  r9 000000800421bc1e r10 0000000000000000
-r11 0000000000000216 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000Page fault at 0x404350: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004217f0a
- cr2=0000000000404350 error=               0
-rax 0000000000404350 rbx 0000000000000000 rcx 0000008004245000 rdx 0000008004243b58
-rsp 0000008004243ad0 rbp 0000008004243b00 rsi 0000008004226671 rdi 0000000000404350
-rip 0000008004217f0a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000216 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
-Timer: 89 ticks
-Thread: 35 idle ticks, 49 kernel ticks, 5 user ticks
+(child-bad) begin
+load: pintos: open failed
+child-bad: exit(-1)
+(wait-killed) wait(exec()) = -1
+(wait-killed) end
+wait-killed: exit(0)
+Execution of 'wait-killed' complete.
+Timer: 91 ticks
+Thread: 33 idle ticks, 54 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 107 reads, 458 writes
+hd0:1: 171 reads, 458 writes
 hd1:0: 210 reads, 0 writes
-Console: 2835 characters output
-Key
+Console: 1012 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

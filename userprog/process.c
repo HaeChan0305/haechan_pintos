@@ -37,6 +37,9 @@ struct sharing_info *find_sharing_info(struct list *child_list, tid_t child_tid)
 /* For dealing with file descriptor allocation */
 static struct lock fd_lock;
 
+/* init process sync control */
+static struct semaphore process_sema;
+
 /* General process initializer for initd and other process. */
 static void
 process_init (void) {
@@ -54,6 +57,7 @@ process_create_initd (const char *file_name) {
 	tid_t tid;
 
 	lock_init(&fd_lock);
+	sema_init(&process_sema, 0);
 	/* Make a copy of FILE_NAME.
 	 * Otherwise there's a race between the caller and load(). */
 	fn_copy = palloc_get_page (0);
@@ -69,8 +73,9 @@ process_create_initd (const char *file_name) {
 	
 	/* Create a new thread to execute FILE_NAME. */
 	tid = thread_create (file_name, PRI_DEFAULT, initd, fn_copy);
-	if (tid == TID_ERROR)
-		palloc_free_page (fn_copy);
+	
+	sema_down(&process_sema);
+	palloc_free_page (fn_copy);
 	return tid;
 }
 
@@ -81,7 +86,7 @@ initd (void *f_name) {
 	supplemental_page_table_init (&thread_current ()->spt);
 #endif
 
-	process_init ();
+	//process_init ();
 
 	if (process_exec (f_name) < 0)
 		PANIC("Fail to launch initd\n");
@@ -92,19 +97,23 @@ initd (void *f_name) {
  * TID_ERROR if the thread cannot be created. */
 tid_t
 process_fork (const char *name, struct intr_frame *if_ UNUSED) {
-	struct fork_arg *aux;
-	aux -> parent_thread = thread_current();
-	aux -> caller_if = if_;
+	struct fork_arg aux;
+	struct thread *curr = thread_current();
+	aux.parent_thread = curr;
+	aux.caller_if = if_;
+	
+	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, &aux);
+	/* Fail to thread_create() */
+	if(tid == TID_ERROR) return TID_ERROR;
+	
+	/* Wait for child process' __do_fork() */
+	sema_down(&curr->fork_sema);
 
-	
-	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, aux);
-	sema_down(&thread_current()->fork_sema);
-	/* tid == TID_ERROR 				: thread_create() error
-	 * !(thread_current()->fork_status) : __do_fork() error     */
-	if(tid == TID_ERROR || !(thread_current()->fork_status))
-		return TID_ERROR;
-	
-	else tid;
+	/* Fail to child process' __do_fork()*/
+	if(curr->fork_status == false) return TID_ERROR; 
+
+	/* Success */
+	return tid;
 }
 
 #ifndef VM
@@ -155,16 +164,14 @@ duplicate_fd(struct thread *parent, struct thread *child){
 		struct fdesc *parent_fd = list_entry(temp, struct fdesc, fd_elem);
 		struct fdesc *child_fd = (struct fdesc *) malloc(sizeof(struct fdesc));
 		
-		if(child_fd == NULL){
-			remove_all_fdesc(child);
+		if(child_fd == NULL)
 			return false;
-		}
+
 
 		child_fd->file = file_duplicate(parent_fd->file);
 		if(child_fd->file == NULL){
 			file_close(child_fd->file);
 			free(child_fd);
-			remove_all_fdesc(child);
 			return false;
 		}
 
@@ -282,10 +289,9 @@ __do_fork (void *aux) {
 	struct thread *current = thread_current ();
 	/* TODO: somehow pass the parent_if. (i.e. process_fork()'s if_) */
 	struct intr_frame *parent_if = ((struct fork_arg *)aux) -> caller_if;
-	bool succ = true;
 
 	/* 1. Read the cpu context to local stack. */
-	memcpy (&if_, parent_if, sizeof (struct intr_frame));
+	memcpy (&if_, parent_if, sizeof(struct intr_frame));
 	if_.R.rax = 0; //Child' fork() return value == 0
 
 	/* 2. Duplicate PT */
@@ -303,19 +309,16 @@ __do_fork (void *aux) {
 		goto error;
 #endif
 
-	/* TODO: Your code goes here.
-	 * TODO: Hint) To duplicate the file object, use `file_duplicate`
-	 * TODO:       in include/filesys/file.h. Note that parent should not return
-	 * TODO:       from the fork() until this function successfully duplicates
-	 * TODO:       the resources of parent.*/
 	if(!duplicate_fd(parent, current))
 		goto error; 	
 
-	process_init();
-	sema_up(&parent->fork_sema);
+	//process_init();
+	
 	/* Finally, switch to the newly created process. */
-	if (succ)
-		do_iret (&if_);
+	parent->fork_status = true;
+	sema_up(&parent->fork_sema);
+	do_iret (&if_);
+
 error:
 	parent->fork_status = false;
 	sema_up(&parent->fork_sema);
@@ -337,16 +340,22 @@ process_exec (void *f_name) {
 	_if.cs = SEL_UCSEG;
 	_if.eflags = FLAG_IF | FLAG_MBS;
 
+	/* copy file_name */
+	char *name_copy = (char *)malloc(strlen(file_name) + 1);
+	if(name_copy == NULL) {
+		sema_up(&process_sema);
+		return -1;
+	}
+
+	strlcpy(name_copy, file_name, strlen(file_name) + 1);
+
 	/* We first kill the current context */
 	process_cleanup ();
 
 	/* And then load the binary */
-	success = load (file_name, &_if);
+	success = load (name_copy, &_if);
 
-	//hex_dump(_if.rsp, _if.rsp, USER_STACK -_if.rsp, true);
-
-	/* If load failed, quit. */
-	//palloc_free_page (file_name);
+	sema_up(&process_sema);
 
 	if (!success)
 		return -1;
@@ -359,7 +368,7 @@ process_exec (void *f_name) {
 /* Create and Initialize sharing_info */
 struct sharing_info *
 create_sharing_info(struct thread *parent, tid_t tid){
-	/* Create */
+	/* Creation */
 	struct sharing_info *info = (struct sharing_info *)malloc(sizeof(struct sharing_info));
 	if(info == NULL)
 		return NULL;
@@ -368,7 +377,6 @@ create_sharing_info(struct thread *parent, tid_t tid){
 	info->tid_ = tid;
 	info->kernel_kill = false;
 	info->termination = false;
-	info->waited = false;	
 	info->orphan = false;
 	sema_init(&info->exit_sema, 0);
 	list_push_back(&parent->child_list, &info->info_elem);
@@ -400,21 +408,19 @@ find_sharing_info(struct list *child_list, tid_t child_tid){
  * This function will be implemented in problem 2-2.  For now, it
  * does nothing. */
 int
-process_wait (tid_t child_tid UNUSED) {
+process_wait (tid_t child_tid) {
 	struct thread *curr = thread_current();
 	struct sharing_info *child_info = find_sharing_info(&curr->child_list, child_tid);
+
+	int result;
 
 	/* Can't find CHILD_TID in child_list */
 	if(child_info == NULL)
 		return -1;
 
-	/* Child thread have already been terminated. */
-	if(child_info->termination)
-		return child_info->exit_status;
-
-	child_info->waited = true;
 	sema_down(&child_info->exit_sema);
-	int result = child_info->exit_status;
+	
+	result = child_info->exit_status;
 
 	/* Delete sharing_info in child list */
 	list_remove(&child_info->info_elem);
@@ -431,35 +437,35 @@ process_exit (void) {
 	
 	ASSERT(curr->sharing_info_->termination == false);
 	
-	curr->sharing_info_->termination = true;
-	
+	/* If curr's child threads exist, make them orphan */
+	for(struct list_elem *temp = list_begin(&curr->child_list) ; 
+		temp != list_end(&curr->child_list); ){
+			struct sharing_info *child_info = list_entry(temp, struct sharing_info, info_elem);
+
+			if(child_info->termination){
+				temp = list_remove(temp);
+				free(child_info);
+			}
+
+			else{
+				child_info->orphan = true;
+				temp = list_next(temp);
+			}
+	}
+
 	/* remove all of elem in file descriptor list */
 	remove_all_fdesc(curr);
 
-	/* If curr's child threads exist, make them orphan */
-	if(!list_empty(&curr->child_list)){
-		for(struct list_elem *temp = list_begin(&curr->child_list) ; 
-			temp != list_end(&curr->child_list); temp = list_next(temp))
-				list_entry(temp, struct sharing_info, info_elem)->orphan = true;
-	}	
-
-	/* If curr is orphan thread, it have to free it's sharing_info itslef */
+	/* close ELF file */
+	file_close(curr->exec_file);
+	
+	curr->sharing_info_->termination = true;
+	sema_up(&curr->sharing_info_->exit_sema);
+	
+	/* If curr is an orphan thread, it have to free it's sharing_info itslef */
 	if(curr->sharing_info_->orphan)
 		free(curr->sharing_info_);
 
-	/* curr is not orphan */
-	else{
-		/* If curr's parent thread wait this thread, sema_up() */
-		if(curr->sharing_info_->waited)
-			sema_up(&curr->sharing_info_->exit_sema);
-
-		/* fork() and switch to child thread before wait() */
-		else{
-			list_remove(&curr->sharing_info_->info_elem);
-			free(curr->sharing_info_);
-		}
-	}
-	//printf ("%s: exit(%d)\n", curr->name, curr->sharing_info_->exit_status);
 	process_cleanup ();
 }
 
@@ -629,6 +635,10 @@ load (const char *file_name, struct intr_frame *if_) {
 		printf ("load: %s: open failed\n",argv[0]);
 		goto done;
 	}
+	t->exec_file = file;
+
+	/* Make executable file rox(read only exec) */
+	file_deny_write(file);
 
 	/* Read and verify executable header. */
 	if (file_read (file, &ehdr, sizeof ehdr) != sizeof ehdr

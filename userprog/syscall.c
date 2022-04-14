@@ -9,7 +9,10 @@
 #include "intrinsic.h"
 #include "userprog/process.h"
 #include "threads/init.h"
+#include "filesys/file.h"
 #include "threads/mmu.h"
+#include "lib/kernel/stdio.h"
+#include "devices/input.h" 
 
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
@@ -59,6 +62,7 @@ syscall_init (void) {
 			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
 
 	lock_init(&file_lock);
+	
 }
 
 /* The main system call interface */
@@ -66,8 +70,9 @@ void
 syscall_handler (struct intr_frame *f UNUSED) {
 	// TODO: Your implementation goes here.
 	// argument order : %rdi, %rsi, %rdx, %r10, %r8, %r9
-	//printf ("system call!\n");
+
 	int syscall_num = f->R.rax;
+	//printf("syscall handler(%s) : %d\n",thread_name(), syscall_num);
 	
 	switch(syscall_num){
 		case SYS_HALT:                   /* Halt the operating system. */
@@ -139,9 +144,10 @@ void
 check_address(void *ptr){
 	if(  ptr == NULL 				/* 1. Invalid pointer */
 	  || is_kernel_vaddr(ptr)		/* 2. PTR point kernel virual memory */
-	  || ! pml4_get_page(thread_current()->pml4, ptr))
+	  || ! pml4_get_page(thread_current()->pml4, ptr)){
 	  								/* 3. PTR is unmapped */
 		exit(-1);
+	}
 }
 
 void 
@@ -158,13 +164,13 @@ exit (int status){
 
 tid_t 
 fork (const char *thread_name, struct intr_frame *f){
-	return process_fork(thread_name, f);
+	return process_fork(thread_name, f); 
 }
 
 int 
 exec (const char *cmd_line){
 	check_address((void *)cmd_line);
-
+	
 	if(process_exec(cmd_line) == -1)
 		exit(-1);
 }
@@ -201,7 +207,7 @@ open (const char *file){
 	}
 	
 	int result = create_fd(new_file);		
-	if(result == -1) file_close(new_file);	/* creat_fd() fail */
+	if(result == -1) file_close(new_file);	/* create_fd() fail */
 
 	lock_release(&file_lock);
 	return result;
@@ -232,8 +238,15 @@ open (const char *file){
 
 	lock_acquire(&file_lock);
 
+	struct fdesc *fdesc_ = find_fd(fd);
+	/* No such a fd in fd_table */
+	if(fdesc_ == NULL){
+		lock_release(&file_lock);
+		return -1;
+	}
+
 	/* Case of STDIN (fd == 0)*/
-	if(fd == 0){
+	if(fdesc_->fd == 0){
 		for(int i = 0; i < length; i++){
 			uint8_t c = input_getc();
 			*(uint8_t *)(buffer+i) = c;
@@ -246,7 +259,7 @@ open (const char *file){
 	}
 
 	/* Case of STDOUT => invalid input */
-	else if(fd == 1){
+	else if(fdesc_->fd == 1){
 		lock_release(&file_lock);
 		return -1;
 	}
@@ -254,13 +267,6 @@ open (const char *file){
 	/* Case of general file */
 	else{
 		ASSERT(!(fd == 0 || fd == 1));
-
-		struct fdesc *fdesc_ = find_fd(fd);
-		/* No such a fd in fd_table */
-		if(fdesc_ == NULL){
-			lock_release(&file_lock);
-			return -1;
-		}
 
 		int result = (int) file_read(fdesc_->file, buffer, length);
 		lock_release(&file_lock);
@@ -278,14 +284,22 @@ write (int fd, const void *buffer, unsigned length){
 
 	lock_acquire(&file_lock);
 
+	struct fdesc *fdesc_ = find_fd(fd);
+	
+	/* No such a fd in fd_table */
+	if(fdesc_ == NULL){
+		lock_release(&file_lock);
+		return 0;
+	}
+
 	/* Case of STDIN : return 0 */
-	if(fd == 0){
+	if(fdesc_->fd == 0){
 		lock_release(&file_lock);
 		return 0;
 	}
 
 	/* Case of STDOUT */
-	else if(fd == 1){
+	else if(fdesc_->fd == 1){
 		putbuf(buffer, length);
 		lock_release(&file_lock);
 		return length;
@@ -295,20 +309,14 @@ write (int fd, const void *buffer, unsigned length){
 	else{
 		ASSERT(!(fd == 0 || fd == 1));
 
-		struct fdesc *fdesc_ = find_fd(fd);
-		/* No such a fd in fd_table */
-		if(fdesc_ == NULL){
-			lock_release(&file_lock);
-			return 0;
-		}
-
 		int result = (int) file_write(fdesc_->file, buffer, length);
 		lock_release(&file_lock);
 		return result;
 	}
 }
 
-void seek (int fd, unsigned position){
+void 
+seek (int fd, unsigned position){
 	lock_acquire(&file_lock);
 	
 	struct fdesc *fdesc_ = find_fd(fd);
@@ -318,7 +326,8 @@ void seek (int fd, unsigned position){
 	lock_release(&file_lock);
 }
 
-unsigned tell (int fd){
+unsigned 
+tell (int fd){
 	unsigned result = 0;
 
 	lock_acquire(&file_lock);

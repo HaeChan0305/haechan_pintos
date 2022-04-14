@@ -11,4 +11,5 @@ userprog/syscall.o: ../../userprog/syscall.c \
  ../../include/threads/flags.h ../../include/intrinsic.h \
  ../../include/threads/mmu.h ../../include/threads/pte.h \
  ../../include/threads/vaddr.h ../../include/userprog/process.h \
- ../../include/threads/init.h ../../include/threads/mmu.h
+ ../../include/threads/init.h ../../include/threads/mmu.h \
+ ../../include/lib/kernel/stdio.h ../../include/devices/input.h

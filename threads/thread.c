@@ -222,14 +222,15 @@ thread_create (const char *name, int priority,
 #ifdef USERPROG
 	/* Create stdin and stdout */
 	if(! fd_list_init(&t->fd_table)){
-		palloc_free_page((void*)t);
+		palloc_free_page(t);
 		return TID_ERROR; 
 	}
 	
 	/* Create and Initialize sharing_info */
 	t->sharing_info_ = create_sharing_info(thread_current(), tid);
 	if(t->sharing_info_ == NULL){
-		palloc_free_page((void*)t);
+		remove_all_fdesc(t);
+		palloc_free_page(t);
 		return TID_ERROR;
 	}
 #endif
@@ -244,10 +245,11 @@ thread_create (const char *name, int priority,
 	t->tf.cs = SEL_KCSEG;
 	t->tf.eflags = FLAG_IF;
 
-	/* Add to thread_list. */
-	list_push_back(&thread_list, &t->thread_list_elem);
-	
-	/* Add to run queue. */
+	/* Add to thread_list.(only mlfqs) */
+	if(thread_mlfqs)
+		list_push_back(&thread_list, &t->thread_list_elem);
+
+	/* Add to ready queue. */
 	thread_unblock (t);
 	
 	compare_and_switch();
@@ -326,8 +328,9 @@ void
 thread_exit (void) {
 	ASSERT (!intr_context ());
 
-	/* Remove to thread_list. */
-	list_remove(&thread_current()->thread_list_elem);
+	/* Remove to thread_list.(only mlfqs) */
+	if(thread_mlfqs)
+		list_remove(&thread_current()->thread_list_elem);
 
 #ifdef USERPROG
 	process_exit ();
@@ -695,6 +698,7 @@ init_thread (struct thread *t, const char *name, int priority) {
 	list_init(&t->child_list);
 	sema_init(&t->fork_sema, 0);
 	t->fork_status = true;
+	t->exec_file = NULL;
 }
 
 /* Chooses and returns the next thread to be scheduled.  Should

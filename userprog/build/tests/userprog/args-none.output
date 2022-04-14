@@ -1,4 +1,4 @@
-Kernel command line: -q -f put exit run exit
+Kernel command line: -q -f put args-none run args-none
 0 ~ 9fc00 1
 100000 ~ 13e0000 1
 Pintos booting with: 
@@ -7,20 +7,24 @@ Pintos booting with:
 Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 329 sector (164 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
-hd1:0: detected 104 sector (52 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+hd1:0: detected 103 sector (51 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 Formatting file system...done.
 Boot complete.
-Putting 'exit' into the file system...
-Executing 'exit':
-(exit) begin
-exit: exit(57)
-Execution of 'exit' complete.
+Putting 'args-none' into the file system...
+Executing 'args-none':
+(args) begin
+(args) argc = 1
+(args) argv[0] = 'args-none'
+(args) argv[1] = null
+(args) end
+args-none: exit(0)
+Execution of 'args-none' complete.
 Timer: 81 ticks
-Thread: 32 idle ticks, 47 kernel ticks, 2 user ticks
+Thread: 30 idle ticks, 48 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 80 reads, 236 writes
-hd1:0: 104 reads, 0 writes
-Console: 790 characters output
+hd0:1: 80 reads, 234 writes
+hd1:0: 103 reads, 0 writes
+Console: 897 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

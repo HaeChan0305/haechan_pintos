@@ -55,7 +55,6 @@ struct sharing_info{
 	int exit_status;
 	bool kernel_kill;				/* Is it killed by kernel? */
 	bool termination;				/* Have it already been killed? */
-	bool waited;					/* Is it waited by parent thread? */
 	bool orphan;					/* Is is orphan? */
 	
 	struct semaphore exit_sema;		/* sema for waiting child's exit() */
@@ -161,6 +160,9 @@ struct thread {
 
 	/* List of child sharing information */
 	struct list child_list;
+
+	/* For closing ELF file when exec process exit. */
+	struct file *exec_file;
 
 #ifdef USERPROG
 	/* Owned by userprog/process.c. */

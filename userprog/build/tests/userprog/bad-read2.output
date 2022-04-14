@@ -14,15 +14,14 @@ Putting 'bad-read2' into the file system...
 Executing 'bad-read2':
 (bad-read2) begin
 Page fault at 0x8004000000: rights violation error reading page in user context.
-Kernel PANIC at ../../userprog/process.c:434 in process_exit(): assertion `curr->sharing_info_->termination == false' failed.
-Call stack: 0x80042187a5 0x800421ca05 0x8004207203 0x800421da74 0x800421dc3b 0x8004209560 0x800420997e 0x40018b 0x400c2c.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 80 ticks
-Thread: 30 idle ticks, 48 kernel ticks, 2 user ticks
+bad-read2: exit(-1)
+Execution of 'bad-read2' complete.
+Timer: 82 ticks
+Thread: 33 idle ticks, 47 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 238 writes
 hd1:0: 105 reads, 0 writes
-Console: 1253 characters output
-Key
+Console: 906 characters output
+Keyboard: 0 keys pressed
+Exception: 1 page faults
+Powering off...

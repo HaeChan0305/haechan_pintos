@@ -14,34 +14,74 @@ Putting 'multi-recurse' into the file system...
 Executing 'multi-recurse 15':
 (multi-recurse) begin 15
 (multi-recurse) exec("multi-recurse 14")
-Page fault at 0x4747ff14: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004217f0a
- cr2=000000004747ff14 error=               0
-rax 000000004747ff14 rbx 0000000000000000 rcx 000000800424d000 rdx 000000800424bb58
-rsp 000000800424bad0 rbp 000000800424bb00 rsi 0000008004226671 rdi 000000004747ff14
-rip 0000008004217f0a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000212 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x80042187a5 0x800421dabc 0x800421dc3b 0x8004209560 0x800420997e 0x800421cf55 0x800421c75c 0x800421e124 0x800421de34 0x800421dcb0Page fault at 0x4747fef0: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=80042157df
- cr2=000000004747fef0 error=               0
-rax 000000004747fef0 rbx 0000000000000000 rcx 00000080040b8000 rdx 00000000000003d4
-rsp 000000800424b8dPage fault at 0x4747ff14: not present error reading page in kernel context.
-Interrupt 0x0e (#PF Page-Fault Exception) at rip=8004217f0a
- cr2=000000004747ff14 error=               0
-rax 000000004747ff14 rbx 0000000000000000 rcx 0000008004245000 rdx 0000008004243b58
-rsp 0000008004243ad0 rbp 0000008004243b00 rsi 0000008004226671 rdi 000000004747ff14
-rip 0000008004217f0a r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000212 r12 000000800421dd87 r13 0000000000000000 r14 0000000000000000
-r15 0000000000000000 rflags 00000206
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
-Timer: 87 ticks
-Thread: 31 idle ticks, 48 kernel ticks, 8 user ticks
+(multi-recurse) begin 14
+(multi-recurse) exec("multi-recurse 13")
+(multi-recurse) begin 13
+(multi-recurse) exec("multi-recurse 12")
+(multi-recurse) begin 12
+(multi-recurse) exec("multi-recurse 11")
+(multi-recurse) begin 11
+(multi-recurse) exec("multi-recurse 10")
+(multi-recurse) begin 10
+(multi-recurse) exec("multi-recurse 9")
+(multi-recurse) begin 9
+(multi-recurse) exec("multi-recurse 8")
+(multi-recurse) begin 8
+(multi-recurse) exec("multi-recurse 7")
+(multi-recurse) begin 7
+(multi-recurse) exec("multi-recurse 6")
+(multi-recurse) begin 6
+(multi-recurse) exec("multi-recurse 5")
+(multi-recurse) begin 5
+(multi-recurse) exec("multi-recurse 4")
+(multi-recurse) begin 4
+(multi-recurse) exec("multi-recurse 3")
+(multi-recurse) begin 3
+(multi-recurse) exec("multi-recurse 2")
+(multi-recurse) begin 2
+(multi-recurse) exec("multi-recurse 1")
+(multi-recurse) begin 1
+(multi-recurse) exec("multi-recurse 0")
+(multi-recurse) begin 0
+(multi-recurse) end 0
+multi-recurse: exit(0)
+(multi-recurse) end 1
+multi-recurse: exit(1)
+(multi-recurse) end 2
+multi-recurse: exit(2)
+(multi-recurse) end 3
+multi-recurse: exit(3)
+(multi-recurse) end 4
+multi-recurse: exit(4)
+(multi-recurse) end 5
+multi-recurse: exit(5)
+(multi-recurse) end 6
+multi-recurse: exit(6)
+(multi-recurse) end 7
+multi-recurse: exit(7)
+(multi-recurse) end 8
+multi-recurse: exit(8)
+(multi-recurse) end 9
+multi-recurse: exit(9)
+(multi-recurse) end 10
+multi-recurse: exit(10)
+(multi-recurse) end 11
+multi-recurse: exit(11)
+(multi-recurse) end 12
+multi-recurse: exit(12)
+(multi-recurse) end 13
+multi-recurse: exit(13)
+(multi-recurse) end 14
+multi-recurse: exit(14)
+(multi-recurse) end 15
+multi-recurse: exit(15)
+Execution of 'multi-recurse' complete.
+Timer: 115 ticks
+Thread: 37 idle ticks, 58 kernel ticks, 21 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 87 reads, 258 writes
+hd0:1: 867 reads, 258 writes
 hd1:0: 115 reads, 0 writes
-Console: 2613 characters output
-Key
+Console: 2545 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...
