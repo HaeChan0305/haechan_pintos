@@ -11,6 +11,6 @@
         "mmu.h": "c",
         "thread.h": "c"
     },
-    "C_Cpp.default.compilerArgs": [ "-DUSERPROG"],
+    "C_Cpp.default.compilerArgs": ["-DUSERPROG", "-DVM"],
     "C_Cpp.errorSquiggles": "Disabled"
 }

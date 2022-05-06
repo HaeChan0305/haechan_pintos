@@ -27,6 +27,10 @@ enum vm_type {
 #include "vm/uninit.h"
 #include "vm/anon.h"
 #include "vm/file.h"
+#include "threads/mmu.h"
+#include "threads/synch.h"
+#include <list.h>
+#include <hash.h>
 #ifdef EFILESYS
 #include "filesys/page_cache.h"
 #endif
@@ -46,6 +50,8 @@ struct page {
 	struct frame *frame;   /* Back reference for frame */
 
 	/* Your implementation */
+	struct hash_elem spt_elem;
+	bool writable;
 
 	/* Per-type data are binded into the union.
 	 * Each function automatically detects the current union */
@@ -63,6 +69,8 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
+	struct list_elem clock_elem;
+	struct hash_elem ft_elem;
 };
 
 /* The function table for page operations.
@@ -85,9 +93,16 @@ struct page_operations {
  * We don't want to force you to obey any specific design for this struct.
  * All designs up to you for this. */
 struct supplemental_page_table {
+	struct hash h_spt;
 };
 
 #include "threads/thread.h"
+uint64_t page_hash_func(const struct hash_elem *e, void *aux);
+bool page_less_func(const struct hash_elem *a, const struct hash_elem *b, void *aux);
+
+uint64_t frame_hash_func(const struct hash_elem *e, void *aux);
+bool frame_less_func(const struct hash_elem *a, const struct hash_elem *b, void *aux);
+
 void supplemental_page_table_init (struct supplemental_page_table *spt);
 bool supplemental_page_table_copy (struct supplemental_page_table *dst,
 		struct supplemental_page_table *src);
