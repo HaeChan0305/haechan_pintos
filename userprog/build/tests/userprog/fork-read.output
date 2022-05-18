@@ -23,8 +23,8 @@ child: exit(0)
 (fork-read) end
 fork-read: exit(0)
 Execution of 'fork-read' complete.
-Timer: 85 ticks
-Thread: 33 idle ticks, 48 kernel ticks, 4 user ticks
+Timer: 88 ticks
+Thread: 33 idle ticks, 52 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 118 reads, 264 writes
 hd1:0: 113 reads, 0 writes

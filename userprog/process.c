@@ -340,7 +340,7 @@ process_exec (void *f_name) {
 	strlcpy(name_copy, file_name, strlen(file_name) + 1);
 
 	/* We first kill the current context */
-	process_cleanup ();
+	//process_cleanup ();
 
 	/* And then load the binary */
 	success = load (name_copy, &_if);
