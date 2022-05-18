@@ -340,11 +340,15 @@ process_exec (void *f_name) {
 	strlcpy(name_copy, file_name, strlen(file_name) + 1);
 
 	/* We first kill the current context */
-	process_cleanup ();
+	//process_cleanup ();
+
+	/* build spt before load() */
+	//supplemental_page_table_init(&thread_current()->spt);
 
 	/* And then load the binary */
 	success = load (name_copy, &_if);
 
+	free(name_copy);
 	sema_up(&process_sema);
 
 	if (!success)
@@ -424,8 +428,8 @@ process_wait (tid_t child_tid) {
 void
 process_exit (void) {
 	struct thread *curr = thread_current ();
-	
-	ASSERT(curr->sharing_info_->termination == false);
+
+	//ASSERT(curr->sharing_info_->termination == false);
 	
 	/* If curr's child threads exist, make them orphan */
 	for(struct list_elem *temp = list_begin(&curr->child_list) ; 
@@ -445,7 +449,7 @@ process_exit (void) {
 
 	/* remove all of elem in file descriptor list */
 	remove_all_fdesc(curr);
-
+	
 	/* close ELF file */
 	file_close(curr->exec_file);
 	
@@ -553,6 +557,7 @@ struct ELF64_PHDR {
 static void stack_argument (int argc, char **argv, struct intr_frame *if_);
 static bool setup_stack (struct intr_frame *if_);
 static bool validate_segment (const struct Phdr *, struct file *);
+static bool lazy_load_segment (struct page *page, void *aux);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		uint32_t read_bytes, uint32_t zero_bytes,
 		bool writable);
@@ -689,8 +694,12 @@ load (const char *file_name, struct intr_frame *if_) {
 						zero_bytes = ROUND_UP (page_offset + phdr.p_memsz, PGSIZE);
 					}
 					if (!load_segment (file, file_page, (void *) mem_page,
-								read_bytes, zero_bytes, writable))
-						goto done;
+								read_bytes, zero_bytes, writable)){
+									
+								success = false;
+								goto done;
+					}
+						
 				}
 				else
 					goto done;
@@ -699,8 +708,11 @@ load (const char *file_name, struct intr_frame *if_) {
 	}
 
 	/* Set up stack. */
-	if (!setup_stack (if_))
+	if (!setup_stack (if_)){
+		success = false;
 		goto done;
+	}
+		
 
 	/* Start address. */
 	if_->rip = ehdr.e_entry;
@@ -872,7 +884,7 @@ struct container{
 	uint8_t *upage;
 	uint32_t read_bytes;
 	uint32_t zero_bytes;
-}
+};
 
 static bool
 lazy_load_segment (struct page *page, void *aux) {
@@ -888,10 +900,11 @@ lazy_load_segment (struct page *page, void *aux) {
 
 	file_seek(file, ofs);
 
-	if (file_read (file, frame->kva, read_bytes) != (int)read_bytes) {
+	if(file_read (file, frame->kva, read_bytes) != (int)read_bytes) {
 			free(container);
+			file_close(file);
 			return false;
-		}
+	}
 	
 	memset (frame->kva + read_bytes, 0, zero_bytes);
 	free(container);
@@ -928,6 +941,8 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 		/* TODO: Set up aux to pass information to the lazy_load_segment. */
 		struct container *container = (struct container *)malloc(sizeof(struct container));
+		if(container == NULL) return false;
+
 		*container = (struct container) {
 			.file = file,
 			.ofs = ofs,
@@ -937,8 +952,10 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		};
 
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,
-					writable, lazy_load_segment, container))
+					writable, lazy_load_segment, container)){
+			free(container);
 			return false;
+		}
 
 		/* Advance. */
 		read_bytes -= page_read_bytes;
@@ -952,7 +969,6 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 /* Create a PAGE of stack at the USER_STACK. Return true on success. */
 static bool
 setup_stack (struct intr_frame *if_) {
-	bool success = false;
 	void *stack_bottom = (void *) (((uint8_t *) USER_STACK) - PGSIZE);
 
 	/* TODO: Map the stack on stack_bottom and claim the page immediately.
@@ -960,6 +976,15 @@ setup_stack (struct intr_frame *if_) {
 	 * TODO: You should mark the page is stack. */
 	/* TODO: Your code goes here */
 
-	return success;
+	if(vm_alloc_page(VM_ANON | VM_MARKER_0, stack_bottom, true)){ //make page
+		if(vm_claim_page(stack_bottom)){ //claim page
+			if_->rsp = USER_STACK;
+			return true;
+		}
+		else
+			return false;
+	}
+
+	return false;
 }
 #endif /* VM */

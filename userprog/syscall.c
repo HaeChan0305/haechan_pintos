@@ -13,6 +13,7 @@
 #include "threads/mmu.h"
 #include "lib/kernel/stdio.h"
 #include "devices/input.h" 
+#include "vm/vm.h" 
 
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
@@ -72,6 +73,7 @@ syscall_handler (struct intr_frame *f UNUSED) {
 	// argument order : %rdi, %rsi, %rdx, %r10, %r8, %r9
 
 	int syscall_num = f->R.rax;
+	thread_current()->saved_rsp = f->rsp;
 	//printf("syscall handler(%s) : %d\n",thread_name(), syscall_num);
 	
 	switch(syscall_num){
@@ -142,13 +144,21 @@ syscall_handler (struct intr_frame *f UNUSED) {
 
 void
 check_address(void *ptr){
-	if(  ptr == NULL 				/* 1. Invalid pointer */
-	  || is_kernel_vaddr(ptr)		/* 2. PTR point kernel virual memory */
-	  || ! pml4_get_page(thread_current()->pml4, ptr)){
-	  								/* 3. PTR is unmapped */
+	/* 1. Invalid pointer */
+	/* 2. PTR point kernel virual memory */
+	if(ptr == NULL || is_kernel_vaddr(ptr))		
 		exit(-1);
-	}
 }
+
+
+// void
+// check_writable(void *ptr){
+// 	struct page *page = spt_find_page(&thread_current()->spt, pg_round_down(ptr));
+// 	if(page == NULL) return;
+
+// 	if(!page->writable)
+// 		exit(-1);
+// }
 
 void 
 halt (void){
@@ -235,6 +245,7 @@ open (const char *file){
  int 
  read (int fd, void *buffer, unsigned length){
 	check_address(buffer);
+	//check_writable(buffer);
 
 	lock_acquire(&file_lock);
 
