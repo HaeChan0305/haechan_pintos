@@ -5,7 +5,7 @@ Pintos booting with:
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x9e0000 (Usable: 9,088 kB)
 Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:0: detected 345 sector (172 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 106 sector (53 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 60,480 sector (29 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -19,9 +19,9 @@ Executing 'swap-anon':
 (swap-anon) write sparsely over page 1024
 swap-anon: exit(-1)
 Kernel PANIC at ../../threads/synch.c:208 in lock_acquire(): assertion `!lock_held_by_current_thread (lock)' failed.
-Call stack: 0x80042187f5 0x800420aad7 0x8004221c20 0x8004222d2d 0x8004222248 0x8004222635 0x800421adc3 0x800421ae46 0x8004222661 0x800421ca92 0x800421ca5e 0x8004207244 0x800421e01c 0x800421db9e 0x80042095b0 0x80042099ce 0x8004221f18 0x80042222d7 0x8004222216 0x800421db54 0x80042095b0 0x80042099ceKernel PANIC recursion at ../../threads/synch.c:208 in lock_acquire().
-Timer: 125 ticks
-Thread: 34 idle ticks, 48 kernel ticks, 43 user ticks
+Call stack: 0x80042187f5 0x800420aad7 0x8004221d3c 0x800422326f 0x800422237a 0x8004222b77 0x800421adc3 0x800421ae46 0x8004222ba3 0x800421cada 0x800421caa6 0x8004207244 0x800421e112 0x800421dc23 0x80042095b0 0x80042099ce 0x8004222034 0x8004222409 0x8004222348 0x800421dbd9 0x80042095b0 0x80042099ceKernel PANIC recursion at ../../threads/synch.c:208 in lock_acquire().
+Timer: 123 ticks
+Thread: 33 idle ticks, 48 kernel ticks, 42 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 240 writes
 hd1:0: 106 reads, 0 writes

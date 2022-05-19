@@ -150,15 +150,14 @@ check_address(void *ptr){
 		exit(-1);
 }
 
+void
+check_writable(void *ptr){
+	struct page *page = spt_find_page(&thread_current()->spt, pg_round_down(ptr));
+	if(page == NULL) return;
 
-// void
-// check_writable(void *ptr){
-// 	struct page *page = spt_find_page(&thread_current()->spt, pg_round_down(ptr));
-// 	if(page == NULL) return;
-
-// 	if(!page->writable)
-// 		exit(-1);
-// }
+	if(!page->writable)
+		exit(-1);
+}
 
 void 
 halt (void){
@@ -245,7 +244,7 @@ open (const char *file){
  int 
  read (int fd, void *buffer, unsigned length){
 	check_address(buffer);
-	//check_writable(buffer);
+	check_writable(buffer);
 
 	lock_acquire(&file_lock);
 

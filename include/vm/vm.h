@@ -84,6 +84,15 @@ struct page_operations {
 	enum vm_type type;
 };
 
+/* argument for lazy_load_segment() */
+struct container{
+	struct file *file;
+	off_t ofs;
+	uint8_t *upage;
+	uint32_t read_bytes;
+	uint32_t zero_bytes;
+};
+
 #define swap_in(page, v) (page)->operations->swap_in ((page), v)
 #define swap_out(page) (page)->operations->swap_out (page)
 #define destroy(page) \

@@ -312,7 +312,8 @@ __do_fork (void *aux) {
 error:
 	parent->fork_status = false;
 	sema_up(&parent->fork_sema);
-	thread_exit (); //goto process_exit()
+	printf("__do_fork: fail\n");
+	exit(-1); //goto process_exit()
 }
 
 /* Switch the current execution context to the f_name.
@@ -340,10 +341,10 @@ process_exec (void *f_name) {
 	strlcpy(name_copy, file_name, strlen(file_name) + 1);
 
 	/* We first kill the current context */
-	//process_cleanup ();
+	process_cleanup ();
 
 	/* build spt before load() */
-	//supplemental_page_table_init(&thread_current()->spt);
+	supplemental_page_table_init(&thread_current()->spt);
 
 	/* And then load the binary */
 	success = load (name_copy, &_if);
@@ -626,7 +627,6 @@ load (const char *file_name, struct intr_frame *if_) {
 			 argv[argc++] = token;
 	}
         
-
 	/* Open executable file. */
 	file = filesys_open (argv[0]);
 	if (file == NULL) {
@@ -696,7 +696,7 @@ load (const char *file_name, struct intr_frame *if_) {
 					if (!load_segment (file, file_page, (void *) mem_page,
 								read_bytes, zero_bytes, writable)){
 									
-								success = false;
+								printf("load: load_segment() fail\n");
 								goto done;
 					}
 						
@@ -709,7 +709,7 @@ load (const char *file_name, struct intr_frame *if_) {
 
 	/* Set up stack. */
 	if (!setup_stack (if_)){
-		success = false;
+		printf("load: setup_stack() fail\n");
 		goto done;
 	}
 		
@@ -877,15 +877,6 @@ install_page (void *upage, void *kpage, bool writable) {
  * If you want to implement the function for only project 2, implement it on the
  * upper block. */
 
-/* argument for lazy_load_segment()*/
-struct container{
-	struct file *file;
-	off_t ofs;
-	uint8_t *upage;
-	uint32_t read_bytes;
-	uint32_t zero_bytes;
-};
-
 static bool
 lazy_load_segment (struct page *page, void *aux) {
 	// page->frame is set by vm_get_frame() in vm_do_claim_page().
@@ -953,6 +944,7 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,
 					writable, lazy_load_segment, container)){
+			printf("load_segment: vm_alloc_page_with_initializer() fail\n");			
 			free(container);
 			return false;
 		}

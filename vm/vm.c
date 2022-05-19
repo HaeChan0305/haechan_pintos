@@ -92,20 +92,21 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 		page->writable = writable; 
 	
 		if(!spt_insert_page(spt, page)){
+			printf("vm_alloc_page_with_initializer: spt_insert_page() fail\n");
 			free(page);
 			return false;
 		}
 		
 		return true;
 	}
+	
+	printf("vm_alloc_page_with_initializer: spt_find_page() fail\n");
+	return false;
 }
 
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
 spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
-	//Empty spt
-	if(hash_empty(&spt->h_spt)) return NULL;
-	
 	//page setting
 	struct page page_;
 	page_.va = va;
@@ -257,15 +258,20 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	/* TODO: Your code goes here */
 
 	struct page *page = spt_find_page(spt, pg_round_down(addr));
-
+	
 	/* CASE 2 : page lies within kernel virtual memory. */
-	if(is_kernel_vaddr(addr)) return false;
+	if(is_kernel_vaddr(addr)){
+		//printf("vm_try_handle_fault : ADDR in kernel pool\n");
+		return false;
+	}
 
 	/* CASE 1 : Stack growth */
 	if(page == NULL){
+		// printf("USER_STACK : %x\n",USER_STACK);
+		// printf("ADDR : %p\n",addr);
+		// printf("USER_STACK - (1 << 20) : %x\n",USER_STACK - (1 << 20));
 		//check ADDR is valid
 		if(((addr < USER_STACK) && (addr > USER_STACK - (1 << 20)))){
-			
 			uintptr_t rsp = user ? f->rsp : thread_current()->saved_rsp;
 			
 			if((void *)rsp <= addr || (void *)rsp - 8 == addr){
@@ -273,13 +279,15 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 				return true;
 			}
 		}
-		//exit(-1);
+		//printf("vm_try_handle_fault : stack growth() fail\n");
 		return false;
 	}
-	
-	/* CASE 3 : the access is an attempt to write to a r/o page. */
-	if(write && !page->writable) return false;
 
+	/* CASE 3 : the access is an attempt to write to a r/o page. */
+	if(write && !page->writable){
+		printf("vm_try_handle_fault : access to write at r/o page\n");
+		return false;
+	}
 	return vm_do_claim_page (page);
 }
 
@@ -310,8 +318,11 @@ vm_do_claim_page (struct page *page) {
 	page->frame = frame;
 
 	/* TODO: Insert page table entry to map page's VA to frame's PA. */
-	if(!pml4_set_page(thread_current()->pml4, page->va, frame->kva, page->writable))
+	if(!pml4_set_page(thread_current()->pml4, page->va, frame->kva, page->writable)){
+		printf("vm_do_claim_page: pml4_set_page() fail\n");
 		return false;
+	}
+		
 		
 	return swap_in (page, frame->kva);
 }
@@ -363,8 +374,8 @@ frame_less_func(const struct hash_elem *a, const struct hash_elem *b, void *aux)
 void
 supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 	if(!hash_init(&spt->h_spt, page_hash_func, page_less_func, NULL)){
-		thread_current()->sharing_info_->exit_status = -1;
-		thread_exit();
+		printf("spt init: hash_init() fail\n");
+		exit(-1);
 	}
 }
 
@@ -372,6 +383,103 @@ supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 bool
 supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 		struct supplemental_page_table *src UNUSED) {
+
+	struct hash *h_dst = &dst->h_spt;
+	struct hash *h_src = &src->h_spt;
+
+	/* make hash iterator. */
+	struct hash_iterator i;
+	hash_first(&i, h_src);
+
+	/* copy from src to dst. */
+	struct page *page_src;
+	struct page *page_dst;
+	struct container *con_src;
+	struct container *con_dst;
+	
+	while(hash_next(&i)){
+		page_src = hash_entry(hash_cur(&i), struct page, spt_elem);
+
+		switch(VM_TYPE(page_src->operations->type)){
+			case VM_UNINIT:
+				con_src = (struct container *)page_src->uninit.aux;
+				con_dst = (struct container *)malloc(sizeof(struct container));
+				if(con_dst == NULL) goto err;
+
+				/* copy container, lazy_load() argument. */
+				*con_dst = (struct container) {
+					.file = con_src->file,
+					.ofs = con_src->ofs,
+					.upage = con_src->upage,
+					.read_bytes = con_src->read_bytes,
+					.zero_bytes = con_src->zero_bytes, 
+				};
+
+				/* malloc and initialize page_dst and insert in spt_dst. */
+				if (!vm_alloc_page_with_initializer (VM_ANON, con_src->upage,
+							page_src->writable, page_src->uninit.init, con_dst)){
+					printf("spt_copy: vm_alloc_page_with_initializer() fail\n");			
+					free(con_dst);
+					goto err;
+				}
+
+				break;
+
+			case VM_ANON:
+				/* malloc and initialize page_dst and insert in spt_dst. */
+				if (!vm_alloc_page(VM_ANON, page_src->va, page_src->writable)){
+					printf("spt_copy: vm_alloc_page() fail\n");			
+					goto err;
+				}
+
+				/* get page_dst. */
+				page_dst = spt_find_page(dst, page_src->va);
+				ASSERT(page_dst != NULL);
+
+				/* Case 1: page_src resident in physical memory. */
+				if(page_src->anon.status){
+					ASSERT(page_src->anon.bm_idx == -1);
+
+					/* develop page_dst VM_UNINIT to VM_ANON using anon_init. */
+					if(!vm_do_claim_page(page_dst)){
+						printf("spt_copy: vm_do_claim_page() fail\n");
+						goto err;
+					}
+
+					page_dst->anon.bm_idx = page_src->anon.bm_idx;
+					page_dst->anon.status = page_src->anon.status;
+					memcpy(page_dst->frame->kva, page_src->frame->kva, PGSIZE);
+				}
+
+				/* Case 2: page_src resident in swap disk. */
+				else{
+					/* develop page_dst VM_UNINIT to VM_ANON using anon_init. */
+					if(!anon_initializer(page_dst, VM_ANON, NULL)){
+						printf("spt_copy: anon_initializer() fail\n");
+						goto err;
+					}
+
+					page_dst->anon.bm_idx = page_src->anon.bm_idx;
+					page_dst->anon.status = page_src->anon.status;
+				}
+
+				break;
+			
+			case VM_FILE:
+				break; 
+
+			default:
+				printf("spt_copy: VM_TYPE error\n");
+				ASSERT(0);
+		}
+	}
+
+	return true;
+
+err:
+	printf("spt_copy: VM_TYPE error\n");
+	supplemental_page_table_kill(dst);
+	return false;
 }
 
 /* hash_action_func() to kill spt entry. */

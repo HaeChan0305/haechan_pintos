@@ -149,7 +149,20 @@ page_fault (struct intr_frame *f) {
 	/* Count page faults. */
 	page_fault_cnt++;
 
+#ifndef VM
+	/* If the fault is true fault, show info and exit. */
+	printf ("Page fault at %p: %s error %s page in %s context.\n",
+			fault_addr,
+			not_present ? "not present" : "rights violation",
+			write ? "writing" : "reading",
+			user ? "user" : "kernel");
+	kill (f);
+
+#else
 	thread_current()->sharing_info_->kernel_kill = true;
+	//printf("page fault: vm_try_handle_fault() fail\n");
 	exit(-1);
+#endif
+
 }
 

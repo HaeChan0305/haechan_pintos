@@ -5,7 +5,7 @@ Pintos booting with:
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
 Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:0: detected 345 sector (172 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 227 sector (113 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -18,23 +18,36 @@ Executing 'page-merge-mm':
 (page-merge-mm) init
 (page-merge-mm) sort chunk 0
 (page-merge-mm) sort chunk 1
+load: child-qsort-mm: open failed
+child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 2
+load: child-qsort-mm: open failed
+child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 3
+load: child-qsort-mm: open failed
+child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 4
+child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 5
+load: child-qsort-mm: open failed
+child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 6
+load: child-qsort-mm: open failed
+child-qsort-mm: exit(-1)
 (page-merge-mm) sort chunk 7
+load: child-qsort-mm: open failed
+child-qsort-mm: exit(-1)
 (page-merge-mm) wait for child 0
 (page-merge-mm) wait for child 0: FAILED
 page-merge-mm: exit(1)
 Execution of 'page-merge-mm' complete.
-Timer: 151 ticks
-Thread: 58 idle ticks, 51 kernel ticks, 42 user ticks
+Timer: 224 ticks
+Thread: 56 idle ticks, 62 kernel ticks, 106 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 392 reads, 4684 writes
+hd0:1: 431 reads, 4684 writes
 hd1:0: 227 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1360 characters output
+Console: 1740 characters output
 Keyboard: 0 keys pressed
-Exception: 0 page faults
+Exception: 1 page faults
 Powering off...
