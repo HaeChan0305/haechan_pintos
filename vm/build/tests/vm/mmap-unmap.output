@@ -19,8 +19,8 @@ Executing 'mmap-unmap':
 (mmap-unmap) mmap "sample.txt"
 mmap-unmap: exit(-1)
 Execution of 'mmap-unmap' complete.
-Timer: 85 ticks
-Thread: 33 idle ticks, 49 kernel ticks, 3 user ticks
+Timer: 83 ticks
+Thread: 32 idle ticks, 49 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 112 reads, 260 writes
 hd1:0: 111 reads, 0 writes

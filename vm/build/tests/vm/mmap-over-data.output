@@ -20,8 +20,8 @@ Executing 'mmap-over-data':
 (mmap-over-data) try to mmap over data segment: FAILED
 mmap-over-data: exit(1)
 Execution of 'mmap-over-data' complete.
-Timer: 83 ticks
-Thread: 31 idle ticks, 50 kernel ticks, 2 user ticks
+Timer: 79 ticks
+Thread: 30 idle ticks, 47 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 111 reads, 254 writes
 hd1:0: 108 reads, 0 writes

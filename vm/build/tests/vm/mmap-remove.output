@@ -22,8 +22,8 @@ Executing 'mmap-remove':
 (mmap-remove) create "another"
 mmap-remove: exit(-1)
 Execution of 'mmap-remove' complete.
-Timer: 86 ticks
-Thread: 32 idle ticks, 48 kernel ticks, 6 user ticks
+Timer: 90 ticks
+Thread: 35 idle ticks, 49 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 168 reads, 365 writes
 hd1:0: 112 reads, 0 writes

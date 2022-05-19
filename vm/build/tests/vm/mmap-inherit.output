@@ -20,8 +20,8 @@ Executing 'mmap-inherit':
 (mmap-inherit) mmap "sample.txt"
 mmap-inherit: exit(-1)
 Execution of 'mmap-inherit' complete.
-Timer: 85 ticks
-Thread: 32 idle ticks, 51 kernel ticks, 2 user ticks
+Timer: 84 ticks
+Thread: 34 idle ticks, 48 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 151 reads, 486 writes
 hd1:0: 219 reads, 0 writes

@@ -19,8 +19,8 @@ Executing 'mmap-write':
 (mmap-write) mmap "sample.txt"
 mmap-write: exit(-1)
 Execution of 'mmap-write' complete.
-Timer: 80 ticks
-Thread: 30 idle ticks, 47 kernel ticks, 3 user ticks
+Timer: 79 ticks
+Thread: 34 idle ticks, 42 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 116 reads, 260 writes
 hd1:0: 109 reads, 0 writes

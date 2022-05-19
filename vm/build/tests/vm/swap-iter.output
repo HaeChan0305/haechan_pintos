@@ -21,11 +21,11 @@ Executing 'swap-iter':
 swap-iter: exit(-1)
 Kernel PANIC at ../../threads/synch.c:208 in lock_acquire(): assertion `!lock_held_by_current_thread (lock)' failed.
 Call stack: 0x80042187f5 0x800420aad7 0x8004221d3c 0x800422326f 0x800422237a 0x8004222b77 0x800421adc3 0x800421ae46 0x8004222ba3 0x800421cada 0x800421caa6 0x8004207244 0x800421e112 0x800421dc23 0x80042095b0 0x80042099ce 0x8004222034 0x8004222409 0x8004222348 0x800421dbd9 0x80042095b0 0x80042099ceKernel PANIC recursion at ../../threads/synch.c:208 in lock_acquire().
-Timer: 349 ticks
-Thread: 93 idle ticks, 213 kernel ticks, 43 user ticks
+Timer: 341 ticks
+Thread: 109 idle ticks, 191 kernel ticks, 41 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 116 reads, 15906 writes
 hd1:0: 7934 reads, 0 writes
 hd1:1: 0 reads, 8 writes
-Console: 1570 characters output
+Console: 1571 characters output
 Key

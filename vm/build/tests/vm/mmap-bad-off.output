@@ -20,8 +20,8 @@ Executing 'mmap-bad-off':
 (mmap-bad-off) try to mmap invalid offset: FAILED
 mmap-bad-off: exit(1)
 Execution of 'mmap-bad-off' complete.
-Timer: 202 ticks
-Thread: 85 idle ticks, 115 kernel ticks, 2 user ticks
+Timer: 198 ticks
+Thread: 78 idle ticks, 118 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 111 reads, 8076 writes
 hd1:0: 4019 reads, 0 writes
