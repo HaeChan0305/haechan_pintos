@@ -19,9 +19,9 @@ Executing 'swap-anon':
 (swap-anon) write sparsely over page 1024
 swap-anon: exit(-1)
 Kernel PANIC at ../../threads/synch.c:208 in lock_acquire(): assertion `!lock_held_by_current_thread (lock)' failed.
-Call stack: 0x80042187f5 0x800420aad7 0x8004221d3c 0x800422326f 0x800422237a 0x8004222b77 0x800421adc3 0x800421ae46 0x8004222ba3 0x800421cada 0x800421caa6 0x8004207244 0x800421e112 0x800421dc23 0x80042095b0 0x80042099ce 0x8004222034 0x8004222409 0x8004222348 0x800421dbd9 0x80042095b0 0x80042099ceKernel PANIC recursion at ../../threads/synch.c:208 in lock_acquire().
-Timer: 123 ticks
-Thread: 33 idle ticks, 48 kernel ticks, 42 user ticks
+Call stack: 0x80042187f5 0x800420aad7 0x8004221f0d 0x800422342a 0x8004222535 0x8004222d32 0x800421adc3 0x800421ae46 0x8004222d5e 0x800421cada 0x800421caa6 0x8004207244 0x800421e184 0x800421dc23 0x80042095b0 0x80042099ce 0x8004222205 0x80042225c4 0x8004222503 0x800421dbd9 0x80042095b0 0x80042099ceKernel PANIC recursion at ../../threads/synch.c:208 in lock_acquire().
+Timer: 129 ticks
+Thread: 34 idle ticks, 53 kernel ticks, 42 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 240 writes
 hd1:0: 106 reads, 0 writes

@@ -20,15 +20,16 @@ Executing 'mmap-remove':
 (mmap-remove) remove "sample.txt"
 (mmap-remove) try to open "sample.txt"
 (mmap-remove) create "another"
-mmap-remove: exit(-1)
-Execution of 'mmap-remove' complete.
-Timer: 86 ticks
-Thread: 32 idle ticks, 48 kernel ticks, 6 user ticks
+Kernel PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
+Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421d473 0x8004222e9c 0x8004222667 0x8004222503 0x800421dbd9 0x80042095b0 0x80042099ce 0x4002f9 0x400e51 0x400e9a.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 90 ticks
+Thread: 35 idle ticks, 49 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 168 reads, 365 writes
 hd1:0: 112 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1175 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 1565 characters output
+Key

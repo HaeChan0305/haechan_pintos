@@ -18,14 +18,13 @@ Executing 'swap-file':
 (swap-file) open "large.txt"
 (swap-file) mmap "large.txt"
 swap-file: exit(-1)
-Execution of 'swap-file' complete.
-Timer: 344 ticks
-Thread: 69 idle ticks, 234 kernel ticks, 41 user ticks
+Kernel PANIC at ../../threads/synch.c:208 in lock_acquire(): assertion `!lock_held_by_current_thread (lock)' failed.
+Call stack: 0x80042187f5 0x800420aad7 0x8004221f0d 0x80042239e8 0x8004222535 0x8004222d32 0x800421adc3 0x800421ae46 0x8004222d5e 0x800421cada 0x800421caa6 0x8004207244 0x800421e184 0x800421dc23 0x80042095b0 0x80042099ce 0x8004222205 0x80042225c4 0x8004222503 0x800421dbd9 0x80042095b0 0x80042099ceKernel PANIC recursion at ../../threads/synch.c:208 in lock_acquire().
+Timer: 383 ticks
+Thread: 66 idle ticks, 227 kernel ticks, 90 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 4032 reads, 15904 writes
+hd0:1: 7728 reads, 15904 writes
 hd1:0: 7933 reads, 0 writes
-hd1:1: 0 reads, 0 writes
-Console: 1055 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+hd1:1: 0 reads, 8 writes
+Console: 1505 characters output
+Key

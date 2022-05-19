@@ -85,7 +85,7 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 			
 			default:
 				free(page);
-				ASSERT(1);
+				ASSERT(0);
 		}
 		
 		uninit_new(page, upage, init, type, aux, page_init);
@@ -285,7 +285,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 
 	/* CASE 3 : the access is an attempt to write to a r/o page. */
 	if(write && !page->writable){
-		printf("vm_try_handle_fault : access to write at r/o page\n");
+		//printf("vm_try_handle_fault : access to write at r/o page\n");
 		return false;
 	}
 	return vm_do_claim_page (page);

@@ -32,6 +32,8 @@ int write (int fd, const void *buffer, unsigned length);
 void seek (int fd, unsigned position);
 unsigned tell (int fd);
 void close (int fd);
+void *mmap(void *addr, size_t length, int writable, int fd, off_t offset);
+void munmap (void *addr);
 
 // int dup2(int oldfd, int newfd);
 
@@ -133,9 +135,13 @@ syscall_handler (struct intr_frame *f UNUSED) {
 			close(f->R.rdi);
 			break;
 
-		// case SYS_DUP2:                   /* Duplicate the file descriptor */
-		// 	f->R.rax = dup2(f->R.rdi, f->R.rsi);
-		// 	break;
+		case SYS_MMAP:
+			f->R.rax = mmap(f->R.rdi, f->R.rsi, f->R.rdx, f->R.r10, f->R.r8);
+			break;
+
+		case SYS_MUNMAP:
+			munmap(f->R.rdi);
+			break;
 
 		default:
 			break;
@@ -368,4 +374,32 @@ close (int fd){
 	lock_release(&file_lock);
 }
 
-// int dup2(int oldfd, int newfd);
+/* Success : return VA where file is mapped.
+   Fail    : return NULL. */
+void *
+mmap(void *addr, size_t length, int writable, int fd, off_t offset){
+	void *va = NULL;
+	//check_address(addr);
+
+	/* case of STDIN, STDOUT. */
+	if(fd == 0 || fd == 1) return NULL;
+	
+	lock_acquire(&file_lock);
+
+	struct fdesc *fdesc_ = find_fd(fd);
+	if(fdesc_!= NULL && fdesc_->file != NULL)
+		va = do_mmap(addr, length, writable, fdesc_->file, offset);
+
+	lock_release(&file_lock);
+
+	return va;
+}
+
+void
+munmap (void *addr){
+	check_address(addr);
+
+	lock_acquire(&file_lock);
+	do_munmap(addr);
+	lock_release(&file_lock);
+}

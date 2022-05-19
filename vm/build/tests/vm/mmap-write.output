@@ -18,14 +18,16 @@ Executing 'mmap-write':
 (mmap-write) open "sample.txt"
 (mmap-write) mmap "sample.txt"
 mmap-write: exit(-1)
-Execution of 'mmap-write' complete.
-Timer: 80 ticks
-Thread: 30 idle ticks, 47 kernel ticks, 3 user ticks
+Kernel PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
+Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421c421 0x800421ca26 0x8004207244 0x800421e184 0x800421dc23 0x80042095b0 0x80042099ce 0x40024e 0x400dce 0x400e17.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 83 ticks
+Thread: 32 idle ticks, 47 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 116 reads, 260 writes
+hd0:1: 118 reads, 260 writes
 hd1:0: 109 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1035 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 1448 characters output
+Key

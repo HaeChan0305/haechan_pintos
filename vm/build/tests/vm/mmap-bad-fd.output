@@ -15,16 +15,16 @@ Putting 'mmap-bad-fd' into the file system...
 Executing 'mmap-bad-fd':
 (mmap-bad-fd) begin
 (mmap-bad-fd) try to mmap invalid fd
-(mmap-bad-fd) try to mmap invalid fd: FAILED
-mmap-bad-fd: exit(1)
+(mmap-bad-fd) end
+mmap-bad-fd: exit(0)
 Execution of 'mmap-bad-fd' complete.
-Timer: 82 ticks
-Thread: 32 idle ticks, 48 kernel ticks, 2 user ticks
+Timer: 83 ticks
+Thread: 30 idle ticks, 51 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 238 writes
 hd1:0: 105 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1027 characters output
+Console: 1000 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

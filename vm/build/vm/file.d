@@ -10,4 +10,4 @@ vm/file.o: ../../vm/file.c ../../include/vm/vm.h \
  ../../include/threads/vaddr.h ../../include/lib/debug.h \
  ../../include/threads/loader.h ../../include/threads/synch.h \
  ../../include/threads/thread.h ../../include/threads/interrupt.h \
- ../../include/filesys/filesys.h
+ ../../include/filesys/filesys.h ../../include/userprog/process.h

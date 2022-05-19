@@ -15,16 +15,16 @@ Putting 'mmap-bad-fd3' into the file system...
 Executing 'mmap-bad-fd3':
 (mmap-bad-fd3) begin
 (mmap-bad-fd3) try to mmap stdout
-(mmap-bad-fd3) try to mmap stdout: FAILED
-mmap-bad-fd3: exit(1)
+(mmap-bad-fd3) end
+mmap-bad-fd3: exit(0)
 Execution of 'mmap-bad-fd3' complete.
-Timer: 80 ticks
-Thread: 31 idle ticks, 47 kernel ticks, 2 user ticks
+Timer: 83 ticks
+Thread: 30 idle ticks, 52 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 238 writes
 hd1:0: 105 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1028 characters output
+Console: 1005 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

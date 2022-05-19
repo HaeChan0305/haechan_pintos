@@ -12,8 +12,8 @@ enum vm_type;
 
 struct anon_page {
     size_t bm_idx; /* index of bitmap(swap disk) */
-    bool status; /* True  : resident in memory
-                    False : resident in disk */
+    bool status; /* True  : resident in physical memory
+                    False : resident in swap disk */
 };
 
 void vm_anon_init (void);

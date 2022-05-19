@@ -20,4 +20,6 @@ int create_fd(struct file *new_file);
 struct fdsec *find_fd(int fd_);
 bool fd_list_init(struct list *fd_list);
 void remove_all_fdesc(struct thread *);
+
+bool lazy_load_segment (struct page *page, void *aux);
 #endif /* userprog/process.h */

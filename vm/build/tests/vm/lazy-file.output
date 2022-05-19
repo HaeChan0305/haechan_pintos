@@ -26,15 +26,25 @@ Executing 'lazy-file':
 (lazy-file) check if page is not loaded
 (lazy-file) load pages (3)
 (lazy-file) load page [0]
+(lazy-file) check if page is loaded
+(lazy-file) check if page is not loaded
+(lazy-file) check if page is not loaded
+(lazy-file) load page [1]
+(lazy-file) check if page is loaded
+(lazy-file) check if page is loaded
+(lazy-file) check if page is not loaded
+(lazy-file) load page [2]
 lazy-file: exit(-1)
-Execution of 'lazy-file' complete.
-Timer: 91 ticks
-Thread: 34 idle ticks, 53 kernel ticks, 4 user ticks
+Kernel PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
+Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421c421 0x800421ca26 0x8004207244 0x800421e184 0x800421dc23 0x80042095b0 0x80042099ce 0x4003c9 0x400f9f 0x400fe8.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 88 ticks
+Thread: 33 idle ticks, 50 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 147 reads, 354 writes
+hd0:1: 183 reads, 354 writes
 hd1:0: 153 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1393 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 2087 characters output
+Key

@@ -17,16 +17,17 @@ Executing 'mmap-off':
 (mmap-off) begin
 (mmap-off) open "large.txt"
 (mmap-off) try to mmap with offset 0x1000
-(mmap-off) try to mmap with offset 0x1000: FAILED
-mmap-off: exit(1)
-Execution of 'mmap-off' complete.
-Timer: 281 ticks
-Thread: 69 idle ticks, 209 kernel ticks, 3 user ticks
+(mmap-off) validate mmap.
+Kernel PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
+Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421d473 0x8004222e9c 0x8004222667 0x8004222503 0x800421dbd9 0x80042095b0 0x80042099ce 0x4001f8 0x400fa8 0x400ff1.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 325 ticks
+Thread: 123 idle ticks, 197 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 112 reads, 15908 writes
 hd1:0: 7935 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1109 characters output
-Keyboard: 0 keys pressed
-Exception: 0 page faults
-Powering off...
+Console: 1483 characters output
+Key

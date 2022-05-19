@@ -7,6 +7,12 @@ struct page;
 enum vm_type;
 
 struct file_page {
+	struct file *file;
+	off_t offset; 
+	uint32_t read_bytes;
+	uint32_t zero_bytes;
+	bool status; /* True  : resident in physical memory
+                    False : resident in file disk */
 };
 
 void vm_file_init (void);

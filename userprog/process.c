@@ -558,7 +558,7 @@ struct ELF64_PHDR {
 static void stack_argument (int argc, char **argv, struct intr_frame *if_);
 static bool setup_stack (struct intr_frame *if_);
 static bool validate_segment (const struct Phdr *, struct file *);
-static bool lazy_load_segment (struct page *page, void *aux);
+bool lazy_load_segment (struct page *page, void *aux);
 static bool load_segment (struct file *file, off_t ofs, uint8_t *upage,
 		uint32_t read_bytes, uint32_t zero_bytes,
 		bool writable);
@@ -877,7 +877,7 @@ install_page (void *upage, void *kpage, bool writable) {
  * If you want to implement the function for only project 2, implement it on the
  * upper block. */
 
-static bool
+bool
 lazy_load_segment (struct page *page, void *aux) {
 	// page->frame is set by vm_get_frame() in vm_do_claim_page().
 	struct frame *frame = page->frame;
@@ -892,9 +892,9 @@ lazy_load_segment (struct page *page, void *aux) {
 	file_seek(file, ofs);
 
 	if(file_read (file, frame->kva, read_bytes) != (int)read_bytes) {
-			free(container);
-			file_close(file);
-			return false;
+		free(container);
+		file_close(file);
+		return false;
 	}
 	
 	memset (frame->kva + read_bytes, 0, zero_bytes);

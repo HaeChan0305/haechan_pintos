@@ -19,14 +19,16 @@ Executing 'mmap-inherit':
 (mmap-inherit) open "sample.txt"
 (mmap-inherit) mmap "sample.txt"
 mmap-inherit: exit(-1)
-Execution of 'mmap-inherit' complete.
-Timer: 85 ticks
-Thread: 32 idle ticks, 51 kernel ticks, 2 user ticks
+Kernel PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
+Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421c421 0x800421ca26 0x8004207244 0x800421e184 0x800421dc23 0x80042095b0 0x80042099ce 0x4001e6 0x400e05 0x400e4e.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 94 ticks
+Thread: 35 idle ticks, 56 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 151 reads, 486 writes
+hd0:1: 153 reads, 486 writes
 hd1:0: 219 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1147 characters output
-Keyboard: 0 keys pressed
-Exception: 1 page faults
-Powering off...
+Console: 1558 characters output
+Key

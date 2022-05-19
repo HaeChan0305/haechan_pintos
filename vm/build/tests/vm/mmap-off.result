@@ -1,2 +1,18 @@
 FAIL
-run: try to mmap with offset 0x1000: FAILED
+Kernel panic in run: PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
+Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421d473 0x8004222e9c 0x8004222667 0x8004222503 0x800421dbd9 0x80042095b0 0x80042099ce 0x4001f8 0x400fa8 0x400ff1
+Translation of call stack:
+0x00000080042187f5: debug_panic (lib/kernel/debug.c:32)
+0x0000008004221177: inode_allow_write (filesys/inode.c:305)
+0x000000800421ffce: file_allow_write (filesys/file.c:130)
+0x000000800421fd7b: file_close (filesys/file.c:49)
+0x000000800421d473: lazy_load_segment (userprog/process.c:897)
+0x0000008004222e9c: uninit_initialize (vm/uninit.c:56 (discriminator 4))
+0x0000008004222667: vm_do_claim_page (vm/vm.c:328)
+0x0000008004222503: vm_try_handle_fault (vm/vm.c:292)
+0x000000800421dbd9: page_fault (userprog/exception.c:145)
+0x00000080042095b0: intr_handler (threads/interrupt.c:352)
+0x00000080042099ce: intr_entry (threads/intr-stubs.o:?)
+0x00000000004001f8: (unknown)
+0x0000000000400fa8: (unknown)
+0x0000000000400ff1: (unknown)
