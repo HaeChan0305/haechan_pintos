@@ -50,7 +50,7 @@ uninit_initialize (struct page *page, void *kva) {
 
 	/* Fetch first, page_initialize may overwrite the values */
 	vm_initializer *init = uninit->init; //lazy_load_segment()
-	void *aux = uninit->aux; //poiner of struct container
+	void *aux = uninit->aux; //pointer of struct container
 
 	/* TODO: You may need to fix this function. */
 	return uninit->page_initializer (page, uninit->type, kva) &&
@@ -66,5 +66,7 @@ uninit_destroy (struct page *page) {
 	struct uninit_page *uninit UNUSED = &page->uninit;
 	/* TODO: Fill this function.
 	 * TODO: If you don't have anything to do, just return. */
+	struct container *container = (struct container *)uninit->aux;
+	free(container);
 	return;
 }

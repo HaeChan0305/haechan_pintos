@@ -18,4 +18,5 @@ userprog/process.o: ../../userprog/process.c \
  ../../include/userprog/tss.h ../../include/filesys/directory.h \
  ../../include/devices/disk.h ../../include/threads/flags.h \
  ../../include/threads/init.h ../../include/threads/malloc.h \
- ../../include/intrinsic.h ../../include/threads/mmu.h
+ ../../include/intrinsic.h ../../include/threads/mmu.h \
+ ../../include/userprog/syscall.h

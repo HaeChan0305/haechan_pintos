@@ -5,7 +5,7 @@ Pintos booting with:
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
 Calibrating timer...  157,081,600 loops/s.
-hd0:0: detected 345 sector (172 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:0: detected 353 sector (176 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 112 sector (56 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -20,16 +20,16 @@ Executing 'mmap-remove':
 (mmap-remove) remove "sample.txt"
 (mmap-remove) try to open "sample.txt"
 (mmap-remove) create "another"
-Kernel PANIC at ../../filesys/inode.c:304 in inode_allow_write(): assertion `inode->deny_write_cnt > 0' failed.
-Call stack: 0x80042187f5 0x8004221177 0x800421ffce 0x800421fd7b 0x800421d473 0x8004222e9c 0x8004222667 0x8004222503 0x800421dbd9 0x80042095b0 0x80042099ce 0x4002f9 0x400e51 0x400e9a.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
+(mmap-remove) end
+mmap-remove: exit(0)
+Execution of 'mmap-remove' complete.
 Timer: 90 ticks
-Thread: 35 idle ticks, 49 kernel ticks, 6 user ticks
+Thread: 34 idle ticks, 50 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 168 reads, 365 writes
+hd0:1: 169 reads, 365 writes
 hd1:0: 112 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1565 characters output
-Key
+Console: 1192 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

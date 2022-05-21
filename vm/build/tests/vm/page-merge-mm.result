@@ -1,2 +1,23 @@
 FAIL
-run: wait for child 0: FAILED
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x80042187f5 0x800421daf6 0x80042095b0 0x80042099ce 0x800421bab9 0x800421bb66 0x8004215cf8 0x8004209773 0x800421dac1 0x80042095b0 0x80042099ce 0x8004213f52 0x8004220eaf 0x800421fe66 0x800421d0c5 0x800421c712 0x800421e1f6 0x800421de51 0x800421dcac
+Translation of call stack:
+0x00000080042187f5: debug_panic (lib/kernel/debug.c:32)
+0x000000800421daf6: kill (userprog/exception.c:103)
+0x00000080042095b0: intr_handler (threads/interrupt.c:352)
+0x00000080042099ce: intr_entry (threads/intr-stubs.o:?)
+0x000000800421bab9: release_console (lib/kernel/console.c:103)
+0x000000800421bb66: vprintf (lib/kernel/console.c:125)
+0x0000008004215cf8: printf (lib/stdio.c:80)
+0x0000008004209773: intr_dump_frame (threads/interrupt.c:387)
+0x000000800421dac1: kill (userprog/exception.c:97)
+0x00000080042095b0: intr_handler (threads/interrupt.c:352)
+0x00000080042099ce: intr_entry (threads/intr-stubs.o:?)
+0x0000008004213f52: disk_read (devices/disk.c:227)
+0x0000008004220eaf: inode_read_at (filesys/inode.c:215)
+0x000000800421fe66: file_read (filesys/file.c:67)
+0x000000800421d0c5: load (userprog/process.c:666)
+0x000000800421c712: process_exec (userprog/process.c:352)
+0x000000800421e1f6: exec (userprog/syscall.c:169)
+0x000000800421de51: syscall_handler (userprog/syscall.c:75)
+0x000000800421dcac: no_sti (userprog/syscall-entry.o:?)

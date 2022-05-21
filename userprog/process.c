@@ -20,6 +20,7 @@
 #include "threads/malloc.h"
 #include "threads/synch.h"
 #include "intrinsic.h"
+#include "userprog/syscall.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -39,6 +40,8 @@ static struct lock fd_lock;
 
 /* init process sync control */
 static struct semaphore process_sema;
+
+extern struct lock file_lock;
 
 /* Starts the first userland program, called "initd", loaded from FILE_NAME.
  * The new thread may be scheduled (and may even exit)
@@ -158,7 +161,6 @@ duplicate_fd(struct thread *parent, struct thread *child){
 		
 		if(child_fd == NULL)
 			return false;
-
 
 		child_fd->file = file_duplicate(parent_fd->file);
 		if(child_fd->file == NULL){
@@ -628,7 +630,9 @@ load (const char *file_name, struct intr_frame *if_) {
 	}
         
 	/* Open executable file. */
+	lock_acquire(&file_lock);
 	file = filesys_open (argv[0]);
+	lock_release(&file_lock);
 	if (file == NULL) {
 		printf ("load: %s: open failed\n",argv[0]);
 		goto done;
@@ -889,9 +893,7 @@ lazy_load_segment (struct page *page, void *aux) {
 	uint32_t read_bytes = container->read_bytes;
 	uint32_t zero_bytes = container->zero_bytes;
 
-	file_seek(file, ofs);
-
-	if(file_read (file, frame->kva, read_bytes) != (int)read_bytes) {
+	if(file_read_at(file, frame->kva, read_bytes, ofs) != (int)read_bytes) {
 		free(container);
 		file_close(file);
 		return false;

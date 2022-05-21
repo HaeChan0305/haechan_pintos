@@ -18,27 +18,6 @@
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
 
-void halt (void);
-void exit (int status);
-tid_t fork (const char *thread_name, struct intr_frame *f);
-int exec (const char *cmd_line);
-int wait (tid_t tid);
-bool create (const char *file, unsigned initial_size);
-bool remove (const char *file);
-int open (const char *file);
-int filesize (int fd);
-int read (int fd, void *buffer, unsigned length);
-int write (int fd, const void *buffer, unsigned length);
-void seek (int fd, unsigned position);
-unsigned tell (int fd);
-void close (int fd);
-void *mmap(void *addr, size_t length, int writable, int fd, off_t offset);
-void munmap (void *addr);
-
-// int dup2(int oldfd, int newfd);
-
-static struct lock file_lock;
-
 /* System call.
  *
  * Previously system call services was handled by the interrupt handler
@@ -51,6 +30,8 @@ static struct lock file_lock;
 #define MSR_STAR 0xc0000081         /* Segment selector msr */
 #define MSR_LSTAR 0xc0000082        /* Long mode SYSCALL target */
 #define MSR_SYSCALL_MASK 0xc0000084 /* Mask for the eflags */
+
+struct lock file_lock;
 
 void
 syscall_init (void) {
@@ -65,7 +46,6 @@ syscall_init (void) {
 			FLAG_IF | FLAG_TF | FLAG_DF | FLAG_IOPL | FLAG_AC | FLAG_NT);
 
 	lock_init(&file_lock);
-	
 }
 
 /* The main system call interface */
@@ -198,13 +178,23 @@ wait (tid_t tid){
 bool 
 create (const char *file, unsigned initial_size){
 	check_address((void *)file);
-	return filesys_create(file, (off_t)initial_size);
+
+	lock_acquire(&file_lock);
+	bool result = filesys_create(file, (off_t)initial_size);
+	lock_release(&file_lock);
+	
+	return result;
 }
 
 bool 
 remove (const char *file){
 	check_address((void *)file);
-	return filesys_remove(file);
+
+	lock_acquire(&file_lock);
+	bool result = filesys_remove(file);
+	lock_release(&file_lock);
+	
+	return result;
 }
 
 /* Success: return allocated fd value to FILE 
@@ -370,7 +360,7 @@ close (int fd){
 		list_remove(&fdesc_->fd_elem);
 		free(fdesc_);
 	}
-	
+
 	lock_release(&file_lock);
 }
 
@@ -378,20 +368,20 @@ close (int fd){
    Fail    : return NULL. */
 void *
 mmap(void *addr, size_t length, int writable, int fd, off_t offset){
-	void *va = NULL;
+	/* check ADDR more specific in do_mmap(). */
 	//check_address(addr);
+	lock_acquire(&file_lock);
+	void *va = NULL;
 
 	/* case of STDIN, STDOUT. */
-	if(fd == 0 || fd == 1) return NULL;
-	
-	lock_acquire(&file_lock);
+	if(fd == 0 || fd == 1) goto done;
 
 	struct fdesc *fdesc_ = find_fd(fd);
 	if(fdesc_!= NULL && fdesc_->file != NULL)
 		va = do_mmap(addr, length, writable, fdesc_->file, offset);
 
+done:
 	lock_release(&file_lock);
-
 	return va;
 }
 

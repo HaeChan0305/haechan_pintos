@@ -14,6 +14,9 @@ static struct list_elem *clock_hand; //WARNING! when frame is popped out
 /* Synchronization problem for critical section */
 static struct lock frame_lock;
 
+/* Protect modifing when spt is copied by fork(). */
+//static struct lock spt_lock;
+
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
 void
@@ -29,6 +32,7 @@ vm_init (void) {
 	list_init(&frame_clock);
 	hash_init(&frame_table, frame_hash_func, frame_less_func, NULL);
 	lock_init(&frame_lock);
+	//lock_init(&spt_lock);
 	clock_hand = list_head(&frame_clock);
 }
 
@@ -107,13 +111,16 @@ vm_alloc_page_with_initializer (enum vm_type type, void *upage, bool writable,
 /* Find VA from spt and return page. On error, return NULL. */
 struct page *
 spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
+	//lock_acquire(&spt_lock);
+	
 	//page setting
 	struct page page_;
 	page_.va = va;
 
 	//find va in spt
 	struct hash_elem *temp = hash_find(&spt->h_spt, &page_.spt_elem);
-
+	
+	//lock_release(&spt_lock);
 	return (temp == NULL) ? NULL : hash_entry(temp, struct page, spt_elem);
 }
 
@@ -121,8 +128,12 @@ spt_find_page (struct supplemental_page_table *spt UNUSED, void *va UNUSED) {
 bool
 spt_insert_page (struct supplemental_page_table *spt UNUSED,
 		struct page *page UNUSED) {
+	
+	//lock_acquire(&spt_lock);
+	struct hash_elem *result = hash_insert(&spt->h_spt, &page->spt_elem);
+	//lock_release(&spt_lock);
 
-	return hash_insert(&spt->h_spt, &page->spt_elem) == NULL;
+	return  result == NULL;
 }
 
 /* This function is called by destroy(), when removed page get a frame. 
@@ -143,25 +154,27 @@ remove_frame(struct frame *frame){
 	   It is done by process_cleanup(). */
 
 	free(frame);
-
 	lock_release(&frame_lock);
 }
 
 void
 spt_remove_page (struct supplemental_page_table *spt, struct page *page) {
 	/* Remove page from spt. */
+	//lock_acquire(&spt_lock);
+	
 	hash_delete(&spt->h_spt, &page->spt_elem);
-
 	vm_dealloc_page (page);
+	
+	//lock_release(&spt_lock);
 }
 
 /* Get the struct frame, that will be evicted. 
-   Implement clock algorithm.
-   This function is protected from sync problem. Don't worry.*/
+   Implement clock algorithm. */
 static struct frame *
 vm_get_victim (void) {
-	struct frame *victim = NULL;
+	//lock_acquire(&frame_lock);
 
+	struct frame *victim = NULL;
 	ASSERT(!list_empty(&frame_clock));
 
 	//clock algorithm.
@@ -177,8 +190,10 @@ vm_get_victim (void) {
 		if(pml4_is_accessed(thread_current()->pml4, va))
 			pml4_set_accessed(thread_current()->pml4, va, false);
 
-		else
+		else{
+			//lock_release(&frame_lock);
 			return victim;
+		}
 	} 
 }
 
@@ -193,7 +208,8 @@ vm_evict_frame (void) {
 		victim->page->frame = NULL;
 		return victim;
 	}
-		
+	
+	printf("vm_evict_frame: swap_out() fail\n");
 	return NULL;
 }
 
@@ -203,12 +219,11 @@ vm_evict_frame (void) {
  * space.*/
 static struct frame *
 vm_get_frame (void) {
-	struct frame *frame = NULL;
-
-	void *kva = palloc_get_page(PAL_USER | PAL_ZERO);
-	
 	lock_acquire(&frame_lock);
 
+	struct frame *frame = NULL;
+	void *kva = palloc_get_page(PAL_USER | PAL_ZERO);
+	
 	if(kva == NULL){
 		frame = vm_evict_frame();
 		if(frame == NULL) goto end;
@@ -222,20 +237,20 @@ vm_get_frame (void) {
 		frame->page = NULL;
 		
 		list_push_back(&frame_clock, &frame->clock_elem);
-		hash_insert(&frame_table, &frame->ft_elem);
+		hash_insert(&frame_table, &frame->ft_elem);		
 	}
 
 end:
-	lock_release(&frame_lock);
 	/* malloc() fail || vm_evict_frame() fail */
 	ASSERT(frame != NULL); 
 	ASSERT(frame->page == NULL);
+	lock_release(&frame_lock);
 	return frame;
 }
 
 /* Growing the stack. */
 static void
-vm_stack_growth (void *addr UNUSED) {
+vm_stack_growth (void *addr) {
 	if(vm_alloc_page(VM_ANON | VM_MARKER_0, addr, true)){ //make page
 		if(vm_claim_page(addr)) //claim page
 			return;
@@ -288,6 +303,7 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		//printf("vm_try_handle_fault : access to write at r/o page\n");
 		return false;
 	}
+
 	return vm_do_claim_page (page);
 }
 
@@ -322,8 +338,8 @@ vm_do_claim_page (struct page *page) {
 		printf("vm_do_claim_page: pml4_set_page() fail\n");
 		return false;
 	}
-		
-		
+
+	ASSERT(frame->kva != NULL);	
 	return swap_in (page, frame->kva);
 }
 
@@ -408,7 +424,7 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 
 				/* copy container, lazy_load() argument. */
 				*con_dst = (struct container) {
-					.file = con_src->file,
+					.file = (page_get_type(page_src) == VM_ANON) ? con_src->file : file_reopen(con_src->file),
 					.ofs = con_src->ofs,
 					.upage = con_src->upage,
 					.read_bytes = con_src->read_bytes,
@@ -416,7 +432,7 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 				};
 
 				/* malloc and initialize page_dst and insert in spt_dst. */
-				if (!vm_alloc_page_with_initializer (VM_ANON, con_src->upage,
+				if (!vm_alloc_page_with_initializer (page_get_type(page_src), con_src->upage,
 							page_src->writable, page_src->uninit.init, con_dst)){
 					printf("spt_copy: vm_alloc_page_with_initializer() fail\n");			
 					free(con_dst);
@@ -438,7 +454,17 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 
 				/* Case 1: page_src resident in physical memory. */
 				if(page_src->anon.status){
+					ASSERT(page_src->frame != NULL);
 					ASSERT(page_src->anon.bm_idx == -1);
+
+					/* The contents of page_src->frame->kva can be evicted 
+					   by vm_do_claim_page. Thus, we need to copy it. */
+					void *temp = (void *)malloc(PGSIZE);
+					if(temp == NULL) goto err;
+					
+					lock_acquire(&frame_lock);
+					memcpy(temp, page_src->frame->kva, PGSIZE);
+					lock_release(&frame_lock);
 
 					/* develop page_dst VM_UNINIT to VM_ANON using anon_init. */
 					if(!vm_do_claim_page(page_dst)){
@@ -448,7 +474,13 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 
 					page_dst->anon.bm_idx = page_src->anon.bm_idx;
 					page_dst->anon.status = page_src->anon.status;
-					memcpy(page_dst->frame->kva, page_src->frame->kva, PGSIZE);
+					
+					lock_acquire(&frame_lock);
+					ASSERT(page_dst->frame != NULL);
+					memcpy(page_dst->frame->kva, temp, PGSIZE);
+					lock_release(&frame_lock);
+
+					free(temp);
 				}
 
 				/* Case 2: page_src resident in swap disk. */
@@ -466,6 +498,61 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 				break;
 			
 			case VM_FILE:
+				/* malloc and initialize page_dst and insert in spt_dst. */
+				if (!vm_alloc_page(VM_FILE, page_src->va, page_src->writable)){
+					printf("spt_copy: vm_alloc_page() fail\n");			
+					goto err;
+				}
+
+				/* get page_dst. */
+				page_dst = spt_find_page(dst, page_src->va);
+				ASSERT(page_dst != NULL);
+
+				if(page_src->file.status){
+					/* The contents of page_src->frame->kva can be evicted 
+					   by vm_do_claim_page. Thus, we need to copy it. */
+					void *temp = (void *)malloc(PGSIZE);
+					if(temp == NULL) goto err;
+					
+					lock_acquire(&frame_lock);
+					memcpy(temp, page_src->frame->kva, PGSIZE);
+					lock_release(&frame_lock);
+					
+					/* develop page_dst VM_UNINIT to VM_FILE using file_init. */
+					if(!vm_do_claim_page(page_dst)){
+						printf("spt_copy: vm_do_claim_page() fail\n");
+						goto err;
+					}
+
+					page_dst->file.file = page_src->file.file;
+					page_dst->file.offset = page_src->file.offset;
+					page_dst->file.read_bytes = page_src->file.read_bytes;
+					page_dst->file.zero_bytes = page_src->file.zero_bytes;
+					page_dst->file.status = page_src->file.status;
+					
+					lock_acquire(&frame_lock);
+					ASSERT(page_dst->frame != NULL);
+					memcpy(page_dst->frame->kva, temp, PGSIZE);
+					lock_release(&frame_lock);
+
+					free(temp);
+				}
+
+				/* Case 2: page_src resident in swap disk. */
+				else{
+					/* develop page_dst VM_UNINIT to VM_ANON using anon_init. */
+					if(!file_backed_initializer(page_dst, VM_FILE, NULL)){
+						printf("spt_copy: anon_initializer() fail\n");
+						goto err;
+					}
+
+					page_dst->file.file = page_src->file.file;
+					page_dst->file.offset = page_src->file.offset;
+					page_dst->file.read_bytes = page_src->file.read_bytes;
+					page_dst->file.zero_bytes = page_src->file.zero_bytes;
+					page_dst->file.status = page_src->file.status;
+				}
+
 				break; 
 
 			default:
@@ -485,8 +572,12 @@ err:
 /* hash_action_func() to kill spt entry. */
 void
 supplemental_page_table_entry_kill (struct hash_elem *e, void *aux UNUSED){
+	//lock_acquire(&spt_lock);
+
 	struct page *page = hash_entry(e, struct page, spt_elem);
 	vm_dealloc_page(page);
+
+	//lock_release(&spt_lock);
 }
 
 
