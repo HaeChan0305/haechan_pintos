@@ -208,7 +208,7 @@ lock_acquire (struct lock *lock) {
 	ASSERT (!lock_held_by_current_thread (lock));
 
 	struct thread *curr = thread_current();
-
+	
 	if(!thread_mlfqs){
 		struct thread *holder = lock->holder;
 		

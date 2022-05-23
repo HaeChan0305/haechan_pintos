@@ -23,7 +23,7 @@ child-bad: exit(-1)
 wait-killed: exit(0)
 Execution of 'wait-killed' complete.
 Timer: 85 ticks
-Thread: 32 idle ticks, 50 kernel ticks, 4 user ticks
+Thread: 36 idle ticks, 45 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 171 reads, 458 writes
 hd1:0: 210 reads, 0 writes

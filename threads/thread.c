@@ -212,8 +212,12 @@ thread_create (const char *name, int priority,
 
 	/* Allocate thread. */
 	t = palloc_get_page (PAL_ZERO);
-	if (t == NULL)
+	if (t == NULL){
+#ifdef USERPROG
+		sema_up(&thread_current()->fork_sema);
+#endif
 		return TID_ERROR;
+	}
 
 	/* Initialize thread. */
 	init_thread (t, name, priority);
@@ -223,6 +227,7 @@ thread_create (const char *name, int priority,
 	/* Create stdin and stdout */
 	if(! fd_list_init(&t->fd_table)){
 		palloc_free_page(t);
+		sema_up(&thread_current()->fork_sema);
 		return TID_ERROR; 
 	}
 	
@@ -231,6 +236,7 @@ thread_create (const char *name, int priority,
 	if(t->sharing_info_ == NULL){
 		remove_all_fdesc(t);
 		palloc_free_page(t);
+		sema_up(&thread_current()->fork_sema);
 		return TID_ERROR;
 	}
 #endif
@@ -448,6 +454,7 @@ priority_updating(struct thread *t) {
    (Made this function for preventing duplicating part.)*/
 void
 compare_and_switch(void){
+	ASSERT (is_thread (thread_current())); //modified at lab3
 	if(list_empty(&ready_list)) return;
 
 	if(list_entry(list_begin(&ready_list), struct thread, elem)->priority 
@@ -464,10 +471,13 @@ get_ready_list(void){
    by something, then it call itself recursively. */
 void
 donation_priority(struct thread * t){
+	ASSERT (is_thread (t)); //modified at lab3
 	ASSERT(t->lock);
 	ASSERT(!thread_mlfqs);
 
 	struct thread *holder = t->lock->holder;
+
+	if(!is_thread(holder)) return; //modified at lab3
 
 	list_insert_ordered(&holder->donating_list, &t->donating_elem,
 						compare_donated_priority, NULL);

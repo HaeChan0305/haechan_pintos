@@ -37,24 +37,16 @@ Executing 'lazy-file':
 (lazy-file) check if page is loaded
 (lazy-file) check if page is loaded
 (lazy-file) check if page is loaded
-Interrupt 0x0d (#GP General Protection Exception) at rip=80042245c4
- cr2=0000000010002000 error=               0
-rax cccccccccccccccc rbx 0000800424100000 rcx 0000008004246e20 rdx 0000000010001000
-rsp 0000008004246e40 rbp 0000008004246e60 rsi 0000008004241830 rdi 0000008004241798
-rip 00000080042245c4 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
-r11 0000000000000212 r12 000000800421dd83 r13 0000000000000000 r14 0000800420adfa00
-r15 00008004246f1000 rflags 00000246
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x80042187f5 0x800421daf6 0x80042095b0 0x80042099ce 0x8004224719 0x8004224854 0x800421ea10 0x800421e075 0x800421dcac 0x4004d7 0x400f9f 0x400fe8.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Timer: 90 ticks
-Thread: 38 idle ticks, 48 kernel ticks, 4 user ticks
+(lazy-file) end
+lazy-file: exit(0)
+Execution of 'lazy-file' complete.
+Timer: 89 ticks
+Thread: 36 idle ticks, 48 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 183 reads, 354 writes
 hd1:0: 153 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 2659 characters output
-Key
+Console: 1796 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

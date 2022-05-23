@@ -96,11 +96,11 @@ process_fork (const char *name, struct intr_frame *if_ UNUSED) {
 	struct thread *curr = thread_current();
 	aux.parent_thread = curr;
 	aux.caller_if = if_;
-	
+
 	tid_t tid = thread_create (name, PRI_DEFAULT, __do_fork, &aux);
 	/* Fail to thread_create() */
 	if(tid == TID_ERROR) return TID_ERROR;
-	
+
 	/* Wait for child process' __do_fork() */
 	sema_down(&curr->fork_sema);
 
@@ -286,7 +286,7 @@ __do_fork (void *aux) {
 
 	/* 1. Read the cpu context to local stack. */
 	memcpy (&if_, parent_if, sizeof(struct intr_frame));
-	if_.R.rax = 0; //Child' fork() return value == 0
+	//if_.R.rax = 0; //Child' fork() return value == 0
 
 	/* 2. Duplicate PT */
 	current->pml4 = pml4_create();
@@ -294,6 +294,10 @@ __do_fork (void *aux) {
 		goto error;
 
 	process_activate (current);
+
+	if(!duplicate_fd(parent, current))
+		goto error; 
+
 #ifdef VM
 	supplemental_page_table_init (&current->spt);
 	if (!supplemental_page_table_copy (&current->spt, &parent->spt))
@@ -303,10 +307,8 @@ __do_fork (void *aux) {
 		goto error;
 #endif
 
-	if(!duplicate_fd(parent, current))
-		goto error; 	
-
 	/* Finally, switch to the newly created process. */
+	if_.R.rax = 0; //Child' fork() return value == 0
 	parent->fork_status = true;
 	sema_up(&parent->fork_sema);
 	do_iret (&if_);
@@ -339,7 +341,6 @@ process_exec (void *f_name) {
 		sema_up(&process_sema);
 		return -1;
 	}
-
 	strlcpy(name_copy, file_name, strlen(file_name) + 1);
 
 	/* We first kill the current context */
@@ -356,7 +357,7 @@ process_exec (void *f_name) {
 
 	if (!success)
 		return -1;
-	
+
 	/* Start switched process. */
 	do_iret (&_if);
 	NOT_REACHED ();
@@ -473,6 +474,7 @@ process_cleanup (void) {
 
 #ifdef VM
 	supplemental_page_table_kill (&curr->spt);
+	ASSERT(hash_empty(&curr->spt.h_spt));
 #endif
 
 	uint64_t *pml4;
@@ -884,6 +886,11 @@ install_page (void *upage, void *kpage, bool writable) {
 bool
 lazy_load_segment (struct page *page, void *aux) {
 	// page->frame is set by vm_get_frame() in vm_do_claim_page().
+	ASSERT(page->frame != NULL);
+	ASSERT(page->frame->kva != NULL);
+	ASSERT(aux != NULL)
+	ASSERT(page_get_type(page) != VM_UNINIT);
+	
 	struct frame *frame = page->frame;
 	struct container *container = (struct container *)aux;
 
@@ -893,13 +900,28 @@ lazy_load_segment (struct page *page, void *aux) {
 	uint32_t read_bytes = container->read_bytes;
 	uint32_t zero_bytes = container->zero_bytes;
 
-	if(file_read_at(file, frame->kva, read_bytes, ofs) != (int)read_bytes) {
-		free(container);
+	if(page_get_type(page) == VM_FILE){
+		struct file_page *file_page = &page->file;
+		*file_page = (struct file_page){
+			.file = file,
+			.offset = ofs,
+			.read_bytes = read_bytes,
+			.zero_bytes = zero_bytes,
+			.status = true,
+		};
+	}
+
+	file_seek(file, ofs);
+	if(file_read(file, frame->kva, read_bytes) != (int)read_bytes) {
+		printf("file_backed_swap_in: file_read() fail\n");
 		file_close(file);
+		free(container);
 		return false;
 	}
 	
-	memset (frame->kva + read_bytes, 0, zero_bytes);
+	if(zero_bytes != 0)
+		memset (frame->kva + read_bytes, 0, zero_bytes);
+		
 	free(container);
 	return true;
 }

@@ -159,15 +159,21 @@ exit (int status){
 
 tid_t 
 fork (const char *thread_name, struct intr_frame *f){
-	return process_fork(thread_name, f); 
+	lock_acquire(&file_lock);
+	int result = process_fork(thread_name, f);
+	lock_release(&file_lock); 
+	return result;
 }
 
 int 
 exec (const char *cmd_line){
+	//printf("exec : %s\n",cmd_line);
 	check_address((void *)cmd_line);
-	
-	if(process_exec(cmd_line) == -1)
-		exit(-1);
+
+	if(process_exec(cmd_line) == -1){
+		//printf("process_exec : fail\n");
+		exit(-1);	
+	}
 }
 
 int 
@@ -182,7 +188,6 @@ create (const char *file, unsigned initial_size){
 	lock_acquire(&file_lock);
 	bool result = filesys_create(file, (off_t)initial_size);
 	lock_release(&file_lock);
-	
 	return result;
 }
 

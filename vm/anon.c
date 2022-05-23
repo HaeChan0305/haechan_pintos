@@ -103,7 +103,7 @@ anon_swap_out (struct page *page) {
 	
 	/* Can't find appropriate disk space. */
 	if(idx == BITMAP_ERROR){
-		printf("disk is full\n");
+		printf("anon_swap_oiut: disk is full\n");
 		lock_release(&bm_lock);
 		return false;
 	}
@@ -114,8 +114,9 @@ anon_swap_out (struct page *page) {
 	/* Copy to disk from physical memory. */
 	void *kva = page->frame->kva;
 
+	disk_sector_t sec = SEC_PER_PAGE * idx;
 	for(int i = 0; i < SEC_PER_PAGE; i++)
-		disk_write(swap_disk, SEC_PER_PAGE * idx + i, kva + DISK_SECTOR_SIZE * i);
+		disk_write(swap_disk, sec + i, kva + DISK_SECTOR_SIZE * i);
 	
 	/* Resetting anon_page struct. */
 	*anon_page = (struct anon_page){
@@ -123,7 +124,7 @@ anon_swap_out (struct page *page) {
 		.status = false,
 	};
 
-	/* Remove it from pml4 page table. */
+	/* Remove it from pml4. */
 	pml4_clear_page(thread_current()->pml4, page->va);
 	
 	lock_release(&bm_lock);

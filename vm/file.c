@@ -8,6 +8,7 @@ static bool file_backed_swap_out (struct page *page);
 static void file_backed_destroy (struct page *page);
 
 static struct lock vm_file_lock;
+extern struct lock evict_lock;
 
 /* DO NOT MODIFY this struct */
 static const struct page_operations file_ops = {
@@ -28,21 +29,18 @@ bool
 file_backed_initializer (struct page *page, enum vm_type type, void *kva) {
 	ASSERT(VM_TYPE(type) == VM_FILE);
 
+	/* Set up the handler */
 	page->operations = &file_ops;
-
-	if(kva != NULL){
-		struct container *container = (struct container *)page->uninit.aux;
-
-		struct file_page *file_page = &page->file;
-		*file_page = (struct file_page){
-			.file = container->file,
-			.offset = container->ofs,
-			.read_bytes = container->read_bytes,
-			.zero_bytes = container->zero_bytes,
-			.status = true,
-		};
-	}
 	
+	struct file_page *file_page = &page->file;
+	*file_page = (struct file_page){
+		.file = NULL,
+		.offset = 0,
+		.read_bytes = 0,
+		.zero_bytes = 0,
+		.status = true,
+	};
+
 	return true;
 }
 
@@ -61,8 +59,9 @@ file_backed_swap_in (struct page *page, void *kva) {
 	uint32_t read_bytes = file_page->read_bytes;
 	uint32_t zero_bytes = file_page->zero_bytes;
 
-	if(file_read_at(file, kva, read_bytes, ofs) != (int)read_bytes){
-		printf("file_backed_swap_in: file_read_at() fail\n");
+	file_seek(file, ofs);
+	if(file_read(file, kva, read_bytes) != (int)read_bytes){
+		printf("file_backed_swap_in: file_read() fail\n");
 		lock_release(&vm_file_lock);
 		return false;
 	}
@@ -89,14 +88,19 @@ file_backed_swap_out (struct page *page) {
 	struct file *file = file_page->file;
 	off_t ofs = file_page->offset;
 	uint32_t read_bytes = file_page->read_bytes;
+	uint32_t zero_bytes = file_page->zero_bytes;
 
 	if(pml4_is_dirty(thread_current()->pml4, page->va)){
-		pml4_set_dirty(thread_current()->pml4, page->va, false);
-
-		if(file_write_at(file, page->frame->kva, PGSIZE, ofs) != read_bytes){
+		file_seek(file, ofs);
+		if(file_write(file, page->frame->kva, PGSIZE) != read_bytes){
 			lock_release(&vm_file_lock);
 			return false;
 		}
+
+		if(zero_bytes != 0)
+			memset (page->frame->kva + read_bytes, 0, zero_bytes);
+
+		pml4_set_dirty(thread_current()->pml4, page->va, false);
 	}
 
 	file_page->status = false;
@@ -125,16 +129,18 @@ file_backed_destroy (struct page *page) {
 		if(pml4_is_dirty(thread_current()->pml4, page->va)){
 			pml4_set_dirty(thread_current()->pml4, page->va, false);
 
-			if(file_write_at(file, page->frame->kva, read_bytes, ofs) != read_bytes){
+			file_seek(file, ofs);
+			if(file_write(file, page->frame->kva, read_bytes) != read_bytes){
+				file_close(file);
 				lock_release(&vm_file_lock);
-				printf("file_backed_destroy: file_write_at() fail\n");
+				printf("file_backed_destroy: file_write() fail\n");
 				return;
 			}
 		}
-		remove_frame(page->frame); // Can it cause deadlock with frame_lock?
+		remove_frame(page->frame);
 	}
 
-	file_close(file_page->file);
+	file_close(file);
 	lock_release(&vm_file_lock);
 }
 
@@ -148,26 +154,30 @@ do_mmap (void *addr, size_t length, int writable,
 	|| pg_ofs(addr) != 0	  //ADDR is not page aligned
 	|| addr == NULL			  //ADDR is NULL
 	|| (int)length <= 0		  //LENGTH <= 0
-	|| offset < 0
+	|| (int)offset < 0		  //OFFSET < 0
 	|| flen < offset		  //file lenght < offset
 	|| offset % PGSIZE != 0)  //offset is not page aligned
 		return NULL;	  
 
+	/* Set total read_bytes and total zero_bytes. */
 	size_t read_bytes = (flen - offset) > length ? length : (flen - offset);
 	size_t zero_bytes = (read_bytes % PGSIZE) ? PGSIZE - (read_bytes % PGSIZE) : 0;
 	ASSERT((read_bytes + zero_bytes) % PGSIZE == 0);
 
-	/* Check two case
+	/* Check two invaild case
 	   case 1 : VA have already been in spt.
-	   case 2 : VA lies in kernel pool. */
+	   case 2 : VA lies in kernel pool. It must be checked whether borderline or not. */
+	void *va;
 	struct supplemental_page_table *spt = &thread_current()->spt;
-
+	
 	for(int i = 0; i < (read_bytes + zero_bytes) / PGSIZE; i++){
-		void *va = addr + (i * PGSIZE);
+		va = addr + (i * PGSIZE);
 		if(is_kernel_vaddr(va) || spt_find_page(spt, va) != NULL)
 			return NULL;
 	}
+	if(is_kernel_vaddr(va + 1)) return NULL; 
 
+	/* Make each page. */
 	uint8_t *upage = addr;
 	while(read_bytes > 0 || zero_bytes > 0){
 		ASSERT(!(read_bytes == 0 && zero_bytes != 0));
@@ -178,7 +188,7 @@ do_mmap (void *addr, size_t length, int writable,
 		size_t file_zero_bytes = PGSIZE - file_read_bytes;
 
 		struct container *container = (struct container *)malloc(sizeof(struct container));
-		if(container == NULL) return false;
+		if(container == NULL) return NULL;
 
 		*container = (struct container) {
 			.file = file_reopen(file),
@@ -190,7 +200,8 @@ do_mmap (void *addr, size_t length, int writable,
 
 		if (!vm_alloc_page_with_initializer (VM_FILE, upage,
 					writable, lazy_load_segment, container)){
-			printf("load_segment: vm_alloc_page_with_initializer() fail\n");			
+			printf("load_segment: vm_alloc_page_with_initializer() fail\n");
+			file_close(container->file);
 			free(container);
 			return NULL;
 		}
@@ -205,12 +216,14 @@ do_mmap (void *addr, size_t length, int writable,
 	return addr;
 }
 
-off_t
+static off_t
 page_get_ofs (struct page *page) {
+printf("page_get_ofs\n");
 	int ty = VM_TYPE (page->operations->type);
 	struct container *container;
 	switch (ty) {
 		case VM_UNINIT:
+			ASSERT(page_get_type(page) != VM_ANON);
 			container = (struct container *)page->uninit.aux;
 			return container->ofs;
 		
@@ -223,13 +236,14 @@ page_get_ofs (struct page *page) {
 	}
 }
 
-struct file *
+static struct file *
 page_get_file (struct page *page) {
 	int ty = VM_TYPE (page->operations->type);
 	struct container *container;
 	switch (ty) {
 		case VM_UNINIT:
-			container = (struct container *)page->uninit.aux;
+			ASSERT(page_get_type(page) != VM_ANON);
+			container = (struct container *)(page->uninit.aux);
 			return container->file;
 		
 		case VM_FILE:
@@ -241,22 +255,29 @@ page_get_file (struct page *page) {
 	}
 }
 
-bool
+static bool
 is_next_same_mmaping(void *next_va, struct page *prev_page){
 	ASSERT(pg_ofs(next_va) == 0);
 
 	if(is_kernel_vaddr(next_va)) return false;
-
+	
 	struct page* next_page = spt_find_page(&thread_current()->spt, next_va);
 	if(next_page == NULL || page_get_type(next_page) != VM_FILE) return false;
-
+	
 	/* first while statement. */
-	if(prev_page == NULL) return true;
-
-	/* After first while statement. */
-	if((page_get_file(prev_page) == page_get_file(next_page)) 
-	&& (page_get_ofs(next_page) - page_get_ofs(prev_page) == PGSIZE)) 
+	if(prev_page == NULL) 
 		return true;
+
+	/* Not first while statement. */
+	else{
+		if((page_get_file(prev_page) == page_get_file(next_page)) 
+		&& (page_get_ofs(next_page) - page_get_ofs(prev_page) == PGSIZE)) 
+			return true;
+
+		else
+			return false;
+	}
+	
 }
 
 /* Do the munmap */
@@ -270,9 +291,14 @@ do_munmap (void *addr) {
 		struct page *curr_page = spt_find_page(spt, va);
 		ASSERT(curr_page != NULL);
 
-		spt_remove_page(spt, curr_page);
 		va += PGSIZE;
 		prev_page = curr_page;
+	}
+
+	while(addr != va){
+		struct page *page = spt_find_page(spt, addr);
+		spt_remove_page(spt, page);
+		addr += PGSIZE;
 	}
 	
 }
