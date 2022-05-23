@@ -217,7 +217,10 @@ open (const char *file){
 	}
 	
 	int result = create_fd(new_file);		
-	if(result == -1) file_close(new_file);	/* create_fd() fail */
+	if(result == -1) {
+		printf("open : create_fd() fail\n");
+		file_close(new_file);
+	}
 
 	lock_release(&file_lock);
 	return result;
@@ -258,15 +261,12 @@ open (const char *file){
 
 	/* Case of STDIN (fd == 0)*/
 	if(fdesc_->fd == 0){
-		for(int i = 0; i < length; i++){
-			uint8_t c = input_getc();
-			*(uint8_t *)(buffer+i) = c;
-			
-			if(c == '\0'){
-				lock_release(&file_lock);
-				return i;
-			}
-		}
+		for(int i = 0; i < length; i++)
+			*(uint8_t *)(buffer+i) = input_getc();
+		
+		lock_release(&file_lock);
+		
+		return length;
 	}
 
 	/* Case of STDOUT => invalid input */
@@ -299,6 +299,7 @@ write (int fd, const void *buffer, unsigned length){
 	
 	/* No such a fd in fd_table */
 	if(fdesc_ == NULL){
+		ASSERT(!(fd == 0 || fd == 1));
 		lock_release(&file_lock);
 		return 0;
 	}
@@ -360,8 +361,10 @@ close (int fd){
 	lock_acquire(&file_lock);
 
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL){
-		file_close(fdesc_->file);
+	if(fdesc_ != NULL){
+		if(fdesc_->file != NULL)
+			file_close(fdesc_->file);
+
 		list_remove(&fdesc_->fd_elem);
 		free(fdesc_);
 	}

@@ -267,9 +267,6 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 
 	/* CASE 1 : Stack growth */
 	if(page == NULL){
-		// printf("USER_STACK : %x\n",USER_STACK);
-		// printf("ADDR : %p\n",addr);
-		// printf("USER_STACK - (1 << 20) : %x\n",USER_STACK - (1 << 20));
 		//check ADDR is valid
 		if(((addr < USER_STACK) && (addr > USER_STACK - (1 << 20)))){
 			uintptr_t rsp = user ? f->rsp : thread_current()->saved_rsp;

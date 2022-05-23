@@ -152,6 +152,9 @@ duplicate_pte (uint64_t *pte, void *va, void *aux) {
 /* duplicate all file descriptor in parent fd list */
 static bool
 duplicate_fd(struct thread *parent, struct thread *child){
+	/* child fd list must be lenght two. */
+	ASSERT(list_begin(&child->fd_table)->next->next == list_end(&child->fd_table));
+
 	/* for-statement should Start next of stdout. */
 	for(struct list_elem *temp = list_begin(&parent->fd_table)->next->next ;
 		temp != list_end(&parent->fd_table) ; temp = list_next(temp)){
@@ -166,6 +169,7 @@ duplicate_fd(struct thread *parent, struct thread *child){
 		if(child_fd->file == NULL){
 			file_close(child_fd->file);
 			free(child_fd);
+			remove_all_fdesc(child);
 			return false;
 		}
 
@@ -215,28 +219,21 @@ create_fd(struct file *new_file){
 	if(new_fdesc == NULL) return -1; 
 
 	lock_acquire(&fd_lock);
-	/* -------Critical section start-------*/
 	/* fd is bigger than cnt, mean there is unallocated number. */
 	int cnt = 0; 	//iteration
-	for(struct list_elem *temp = list_begin(fd_table_) ;
-		temp != list_end(fd_table_) ; temp = list_next(temp)){
-			if(list_entry(temp, struct fdesc, fd_elem)->fd > cnt){
-				new_fdesc->fd = cnt;
-				new_fdesc->file = new_file;
-				list_insert(temp, &new_fdesc->fd_elem);
-
-				lock_release(&fd_lock);
-				return cnt;
-			}
-			cnt++;
+	struct list_elem *temp;
+	for(temp = list_begin(fd_table_) ; temp != list_end(fd_table_) ; temp = list_next(temp)){
+		if(list_entry(temp, struct fdesc, fd_elem)->fd > cnt)
+			break;
+		
+		cnt++;
 	}
 
 	new_fdesc->fd = cnt;
 	new_fdesc->file = new_file;
-	list_push_back(fd_table_, &new_fdesc->fd_elem);
-	/* -------Critical section end-------*/
-	lock_release(&fd_lock);
+	list_insert(temp, &new_fdesc->fd_elem);
 
+	lock_release(&fd_lock);
 	return cnt;
 }
 
@@ -244,8 +241,7 @@ create_fd(struct file *new_file){
  * corresponding to FD_, return NULL */
 struct fdsec *
 find_fd(int fd_){
-	struct thread *curr = thread_current();
-	struct list *fd_table_ = &curr->fd_table;
+	struct list *fd_table_ = &thread_current()->fd_table;
 
 	for(struct list_elem *temp = list_begin(fd_table_) ;
 		temp != list_end(fd_table_) ; temp = list_next(temp))
