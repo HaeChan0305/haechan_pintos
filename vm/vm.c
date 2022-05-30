@@ -212,26 +212,22 @@ vm_get_frame (void) {
 	struct frame *frame = NULL;
 	void *kva = palloc_get_page(PAL_USER | PAL_ZERO);
 	
-	if(kva == NULL){
+	if(kva == NULL)
 		frame = vm_evict_frame();
-		if(frame == NULL) return frame;
+	
+	else{
+		lock_acquire(&frame_lock);
+		frame = (struct frame *)malloc(sizeof(struct frame));
+		if(frame == NULL) return NULL;
+
+		frame->kva = kva;
+		frame->page = NULL;
 		
-		kva = frame->kva;
-		remove_frame(frame);
+		list_push_back(&frame_clock, &frame->clock_elem);
+		hash_insert(&frame_table, &frame->ft_elem);	
+		lock_release(&frame_lock);	
 	}
 
-	frame = (struct frame *)malloc(sizeof(struct frame));
-	if(frame == NULL) return frame;
-
-	lock_acquire(&frame_lock);
-
-	frame->kva = kva;
-	frame->page = NULL;
-	
-	list_push_back(&frame_clock, &frame->clock_elem);
-	hash_insert(&frame_table, &frame->ft_elem);		
-
-	lock_release(&frame_lock);
 	return frame;
 }
 
@@ -421,7 +417,8 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
                     .ofs = con_src->ofs,
                     .upage = con_src->upage,
                     .read_bytes = con_src->read_bytes,
-                    .zero_bytes = con_src->zero_bytes, 
+                    .zero_bytes = con_src->zero_bytes,
+					.fd = con_src->fd,
                 };
 
                 /* malloc and initialize page_dst and insert in spt_dst. */
@@ -512,6 +509,7 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
                     .read_bytes = file_page_src->read_bytes,
                     .zero_bytes = file_page_src->zero_bytes,
                     .status = status_src,
+					.fd = file_page_src->fd,
                 };
 
                 if(file_page_dst->file == NULL){

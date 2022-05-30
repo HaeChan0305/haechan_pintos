@@ -895,27 +895,33 @@ lazy_load_segment (struct page *page, void *aux) {
 	uint8_t *upage = container->upage;
 	uint32_t read_bytes = container->read_bytes;
 	uint32_t zero_bytes = container->zero_bytes;
+	int fd = container->fd;
 
 	if(page_get_type(page) == VM_FILE){
 		struct file_page *file_page = &page->file;
+		ASSERT(fd > 1); 
 		*file_page = (struct file_page){
 			.file = file,
 			.offset = ofs,
 			.read_bytes = read_bytes,
 			.zero_bytes = zero_bytes,
 			.status = true,
+			.fd = fd,
 		};
 	}
 
+	if(page_get_type(page) == VM_ANON)
+		ASSERT(fd == -1);
+
 	file_seek(file, ofs);
 	if(file_read(file, frame->kva, read_bytes) != (int)read_bytes) {
-		printf("file_backed_swap_in: file_read() fail\n");
+		printf("lazy_load_segment: file_read() fail\n");
 		file_close(file);
 		free(container);
 		return false;
 	}
 	
-	if(zero_bytes != 0)
+	if(zero_bytes > 0)
 		memset (frame->kva + read_bytes, 0, zero_bytes);
 		
 	free(container);
@@ -959,7 +965,8 @@ load_segment (struct file *file, off_t ofs, uint8_t *upage,
 			.ofs = ofs,
 			.upage = upage,
 			.read_bytes = page_read_bytes,
-			.zero_bytes = page_zero_bytes, 
+			.zero_bytes = page_zero_bytes,
+			.fd = -1,
 		};
 
 		if (!vm_alloc_page_with_initializer (VM_ANON, upage,

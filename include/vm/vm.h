@@ -91,6 +91,8 @@ struct container{
 	uint8_t *upage;
 	uint32_t read_bytes;
 	uint32_t zero_bytes;
+	int fd; /* For VM_FILE, distinguishing whether same FILE or not.
+			   In case of VM_ANON, fd == -1. */
 };
 
 #define swap_in(page, v) (page)->operations->swap_in ((page), v)

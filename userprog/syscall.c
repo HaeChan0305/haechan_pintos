@@ -386,7 +386,7 @@ mmap(void *addr, size_t length, int writable, int fd, off_t offset){
 
 	struct fdesc *fdesc_ = find_fd(fd);
 	if(fdesc_!= NULL && fdesc_->file != NULL)
-		va = do_mmap(addr, length, writable, fdesc_->file, offset);
+		va = do_mmap(addr, length, writable, fdesc_->file, offset, fd);
 
 done:
 	lock_release(&file_lock);
