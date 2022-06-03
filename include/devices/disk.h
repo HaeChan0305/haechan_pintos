@@ -7,9 +7,18 @@
 /* Size of a disk sector in bytes. */
 #define DISK_SECTOR_SIZE 512
 
+/* Number of sectors per cluster. */
+#define SECTORS_PER_CLUSTER 1       
+
+/* Size of disk cluster in bytes. */
+#define DISK_CLUSTER_SIZE DISK_SECTOR_SIZE * SECTORS_PER_CLUSTER   
+
 /* Index of a disk sector within a disk.
  * Good enough for disks up to 2 TB. */
 typedef uint32_t disk_sector_t;
+
+/* Index of a cluster within FAT. */
+typedef uint32_t cluster_t;  
 
 /* Format specifier for printf(), e.g.:
  * printf ("sector=%"PRDSNu"\n", sector); */
@@ -22,6 +31,8 @@ struct disk *disk_get (int chan_no, int dev_no);
 disk_sector_t disk_size (struct disk *);
 void disk_read (struct disk *, disk_sector_t, void *);
 void disk_write (struct disk *, disk_sector_t, const void *);
+void disk_read_clst(struct disk *d, cluster_t clst_no, void *buffer);
+void disk_write_clst(struct disk *d, cluster_t clst_no, void *buffer);
 
 void 	register_disk_inspect_intr ();
 #endif /* devices/disk.h */

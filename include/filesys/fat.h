@@ -8,15 +8,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef uint32_t cluster_t;  /* Index of a cluster within FAT. */
-
+/* */
 #define FAT_MAGIC 0xEB3C9000 /* MAGIC string to identify FAT disk */
 #define EOChain 0x0FFFFFFF   /* End of cluster chain */
+#define EMPTY 0xFFFFFFFF     /* Empty fat entry */ 
 
 /* Sectors of FAT information. */
-#define SECTORS_PER_CLUSTER 1 /* Number of sectors per cluster */
-#define FAT_BOOT_SECTOR 0     /* FAT boot sector. */
-#define ROOT_DIR_CLUSTER 1    /* Cluster for the root directory */
+#define FAT_BOOT_SECTOR 0           /* FAT boot sector. */
+#define ROOT_DIR_CLUSTER 0          /* Cluster for the root directory */
 
 void fat_init (void);
 void fat_open (void);
@@ -27,6 +26,9 @@ void fat_close (void);
 cluster_t fat_create_chain (
     cluster_t clst /* Cluster # to stretch, 0: Create a new chain */
 );
+
+bool fat_create_chain_multiple(size_t clusters, cluster_t *start);
+
 void fat_remove_chain (
     cluster_t clst, /* Cluster # to be removed */
     cluster_t pclst /* Previous cluster of clst, 0: clst is the start of chain */

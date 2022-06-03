@@ -4,14 +4,15 @@
 #include <stdbool.h>
 #include "filesys/off_t.h"
 #include "devices/disk.h"
+#include "filesys/fat.h"
 
 struct bitmap;
 
 void inode_init (void);
-bool inode_create (disk_sector_t, off_t);
-struct inode *inode_open (disk_sector_t);
+bool inode_create (cluster_t, off_t);
+struct inode *inode_open (cluster_t);
 struct inode *inode_reopen (struct inode *);
-disk_sector_t inode_get_inumber (const struct inode *);
+cluster_t inode_get_inumber (const struct inode *);
 void inode_close (struct inode *);
 void inode_remove (struct inode *);
 off_t inode_read_at (struct inode *, void *, off_t size, off_t offset);

@@ -43,6 +43,12 @@ static struct semaphore process_sema;
 
 extern struct lock file_lock;
 
+/* General process initializer for initd and other process. */
+static void
+process_init (void) {
+	struct thread *current = thread_current ();
+}
+
 /* Starts the first userland program, called "initd", loaded from FILE_NAME.
  * The new thread may be scheduled (and may even exit)
  * before process_create_initd() returns. Returns the initd's
@@ -82,6 +88,7 @@ initd (void *f_name) {
 #ifdef VM
 	supplemental_page_table_init (&thread_current ()->spt);
 #endif
+	process_init ();
 
 	if (process_exec (f_name) < 0)
 		PANIC("Fail to launch initd\n");
@@ -306,6 +313,8 @@ __do_fork (void *aux) {
 	/* Finally, switch to the newly created process. */
 	if_.R.rax = 0; //Child' fork() return value == 0
 	parent->fork_status = true;
+
+	process_init ();
 	sema_up(&parent->fork_sema);
 	do_iret (&if_);
 

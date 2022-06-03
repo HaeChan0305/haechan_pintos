@@ -249,7 +249,19 @@ disk_write (struct disk *d, disk_sector_t sec_no, const void *buffer) {
 	d->write_cnt++;
 	lock_release (&c->lock);
 }
-
+
+void
+disk_read_clst(struct disk *d, cluster_t clst_no, void *buffer){
+	for(size_t i = 0; i < SECTORS_PER_CLUSTER; i++)
+		disk_read(d, cluster_to_sector(clst_no) + i, buffer + i * DISK_SECTOR_SIZE);
+}
+
+void
+disk_write_clst(struct disk *d, cluster_t clst_no, void *buffer){
+	for(size_t i = 0; i < SECTORS_PER_CLUSTER; i++)
+		disk_write(d, cluster_to_sector(clst_no) + i, buffer + i * DISK_SECTOR_SIZE);
+}
+
 /* Disk detection and identification. */
 
 static void print_ata_string (char *string, size_t size);
