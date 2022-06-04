@@ -4,17 +4,25 @@ Kernel command line: -q run 'tar fs.tar /' get fs.tar
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0xffe0000 (Usable: 260,992 kB)
-Calibrating timer...  157,081,600 loops/s.
+Calibrating timer...  130,867,200 loops/s.
 hd0:0: detected 361 sector (180 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 2,048 sector (1024 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Boot complete.
 Executing 'tar fs.tar /':
-Kernel PANIC at ../../filesys/fat.c:294 in fat_get(): assertion `clst < fat_fs->last_clst && clst >= 0' failed.
-Call stack: 0x8004214774 0x800421c215 0x800421d40a 0x800421d908 0x800421c8e0 0x8004219705 0x8004224134 0x8004223510 0x8004223348 0x8004219ec1 0x80042096f1.
-The `backtrace' program can make call stacks useful.
-Read "Backtraces" in the "Debugging Tools" chapter
-of the Pintos documentation for more information.
-Kernel PANIC recursion at ../../devices/timer.c:201 in real_time_sleep().
-bad signature on scratch disk
+/: open failed
+error writing archive
+tar: exit(1)
+Execution of 'tar' complete.
+Getting 'fs.tar' from the file system...
+Timer: 86 ticks
+Thread: 31 idle ticks, 48 kernel ticks, 7 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 134 reads, 36 writes
+hd1:0: 0 reads, 1 writes
+hd1:1: 0 reads, 0 writes
+Console: 908 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

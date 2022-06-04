@@ -16,7 +16,7 @@ tar: exit(1)
 Execution of 'tar' complete.
 Getting 'fs.tar' from the file system...
 Kernel PANIC at ../../filesys/fsutil.c:160 in fsutil_get(): fs.tar: open failed
-Call stack: 0x8004214774 0x800421e46e 0x80042068cc 0x8004206186.
+Call stack: 0x8004214774 0x800421e506 0x80042068cc 0x8004206186.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.

@@ -16,8 +16,8 @@ struct inode_disk {
 	cluster_t start;                	/* First data cluster. */
 	off_t length;                       /* File size in bytes. */
 	unsigned magic;                     /* Magic number. */
-	uint32_t unused[125];               /* Not used. */
-	//uint32_t unused[253];               /* Not used. */
+	//uint32_t unused[125];               /* Not used. */
+	uint32_t unused[253];               /* Not used. */
 };
 
 /* In-memory inode. */
@@ -35,8 +35,8 @@ struct inode {
 static inline size_t
 bytes_to_clusters (off_t size) {
 	size_t clusters = DIV_ROUND_UP (size, DISK_CLUSTER_SIZE);
-	/* return (clusters == 0) ? 1 : clusters; */
-	return clusters;
+	return (clusters == 0) ? 1 : clusters;
+	//return clusters;
 }
 
 /* Returns the disk cluster that contains byte offset POS within
@@ -48,7 +48,7 @@ byte_to_cluster(const struct inode *inode, off_t pos){
 	ASSERT (inode != NULL);
 	if (pos < inode->data.length){
 		cluster_t result = inode->data.start;
-		for(int i = 0; i <  pos / (DISK_CLUSTER_SIZE); i++){
+		for(int i = 0; i <  pos / DISK_CLUSTER_SIZE; i++){
 			result = fat_get(result);
 			ASSERT(result != EOChain);
 		}
@@ -262,14 +262,17 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		int cluster_ofs = offset % DISK_CLUSTER_SIZE;
 
 		/* Bytes left in inode, bytes left in cluster, lesser of the two. */
+		printf("\n\n%d\n%d\n", inode_length (inode), offset);
 		off_t inode_left = inode_length (inode) - offset;
 		int cluster_left = DISK_CLUSTER_SIZE - cluster_ofs;
 		int min_left = inode_left < cluster_left ? inode_left : cluster_left;
 
 		/* Number of bytes to actually write into this cluster. */
 		int chunk_size = size < min_left ? size : min_left;
-		if (chunk_size <= 0)
+		if (chunk_size <= 0){
+			printf("\n\ngotloqkf\n\n");
 			break;
+		}
 
 		if (cluster_ofs == 0 && chunk_size == DISK_CLUSTER_SIZE) {
 			/* Write full cluster directly to disk. */

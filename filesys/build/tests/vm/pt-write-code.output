@@ -16,8 +16,8 @@ Executing 'pt-write-code':
 (pt-write-code) begin
 pt-write-code: exit(-1)
 Execution of 'pt-write-code' complete.
-Timer: 84 ticks
-Thread: 32 idle ticks, 50 kernel ticks, 2 user ticks
+Timer: 90 ticks
+Thread: 35 idle ticks, 54 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 227 reads, 527 writes
 hd1:0: 104 reads, 0 writes

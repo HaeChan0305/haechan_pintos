@@ -21,7 +21,7 @@ Executing 'dir-open':
 dir-open: exit(1)
 Execution of 'dir-open' complete.
 Timer: 91 ticks
-Thread: 38 idle ticks, 52 kernel ticks, 1 user ticks
+Thread: 40 idle ticks, 48 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 145 reads, 527 writes
 hd1:0: 229 reads, 0 writes

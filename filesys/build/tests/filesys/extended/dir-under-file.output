@@ -20,10 +20,10 @@ Executing 'dir-under-file':
 (dir-under-file) mkdir "abc" (must return false): FAILED
 dir-under-file: exit(1)
 Execution of 'dir-under-file' complete.
-Timer: 91 ticks
-Thread: 36 idle ticks, 52 kernel ticks, 3 user ticks
+Timer: 89 ticks
+Thread: 39 idle ticks, 49 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 149 reads, 527 writes
+hd0:1: 149 reads, 528 writes
 hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1149 characters output
