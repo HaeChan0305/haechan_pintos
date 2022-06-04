@@ -4,12 +4,8 @@ Kernel command line: -q -f put grow-dir-lg put tar run grow-dir-lg
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
-<<<<<<< HEAD
+Calibrating timer...  65,433,600 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
-=======
-hd0:0: detected 361 sector (180 kB) disk, model "QEMU HARDDISK", serial "QM00001"
->>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 229 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -35,21 +31,20 @@ Executing 'grow-dir-lg':
 (grow-dir-lg) creating and checking "/x/file12"
 (grow-dir-lg) creating and checking "/x/file13"
 (grow-dir-lg) creating and checking "/x/file14"
+
+
+gotloqkf
+
 (grow-dir-lg) create "/x/file14": FAILED
 grow-dir-lg: exit(1)
 Execution of 'grow-dir-lg' complete.
-<<<<<<< HEAD
 Timer: 119 ticks
-Thread: 44 idle ticks, 54 kernel ticks, 21 user ticks
-=======
-Timer: 122 ticks
-Thread: 36 idle ticks, 56 kernel ticks, 30 user ticks
->>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
+Thread: 41 idle ticks, 52 kernel ticks, 27 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 882 reads, 585 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1768 characters output
+Console: 1779 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

@@ -4,23 +4,23 @@ Kernel command line: -q run 'tar fs.tar /' get fs.tar
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0xffe0000 (Usable: 260,992 kB)
-Calibrating timer...  157,081,600 loops/s.
+Calibrating timer...  147,660,800 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 2,048 sector (1024 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Boot complete.
 Executing 'tar fs.tar /':
+
+
+gotloqkf
+
 fs.tar: create failed
 tar: exit(1)
 Execution of 'tar' complete.
 Getting 'fs.tar' from the file system...
 Kernel PANIC at ../../filesys/fsutil.c:160 in fsutil_get(): fs.tar: open failed
-<<<<<<< HEAD
-Call stack: 0x8004214774 0x800421e6cc 0x80042068cc 0x8004206186.
-=======
-Call stack: 0x8004214774 0x800421e506 0x80042068cc 0x8004206186.
->>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
+Call stack: 0x8004214774 0x800421e76a 0x80042068cc 0x8004206186.
 The `backtrace' program can make call stacks useful.
 Read "Backtraces" in the "Debugging Tools" chapter
 of the Pintos documentation for more information.

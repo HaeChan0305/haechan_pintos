@@ -4,13 +4,8 @@ Kernel command line: -q -f put grow-root-sm put tar run grow-root-sm
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-<<<<<<< HEAD
 Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
-=======
-Calibrating timer...  104,755,200 loops/s.
-hd0:0: detected 361 sector (180 kB) disk, model "QEMU HARDDISK", serial "QM00001"
->>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 229 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -35,21 +30,20 @@ Executing 'grow-root-sm':
 (grow-root-sm) creating and checking "file12"
 (grow-root-sm) creating and checking "file13"
 (grow-root-sm) creating and checking "file14"
+
+
+gotloqkf
+
 (grow-root-sm) create "file14": FAILED
 grow-root-sm: exit(1)
 Execution of 'grow-root-sm' complete.
-<<<<<<< HEAD
 Timer: 117 ticks
-Thread: 40 idle ticks, 52 kernel ticks, 25 user ticks
-=======
-Timer: 111 ticks
-Thread: 44 idle ticks, 47 kernel ticks, 20 user ticks
->>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
+Thread: 43 idle ticks, 49 kernel ticks, 25 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 882 reads, 585 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1720 characters output
+Console: 1732 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

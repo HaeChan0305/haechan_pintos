@@ -33,12 +33,12 @@ child-sort: exit(123)
 (page-merge-par) wait for child 1
 (page-merge-par) wait for child 2
 (page-merge-par) wait for child 3
-child-sort: exit(123)
-child-sort: exit(123)
-child-sort: exit(123)
 (page-merge-par) wait for child 4
 (page-merge-par) wait for child 5
+child-sort: exit(123)
+child-sort: exit(123)
 (page-merge-par) wait for child 6
+child-sort: exit(123)
 (page-merge-par) wait for child 7
 (page-merge-par) merge
 (page-merge-par) verify
@@ -46,17 +46,13 @@ child-sort: exit(123)
 (page-merge-par) end
 page-merge-par: exit(0)
 Execution of 'page-merge-par' complete.
-Timer: 356 ticks
-<<<<<<< HEAD
-Thread: 101 idle ticks, 64 kernel ticks, 191 user ticks
-=======
-Thread: 95 idle ticks, 68 kernel ticks, 193 user ticks
->>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
+Timer: 366 ticks
+Thread: 85 idle ticks, 73 kernel ticks, 208 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 4993 reads, 6923 writes
 hd1:0: 222 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1857 characters output
+Console: 1856 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

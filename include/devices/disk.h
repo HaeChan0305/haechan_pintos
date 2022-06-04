@@ -8,7 +8,7 @@
 #define DISK_SECTOR_SIZE 512
 
 /* Number of sectors per cluster. */
-#define SECTORS_PER_CLUSTER 2       
+#define SECTORS_PER_CLUSTER 1       
 
 /* Size of disk cluster in bytes. */
 #define DISK_CLUSTER_SIZE DISK_SECTOR_SIZE * SECTORS_PER_CLUSTER   

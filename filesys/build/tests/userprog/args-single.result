@@ -1,8 +1,1 @@
-FAIL
-Kernel panic in run: PANIC at ../../filesys/fsutil.c:109 in fsutil_put(): args-single: create failed
-Call stack: 0x8004214774 0x800421e2f4 0x80042068cc 0x8004206186
-Translation of call stack:
-0x0000008004214774: debug_panic (lib/kernel/debug.c:32)
-0x000000800421e2f4: fsutil_put (filesys/fsutil.c:110)
-0x00000080042068cc: run_actions (threads/init.c:297)
-0x0000008004206186: main (threads/init.c:125)
+PASS
