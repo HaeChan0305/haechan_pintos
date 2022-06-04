@@ -205,6 +205,8 @@ allocate_clst(void){
  * Returns EMPTY if fails to allocate a new cluster. */
 cluster_t
 fat_create_chain (cluster_t clst) {
+	ASSERT(clst == EMPTY || fat_get(clst) == EOChain);
+
 	cluster_t new_clst = allocate_clst();
 	if(new_clst == EMPTY){
 		printf("No empty entry\n");
@@ -224,10 +226,12 @@ fat_create_chain (cluster_t clst) {
 
 /* Allocate and make a chain CLUSTERS clusters from fat and stores 
    the first into *START.
+   If PCLST is EMPTY, start a new chain.
+   Else link it to PCLST.
    Returns true if successful, false if empty fat entries are less
    than CLUSTERS. */
 bool
-fat_create_chain_multiple(size_t clusters, cluster_t *start){
+fat_create_chain_multiple(size_t clusters, cluster_t *start, cluster_t pclst){
 	/* If CLUSTERS == 0, return true. */
 	if(clusters == 0){
 		*start = EMPTY;
@@ -239,7 +243,7 @@ fat_create_chain_multiple(size_t clusters, cluster_t *start){
 		return false;
 
 	/* Otherwise.(General case) */
-	cluster_t clst = EMPTY;
+	cluster_t clst = pclst;
 	for(size_t i = 0; i < clusters; i++){
 		clst = fat_create_chain(clst);
 		ASSERT(clst != EMPTY);
@@ -248,7 +252,7 @@ fat_create_chain_multiple(size_t clusters, cluster_t *start){
 		if(i == 0)
 			*start = clst;
 	}
-	
+
 	return true;
 }
 
@@ -291,7 +295,7 @@ fat_put (cluster_t clst, cluster_t val) {
 /* Fetch a value in the FAT table. */
 cluster_t
 fat_get (cluster_t clst) {
-	ASSERT(clst < fat_fs->last_clst && clst >= 0);
+	ASSERT(clst < fat_fs->fat_length && clst >= 0);
 	
 	return fat_fs->fat[clst];
 }

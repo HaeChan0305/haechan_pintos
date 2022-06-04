@@ -1,14 +1,2 @@
 FAIL
-Kernel panic in run: PANIC at ../../filesys/fat.c:260 in fat_remove_chain(): assertion `clst < fat_fs->fat_length && clst >= 0' failed.
-Call stack: 0x8004214774 0x800421bf85 0x800421d849 0x800421c87e 0x800421ac27 0x800421a2e0 0x8004219f80 0x400367 0x401608 0x401651
-Translation of call stack:
-0x0000008004214774: debug_panic (lib/kernel/debug.c:32)
-0x000000800421bf85: fat_remove_chain (filesys/fat.c:261)
-0x000000800421d849: inode_close (filesys/inode.c:183)
-0x000000800421c87e: file_close (filesys/file.c:50)
-0x000000800421ac27: close (userprog/syscall.c:368)
-0x000000800421a2e0: syscall_handler (userprog/syscall.c:116)
-0x0000008004219f80: no_sti (userprog/syscall-entry.o:?)
-0x0000000000400367: (unknown)
-0x0000000000401608: (unknown)
-0x0000000000401651: (unknown)
+run: created files and directories only to level 0: FAILED

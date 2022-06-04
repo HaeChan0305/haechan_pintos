@@ -35,8 +35,8 @@ struct inode {
 static inline size_t
 bytes_to_clusters (off_t size) {
 	size_t clusters = DIV_ROUND_UP (size, DISK_CLUSTER_SIZE);
-	/* return (clusters == 0) ? 1 : clusters; */
-	return clusters;
+	return (clusters == 0) ? 1 : clusters;
+	//return clusters;
 }
 
 /* Returns the disk cluster that contains byte offset POS within
@@ -46,11 +46,11 @@ bytes_to_clusters (off_t size) {
 static cluster_t
 byte_to_cluster(const struct inode *inode, off_t pos){
 	ASSERT (inode != NULL);
-	if (pos < inode->data.length){
+	if (pos <= inode->data.length){
 		cluster_t result = inode->data.start;
-		for(int i = 0; i <  pos / (DISK_CLUSTER_SIZE); i++){
+		for(int i = 0; i <  pos / DISK_CLUSTER_SIZE; i++){
 			result = fat_get(result);
-			ASSERT(result != EOChain);
+			ASSERT(result != EMPTY);
 		}
 
 		return result;
@@ -58,6 +58,7 @@ byte_to_cluster(const struct inode *inode, off_t pos){
 
 	else
 		return -1;
+		//PANIC("byte_to_cluster: pos > inode length\n");
 }
 
 /* List of open inodes, so that opening a single inode twice
@@ -92,7 +93,7 @@ inode_create (cluster_t cluster, off_t length) {
 		size_t clusters = bytes_to_clusters(length);
 		disk_inode->length = length;
 		disk_inode->magic = INODE_MAGIC;
-		if(fat_create_chain_multiple(clusters, &disk_inode->start)){
+		if(fat_create_chain_multiple(clusters, &disk_inode->start, EMPTY)){
 			disk_write_clst(filesys_disk, cluster, disk_inode);
 			if(clusters > 0){
 				static char zeros[DISK_CLUSTER_SIZE];
@@ -251,10 +252,35 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		off_t offset) {
 	const uint8_t *buffer = buffer_;
 	off_t bytes_written = 0;
+	off_t inode_len = inode_length(inode);
 	uint8_t *bounce = NULL;
 
 	if (inode->deny_write_cnt)
 		return 0;
+
+	/* File extension : Case 1 : offset > inode->data.length */
+	int bytes_exceed = (int)offset + (int)size - (int)inode_len;
+	if(bytes_exceed > 0){
+		size_t cluster_exceed = 
+			((bytes_exceed + inode_len) / DISK_CLUSTER_SIZE) - (inode_len / DISK_CLUSTER_SIZE);
+		
+		if(cluster_exceed > 0){
+			cluster_t restart;
+			if(!fat_create_chain_multiple(cluster_exceed, &restart, byte_to_cluster(inode, inode_len)))
+				PANIC("inode_write_at: fat_create_chain_multiple() fail/n");
+			ASSERT(fat_get(byte_to_cluster(inode, inode_len)) == restart);
+
+			static char zeros[DISK_CLUSTER_SIZE];
+			cluster_t clst_idx = restart;
+			while(clst_idx != EOChain){
+				disk_write_clst(filesys_disk, clst_idx, zeros);
+				clst_idx = fat_get(clst_idx);
+				ASSERT(clst_idx != EMPTY);
+			}
+		}
+			
+		inode->data.length += bytes_exceed;
+	}
 
 	while (size > 0) {
 		/* Cluster to write, starting byte offset within cluster. */
@@ -262,7 +288,7 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		int cluster_ofs = offset % DISK_CLUSTER_SIZE;
 
 		/* Bytes left in inode, bytes left in cluster, lesser of the two. */
-		off_t inode_left = inode_length (inode) - offset;
+		off_t inode_left = inode_len - offset;
 		int cluster_left = DISK_CLUSTER_SIZE - cluster_ofs;
 		int min_left = inode_left < cluster_left ? inode_left : cluster_left;
 

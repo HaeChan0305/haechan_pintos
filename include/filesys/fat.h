@@ -27,7 +27,7 @@ cluster_t fat_create_chain (
     cluster_t clst /* Cluster # to stretch, 0: Create a new chain */
 );
 
-bool fat_create_chain_multiple(size_t clusters, cluster_t *start);
+bool fat_create_chain_multiple(size_t, cluster_t *, cluster_t);
 
 void fat_remove_chain (
     cluster_t clst, /* Cluster # to be removed */
