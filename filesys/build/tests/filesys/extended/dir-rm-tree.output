@@ -19,8 +19,13 @@ Executing 'dir-rm-tree':
 (dir-rm-tree) create "/0/1/0/2": FAILED
 dir-rm-tree: exit(1)
 Execution of 'dir-rm-tree' complete.
+<<<<<<< HEAD
 Timer: 103 ticks
 Thread: 40 idle ticks, 51 kernel ticks, 12 user ticks
+=======
+Timer: 101 ticks
+Thread: 33 idle ticks, 54 kernel ticks, 14 user ticks
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:0: 0 reads, 0 writes
 hd0:1: 550 reads, 589 writes
 hd1:0: 238 reads, 0 writes

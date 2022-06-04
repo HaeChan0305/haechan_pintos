@@ -21,10 +21,17 @@ Executing 'grow-seq-lg':
 (grow-seq-lg) write 1234 bytes at offset 0 in "testme" failed: FAILED
 grow-seq-lg: exit(1)
 Execution of 'grow-seq-lg' complete.
+<<<<<<< HEAD
 Timer: 89 ticks
 Thread: 34 idle ticks, 54 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 154 reads, 530 writes
+=======
+Timer: 92 ticks
+Thread: 30 idle ticks, 59 kernel ticks, 4 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 154 reads, 528 writes
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1151 characters output

@@ -12,7 +12,7 @@ struct fat_boot {
 	unsigned int sectors_per_cluster; /* Fixed to 1 */
 	unsigned int total_sectors;
 	unsigned int fat_start;
-	unsigned int fat_sectors; /* Size of FAT in sectors. */
+	unsigned int fat_clusters; /* Size of FAT in sectors. */
 	unsigned int fat_empty; /* # of empty clusters. */
 	unsigned int root_dir_cluster;
 };
@@ -65,17 +65,21 @@ fat_open (void) {
 	off_t bytes_read = 0;
 	off_t bytes_left = sizeof (fat_fs->fat);
 	const off_t fat_size_in_bytes = fat_fs->fat_length * sizeof (cluster_t);
-	for (unsigned i = 0; i < fat_fs->bs.fat_sectors; i++) {
+	for (unsigned i = 0; i < fat_fs->bs.fat_clusters; i++) {
 		bytes_left = fat_size_in_bytes - bytes_read;
-		if (bytes_left >= DISK_SECTOR_SIZE) {
-			disk_read (filesys_disk, fat_fs->bs.fat_start + i,
-			           buffer + bytes_read);
-			bytes_read += DISK_SECTOR_SIZE;
+		if (bytes_left >= DISK_CLUSTER_SIZE) {
+			for(size_t j = 0; j < SECTORS_PER_CLUSTER; j++){
+				disk_read(filesys_disk, fat_fs->bs.fat_start + i * SECTORS_PER_CLUSTER + j,
+			           		buffer + bytes_read);
+				bytes_read += DISK_SECTOR_SIZE;
+			}
 		} else {
-			uint8_t *bounce = malloc (DISK_SECTOR_SIZE);
+			uint8_t *bounce = malloc (DISK_CLUSTER_SIZE);
 			if (bounce == NULL)
 				PANIC ("FAT load failed");
-			disk_read (filesys_disk, fat_fs->bs.fat_start + i, bounce);
+			for(size_t j = 0; j < SECTORS_PER_CLUSTER; j++)
+				disk_read(filesys_disk, fat_fs->bs.fat_start + i * SECTORS_PER_CLUSTER + j,
+			           		bounce + j * DISK_SECTOR_SIZE);
 			memcpy (buffer + bytes_read, bounce, bytes_left);
 			bytes_read += bytes_left;
 			free (bounce);
@@ -98,18 +102,22 @@ fat_close (void) {
 	off_t bytes_wrote = 0;
 	off_t bytes_left = sizeof (fat_fs->fat);
 	const off_t fat_size_in_bytes = fat_fs->fat_length * sizeof (cluster_t);
-	for (unsigned i = 0; i < fat_fs->bs.fat_sectors; i++) {
+	for (unsigned i = 0; i < fat_fs->bs.fat_clusters; i++) {
 		bytes_left = fat_size_in_bytes - bytes_wrote;
-		if (bytes_left >= DISK_SECTOR_SIZE) {
-			disk_write (filesys_disk, fat_fs->bs.fat_start + i,
-			            buffer + bytes_wrote);
-			bytes_wrote += DISK_SECTOR_SIZE;
+		if (bytes_left >= DISK_CLUSTER_SIZE) {
+			for(size_t j = 0; j < SECTORS_PER_CLUSTER; j++){
+				disk_write(filesys_disk, fat_fs->bs.fat_start + i * SECTORS_PER_CLUSTER + j,
+							buffer + bytes_wrote);
+				bytes_wrote += DISK_SECTOR_SIZE;
+			}
 		} else {
-			bounce = calloc (1, DISK_SECTOR_SIZE);
+			bounce = calloc (1, DISK_CLUSTER_SIZE);
 			if (bounce == NULL)
 				PANIC ("FAT close failed");
 			memcpy (bounce, buffer + bytes_wrote, bytes_left);
-			disk_write (filesys_disk, fat_fs->bs.fat_start + i, bounce);
+			for(size_t j = 0; j < SECTORS_PER_CLUSTER; j++)
+				disk_write(filesys_disk, fat_fs->bs.fat_start + i * SECTORS_PER_CLUSTER + j,
+			           		bounce + j * DISK_SECTOR_SIZE);
 			bytes_wrote += bytes_left;
 			free (bounce);
 		}
@@ -143,19 +151,19 @@ fat_create (void) {
 
 void
 fat_boot_create (void) {
-	unsigned int fat_sectors =
+	unsigned int fat_clusters =
 	    (disk_size (filesys_disk) - 1)
 	    / (DISK_SECTOR_SIZE / sizeof (cluster_t) * SECTORS_PER_CLUSTER + 1) + 1;
 
 	unsigned int fat_empty = 
-		(disk_size(filesys_disk) - (1 + fat_sectors)) / SECTORS_PER_CLUSTER;
+		(disk_size(filesys_disk) - (1 + fat_clusters)) / SECTORS_PER_CLUSTER;
 
 	fat_fs->bs = (struct fat_boot){
 	    .magic = FAT_MAGIC,
 	    .sectors_per_cluster = SECTORS_PER_CLUSTER,
 	    .total_sectors = disk_size (filesys_disk),
 	    .fat_start = 1,
-	    .fat_sectors = fat_sectors,
+	    .fat_clusters = fat_clusters,
 		.fat_empty = fat_empty,
 	    .root_dir_cluster = ROOT_DIR_CLUSTER,
 	};
@@ -163,7 +171,7 @@ fat_boot_create (void) {
 
 void
 fat_fs_init (void) {
-	fat_fs->data_start = 1 + fat_fs->bs.fat_sectors;
+	fat_fs->data_start = 1 + fat_fs->bs.fat_clusters;
 	fat_fs->fat_length = (disk_size(filesys_disk) - fat_fs->data_start) / SECTORS_PER_CLUSTER;
 	fat_fs->last_clst = fat_fs->fat_length; //consider deleting.
 	lock_init(&fat_fs->write_lock);

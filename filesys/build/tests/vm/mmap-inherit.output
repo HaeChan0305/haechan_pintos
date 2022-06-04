@@ -4,8 +4,13 @@ Kernel command line: -q -f put mmap-inherit put sample.txt put child-inherit run
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+<<<<<<< HEAD
 Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+=======
+Calibrating timer...  130,867,200 loops/s.
+hd0:0: detected 361 sector (180 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 219 sector (109 kB) disk, model "QEMU HARDDISK", serial "QM00003"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
@@ -25,8 +30,13 @@ child-inherit: exit(-1)
 (mmap-inherit) end
 mmap-inherit: exit(0)
 Execution of 'mmap-inherit' complete.
+<<<<<<< HEAD
 Timer: 92 ticks
 Thread: 37 idle ticks, 51 kernel ticks, 4 user ticks
+=======
+Timer: 96 ticks
+Thread: 33 idle ticks, 56 kernel ticks, 7 user ticks
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:0: 0 reads, 0 writes
 hd0:1: 352 reads, 757 writes
 hd1:0: 219 reads, 0 writes

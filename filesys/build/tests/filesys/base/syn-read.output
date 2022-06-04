@@ -32,13 +32,21 @@ Executing 'syn-read':
 child-syn-read: exit(6)
 child-syn-read: exit(9)
 child-syn-read: exit(1)
-child-syn-read: exit(8)
+child-syn-read: exit(7)
+child-syn-read: exit(3)
 child-syn-read: exit(5)
+<<<<<<< HEAD
 child-syn-read: exit(4)
 child-syn-read: exit(3)
 child-syn-read: exit(2)
 child-syn-read: exit(7)
 child-syn-read: exit(0)
+=======
+child-syn-read: exit(8)
+child-syn-read: exit(0)
+child-syn-read: exit(4)
+child-syn-read: exit(2)
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 (syn-read) wait for child 1 of 10 returned 0 (expected 0)
 (syn-read) wait for child 2 of 10 returned 1 (expected 1)
 (syn-read) wait for child 3 of 10 returned 2 (expected 2)
@@ -52,13 +60,18 @@ child-syn-read: exit(0)
 (syn-read) end
 syn-read: exit(0)
 Execution of 'syn-read' complete.
+<<<<<<< HEAD
 Timer: 421 ticks
 Thread: 113 idle ticks, 57 kernel ticks, 251 user ticks
+=======
+Timer: 327 ticks
+Thread: 46 idle ticks, 48 kernel ticks, 233 user ticks
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:0: 0 reads, 0 writes
-hd0:1: 11080 reads, 785 writes
+hd0:1: 11078 reads, 785 writes
 hd1:0: 230 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 2433 characters output
+Console: 2432 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

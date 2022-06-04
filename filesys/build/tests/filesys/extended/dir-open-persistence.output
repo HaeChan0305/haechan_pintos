@@ -16,10 +16,17 @@ error writing archive
 tar: exit(1)
 Execution of 'tar' complete.
 Getting 'fs.tar' from the file system...
+<<<<<<< HEAD
 Timer: 78 ticks
 Thread: 31 idle ticks, 44 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 134 reads, 37 writes
+=======
+Timer: 80 ticks
+Thread: 31 idle ticks, 43 kernel ticks, 6 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 134 reads, 36 writes
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd1:0: 0 reads, 1 writes
 hd1:1: 0 reads, 0 writes
 Console: 908 characters output

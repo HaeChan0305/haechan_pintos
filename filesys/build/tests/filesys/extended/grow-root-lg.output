@@ -33,8 +33,13 @@ Executing 'grow-root-lg':
 (grow-root-lg) create "file14": FAILED
 grow-root-lg: exit(1)
 Execution of 'grow-root-lg' complete.
+<<<<<<< HEAD
 Timer: 113 ticks
 Thread: 39 idle ticks, 50 kernel ticks, 24 user ticks
+=======
+Timer: 117 ticks
+Thread: 35 idle ticks, 56 kernel ticks, 26 user ticks
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:0: 0 reads, 0 writes
 hd0:1: 882 reads, 585 writes
 hd1:0: 229 reads, 0 writes

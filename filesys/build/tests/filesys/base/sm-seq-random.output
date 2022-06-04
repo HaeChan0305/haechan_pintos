@@ -24,8 +24,13 @@ Executing 'sm-seq-random':
 (sm-seq-random) end
 sm-seq-random: exit(0)
 Execution of 'sm-seq-random' complete.
+<<<<<<< HEAD
 Timer: 89 ticks
 Thread: 34 idle ticks, 50 kernel ticks, 5 user ticks
+=======
+Timer: 88 ticks
+Thread: 33 idle ticks, 50 kernel ticks, 5 user ticks
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:0: 0 reads, 0 writes
 hd0:1: 285 reads, 572 writes
 hd1:0: 109 reads, 0 writes

@@ -12,6 +12,6 @@
         "thread.h": "c",
         "filesys.h": "c"
     },
-    "C_Cpp.default.compilerArgs": ["-DUSERPROG", "-DVM", "-DEFILESYS"],
+    "C_Cpp.default.compilerArgs": ["-DUSERPROG", "-DVM", "-DEFILESYS", "-DFILESYS"],
     "C_Cpp.errorSquiggles": "Disabled"
 }

@@ -12,6 +12,7 @@ hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004
 Formatting file system...done.
 Boot complete.
 Putting 'args-none' into the file system...
+<<<<<<< HEAD
 Executing 'args-none':
 (args) begin
 (args) argc = 1
@@ -30,3 +31,19 @@ Console: 1005 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
+=======
+
+
+0
+0
+
+
+gotloqkf
+
+Kernel PANIC at ../../filesys/fsutil.c:109 in fsutil_put(): args-none: create failed
+Call stack: 0x8004214774 0x800421e33f 0x80042068cc 0x8004206186.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Kernel PANIC recursion at ../../devices/timer.c:201 in real_time_sleep().
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a

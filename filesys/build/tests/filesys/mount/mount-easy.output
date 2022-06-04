@@ -20,8 +20,13 @@ Executing 'mount-easy':
 (mount-easy) mount the second disk at "/a": FAILED
 mount-easy: exit(1)
 Execution of 'mount-easy' complete.
+<<<<<<< HEAD
 Timer: 90 ticks
 Thread: 30 idle ticks, 57 kernel ticks, 3 user ticks
+=======
+Timer: 91 ticks
+Thread: 36 idle ticks, 53 kernel ticks, 2 user ticks
+>>>>>>> e6eea252750a82de8ebdcbbd5689688e4ea98f7a
 hd0:0: 0 reads, 0 writes
 hd0:1: 128 reads, 531 writes
 hd1:0: 231 reads, 0 writes
