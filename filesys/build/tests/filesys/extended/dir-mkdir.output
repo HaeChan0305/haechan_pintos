@@ -22,8 +22,8 @@ Executing 'dir-mkdir':
 (dir-mkdir) open "b": FAILED
 dir-mkdir: exit(1)
 Execution of 'dir-mkdir' complete.
-Timer: 87 ticks
-Thread: 32 idle ticks, 51 kernel ticks, 4 user ticks
+Timer: 84 ticks
+Thread: 37 idle ticks, 44 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 166 reads, 530 writes
 hd1:0: 229 reads, 0 writes

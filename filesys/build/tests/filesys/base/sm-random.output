@@ -22,13 +22,13 @@ Executing 'sm-random':
 (sm-random) end
 sm-random: exit(0)
 Execution of 'sm-random' complete.
-Timer: 100 ticks
-Thread: 41 idle ticks, 51 kernel ticks, 8 user ticks
+Timer: 98 ticks
+Thread: 39 idle ticks, 51 kernel ticks, 8 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 504 reads, 675 writes
 hd1:0: 112 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1115 characters output
+Console: 1114 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

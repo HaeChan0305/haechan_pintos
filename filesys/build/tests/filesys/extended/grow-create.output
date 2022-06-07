@@ -4,7 +4,7 @@ Kernel command line: -q -f put grow-create put tar run grow-create
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
+Calibrating timer...  143,974,400 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 228 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -22,8 +22,8 @@ Executing 'grow-create':
 (grow-create) end
 grow-create: exit(0)
 Execution of 'grow-create' complete.
-Timer: 94 ticks
-Thread: 37 idle ticks, 53 kernel ticks, 4 user ticks
+Timer: 98 ticks
+Thread: 38 idle ticks, 54 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 154 reads, 528 writes
 hd1:0: 228 reads, 0 writes

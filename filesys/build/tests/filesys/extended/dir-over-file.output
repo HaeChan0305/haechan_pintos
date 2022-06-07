@@ -20,8 +20,8 @@ Executing 'dir-over-file':
 (dir-over-file) create "abc" (must return false): FAILED
 dir-over-file: exit(1)
 Execution of 'dir-over-file' complete.
-Timer: 84 ticks
-Thread: 30 idle ticks, 52 kernel ticks, 2 user ticks
+Timer: 89 ticks
+Thread: 36 idle ticks, 50 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 149 reads, 528 writes
 hd1:0: 228 reads, 0 writes

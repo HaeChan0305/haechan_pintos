@@ -21,8 +21,8 @@ Executing 'args-single onearg':
 (args) end
 args-single: exit(0)
 Execution of 'args-single' complete.
-Timer: 85 ticks
-Thread: 35 idle ticks, 48 kernel ticks, 2 user ticks
+Timer: 90 ticks
+Thread: 31 idle ticks, 56 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 227 reads, 525 writes
 hd1:0: 103 reads, 0 writes

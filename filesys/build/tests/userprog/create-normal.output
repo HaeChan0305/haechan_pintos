@@ -18,8 +18,8 @@ Executing 'create-normal':
 (create-normal) end
 create-normal: exit(0)
 Execution of 'create-normal' complete.
-Timer: 91 ticks
-Thread: 34 idle ticks, 55 kernel ticks, 2 user ticks
+Timer: 89 ticks
+Thread: 34 idle ticks, 52 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 247 reads, 532 writes
 hd1:0: 105 reads, 0 writes

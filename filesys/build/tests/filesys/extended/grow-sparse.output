@@ -26,8 +26,8 @@ gotloqkf
 (grow-sparse) write "testfile": FAILED
 grow-sparse: exit(1)
 Execution of 'grow-sparse' complete.
-Timer: 86 ticks
-Thread: 30 idle ticks, 52 kernel ticks, 4 user ticks
+Timer: 89 ticks
+Thread: 36 idle ticks, 49 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 154 reads, 679 writes
 hd1:0: 229 reads, 0 writes

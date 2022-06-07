@@ -27,8 +27,8 @@ gotloqkf
 (grow-two-files) write 4 bytes at offset 0 in "a" returned 0: FAILED
 grow-two-files: exit(1)
 Execution of 'grow-two-files' complete.
-Timer: 96 ticks
-Thread: 38 idle ticks, 52 kernel ticks, 6 user ticks
+Timer: 94 ticks
+Thread: 32 idle ticks, 57 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 184 reads, 539 writes
 hd1:0: 232 reads, 0 writes

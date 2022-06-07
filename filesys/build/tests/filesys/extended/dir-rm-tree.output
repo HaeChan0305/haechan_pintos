@@ -23,8 +23,8 @@ gotloqkf
 (dir-rm-tree) create "/0/1/0/2": FAILED
 dir-rm-tree: exit(1)
 Execution of 'dir-rm-tree' complete.
-Timer: 105 ticks
-Thread: 35 idle ticks, 56 kernel ticks, 14 user ticks
+Timer: 108 ticks
+Thread: 33 idle ticks, 60 kernel ticks, 15 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 550 reads, 589 writes
 hd1:0: 238 reads, 0 writes

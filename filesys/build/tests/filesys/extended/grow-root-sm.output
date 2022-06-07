@@ -37,8 +37,8 @@ gotloqkf
 (grow-root-sm) create "file14": FAILED
 grow-root-sm: exit(1)
 Execution of 'grow-root-sm' complete.
-Timer: 117 ticks
-Thread: 43 idle ticks, 49 kernel ticks, 25 user ticks
+Timer: 115 ticks
+Thread: 40 idle ticks, 54 kernel ticks, 21 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 882 reads, 585 writes
 hd1:0: 229 reads, 0 writes

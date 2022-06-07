@@ -19,8 +19,8 @@ Executing 'dir-empty-name':
 (dir-empty-name) mkdir "" (must return false): FAILED
 dir-empty-name: exit(1)
 Execution of 'dir-empty-name' complete.
-Timer: 90 ticks
-Thread: 29 idle ticks, 58 kernel ticks, 3 user ticks
+Timer: 87 ticks
+Thread: 35 idle ticks, 50 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 128 reads, 525 writes
 hd1:0: 228 reads, 0 writes

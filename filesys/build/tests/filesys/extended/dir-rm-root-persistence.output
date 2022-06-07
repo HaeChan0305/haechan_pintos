@@ -20,8 +20,8 @@ error writing archive
 tar: exit(1)
 Execution of 'tar' complete.
 Getting 'fs.tar' from the file system...
-Timer: 83 ticks
-Thread: 33 idle ticks, 46 kernel ticks, 4 user ticks
+Timer: 82 ticks
+Thread: 32 idle ticks, 45 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 137 reads, 37 writes
 hd1:0: 0 reads, 1 writes

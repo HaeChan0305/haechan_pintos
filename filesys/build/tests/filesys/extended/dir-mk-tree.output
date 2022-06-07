@@ -23,8 +23,8 @@ gotloqkf
 (dir-mk-tree) create "/0/1/0/2": FAILED
 dir-mk-tree: exit(1)
 Execution of 'dir-mk-tree' complete.
-Timer: 110 ticks
-Thread: 38 idle ticks, 56 kernel ticks, 16 user ticks
+Timer: 105 ticks
+Thread: 46 idle ticks, 48 kernel ticks, 11 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 548 reads, 579 writes
 hd1:0: 233 reads, 0 writes

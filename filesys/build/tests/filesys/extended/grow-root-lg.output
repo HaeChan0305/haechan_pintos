@@ -37,8 +37,8 @@ gotloqkf
 (grow-root-lg) create "file14": FAILED
 grow-root-lg: exit(1)
 Execution of 'grow-root-lg' complete.
-Timer: 115 ticks
-Thread: 39 idle ticks, 54 kernel ticks, 22 user ticks
+Timer: 111 ticks
+Thread: 30 idle ticks, 55 kernel ticks, 26 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 882 reads, 585 writes
 hd1:0: 229 reads, 0 writes
