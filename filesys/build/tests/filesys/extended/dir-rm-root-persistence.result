@@ -1,8 +1,2 @@
 FAIL
-Error extracting file system:
-/: open failed
-
-
-gotloqkf
-
-error writing archive
+Prerequisite test tests/filesys/extended/dir-rm-root failed.

@@ -16,19 +16,16 @@ Putting 'tar' into the file system...
 Executing 'dir-mkdir':
 (dir-mkdir) begin
 (dir-mkdir) mkdir "a"
-(dir-mkdir) create "a/b"
-(dir-mkdir) chdir "a"
-(dir-mkdir) open "b"
-(dir-mkdir) open "b": FAILED
+(dir-mkdir) mkdir "a": FAILED
 dir-mkdir: exit(1)
 Execution of 'dir-mkdir' complete.
-Timer: 87 ticks
-Thread: 32 idle ticks, 51 kernel ticks, 4 user ticks
+Timer: 95 ticks
+Thread: 39 idle ticks, 54 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 166 reads, 530 writes
+hd0:1: 180 reads, 534 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1097 characters output
+Console: 1030 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

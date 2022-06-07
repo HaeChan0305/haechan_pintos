@@ -1,1 +1,10 @@
-PASS
+FAIL
+Kernel panic in run: PANIC at ../../filesys/inode.c:275 in inode_write_at(): inode_write_at: fat_create_chain_multiple() fail/n
+Call stack: 0x800421476f 0x800421e8ce 0x800421d432 0x800421f440 0x80042068cc 0x8004206186
+Translation of call stack:
+0x000000800421476f: debug_panic (lib/kernel/debug.c:32)
+0x000000800421e8ce: inode_write_at (filesys/inode.c:276)
+0x000000800421d432: file_write (filesys/file.c:91)
+0x000000800421f440: fsutil_put (filesys/fsutil.c:118)
+0x00000080042068cc: run_actions (threads/init.c:297)
+0x0000008004206186: main (threads/init.c:125)

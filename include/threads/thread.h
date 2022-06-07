@@ -13,6 +13,7 @@
 #include "threads/interrupt.h"
 #include "filesys/file.h"
 #include "filesys/filesys.h"
+#include "filesys/directory.h"
 #ifdef VM
 #include "vm/vm.h"
 #endif
@@ -45,7 +46,7 @@ typedef int tid_t;
 struct fdesc{
 	int fd;
 
-	struct file *file;
+	struct item *item;
 	struct list_elem fd_elem;
 };
 
@@ -174,6 +175,7 @@ struct thread {
 	struct supplemental_page_table spt;
 	uintptr_t saved_rsp;
 #endif
+	struct dir *curr_dir;
 
 	/* Owned by thread.c. */
 	struct intr_frame tf;               /* Information for switching */

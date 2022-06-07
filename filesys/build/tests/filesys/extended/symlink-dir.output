@@ -16,18 +16,16 @@ Putting 'tar' into the file system...
 Executing 'symlink-dir':
 (symlink-dir) begin
 (symlink-dir) mkdir "/a"
-(symlink-dir) mkdir "a/b"
-(symlink-dir) create symlink "a/link_b"
-(symlink-dir) create symlink "a/link_b": FAILED
+(symlink-dir) mkdir "/a": FAILED
 symlink-dir: exit(1)
 Execution of 'symlink-dir' complete.
-Timer: 98 ticks
-Thread: 38 idle ticks, 57 kernel ticks, 4 user ticks
+Timer: 91 ticks
+Thread: 30 idle ticks, 58 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 130 reads, 533 writes
+hd0:1: 182 reads, 540 writes
 hd1:0: 232 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1131 characters output
+Console: 1050 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

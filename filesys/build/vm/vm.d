@@ -11,4 +11,6 @@ vm/vm.o: ../../vm/vm.c ../../include/threads/malloc.h \
  ../../include/threads/vaddr.h ../../include/threads/loader.h \
  ../../include/threads/synch.h ../../include/filesys/page_cache.h \
  ../../include/threads/thread.h ../../include/threads/interrupt.h \
- ../../include/filesys/filesys.h ../../include/vm/inspect.h
+ ../../include/filesys/filesys.h ../../include/filesys/directory.h \
+ ../../include/devices/disk.h ../../include/filesys/fat.h \
+ ../../include/vm/inspect.h

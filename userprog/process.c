@@ -10,6 +10,7 @@
 #include "filesys/directory.h"
 #include "filesys/file.h"
 #include "filesys/filesys.h"
+#include "filesys/inode.h"
 #include "threads/flags.h"
 #include "threads/init.h"
 #include "threads/interrupt.h"
@@ -172,9 +173,9 @@ duplicate_fd(struct thread *parent, struct thread *child){
 		if(child_fd == NULL)
 			return false;
 
-		child_fd->file = file_duplicate(parent_fd->file);
-		if(child_fd->file == NULL){
-			file_close(child_fd->file);
+		child_fd->item = item_duplicate(parent_fd->item);
+		if(child_fd->item == NULL){
+			item_close(child_fd->item);
 			free(child_fd);
 			remove_all_fdesc(child);
 			return false;
@@ -203,12 +204,12 @@ fd_list_init(struct list *fd_list){
 
 	/* Make and insert stdin file descriptor. */
 	stdin_fdesc->fd = 0;
-	stdin_fdesc->file = NULL;
+	stdin_fdesc->item = NULL;
 	list_push_back(fd_list, &stdin_fdesc->fd_elem);
 	
 	/* Make and insert stdout file descriptor. */
 	stdout_fdesc->fd = 1;
-	stdout_fdesc->file = NULL;
+	stdout_fdesc->item = NULL;
 	list_push_back(fd_list, &stdout_fdesc->fd_elem);
 
 	return true;
@@ -218,7 +219,7 @@ fd_list_init(struct list *fd_list){
 /* Create file descriptor about NEW_FILE, and allocate fd to unallocated lowest number.
  * return allocated new_fd for success or -1 for fail. */
 int
-create_fd(struct file *new_file){
+create_fd(struct item *new_item){
 	struct thread *curr = thread_current();
 	struct list *fd_table_ = &curr->fd_table;
 
@@ -237,7 +238,7 @@ create_fd(struct file *new_file){
 	}
 
 	new_fdesc->fd = cnt;
-	new_fdesc->file = new_file;
+	new_fdesc->item = new_item;
 	list_insert(temp, &new_fdesc->fd_elem);
 
 	lock_release(&fd_lock);
@@ -269,7 +270,7 @@ remove_all_fdesc(struct thread *t){
 	for(struct list_elem *temp = list_begin(fd_table_) ;
 		temp != list_end(fd_table_) ; ){
 			struct fdesc *fdesc_ = list_entry(temp, struct fdesc, fd_elem);
-			file_close(fdesc_->file);
+			item_close(fdesc_->item);
 			temp = list_remove(&fdesc_->fd_elem);
 			free(fdesc_);
 	}
@@ -307,6 +308,12 @@ __do_fork (void *aux) {
 		goto error;
 #else
 	if (!pml4_for_each (parent->pml4, duplicate_pte, parent))
+		goto error;
+#endif
+
+#ifdef EFILESYS
+	current->curr_dir = dir_reopen(parent->curr_dir);
+	if(current->curr_dir == NULL)
 		goto error;
 #endif
 
@@ -351,8 +358,18 @@ process_exec (void *f_name) {
 	/* We first kill the current context */
 	process_cleanup ();
 
+#ifdef VM
 	/* build spt before load() */
 	supplemental_page_table_init(&thread_current()->spt);
+#endif
+
+#ifdef EFILESYS
+	thread_current()->curr_dir = dir_open_root();
+	if(thread_current()->curr_dir == NULL){
+		sema_up(&process_sema);
+		return -1;
+	}
+#endif
 
 	/* And then load the binary */
 	success = load (name_copy, &_if);
@@ -482,6 +499,9 @@ process_cleanup (void) {
 	ASSERT(hash_empty(&curr->spt.h_spt));
 #endif
 
+#ifdef EFILESYS
+	dir_close (curr->curr_dir);
+#endif
 	uint64_t *pml4;
 	/* Destroy the current process's page directory and switch back
 	 * to the kernel-only page directory. */
@@ -614,6 +634,7 @@ static bool
 load (const char *file_name, struct intr_frame *if_) {
 	struct thread *t = thread_current ();
 	struct ELF ehdr;
+	struct item *item = NULL;
 	struct file *file = NULL;
 	off_t file_ofs;
 	bool success = false;
@@ -638,14 +659,17 @@ load (const char *file_name, struct intr_frame *if_) {
         
 	/* Open executable file. */
 	lock_acquire(&file_lock);
-	file = filesys_open (argv[0]);
-	lock_release(&file_lock);
-	if (file == NULL) {
+	item = filesys_open (argv[0]);
+	if (item == NULL || item->is_dir || item->file == NULL) {
 		printf ("load: %s: open failed\n",argv[0]);
+		lock_release(&file_lock);
 		goto done;
 	}
-	t->exec_file = file;
+	file = item->file;
+	free(item);
+	lock_release(&file_lock);
 
+	t->exec_file = file;
 	/* Make executable file rox(read only exec) */
 	file_deny_write(file);
 
@@ -665,7 +689,6 @@ load (const char *file_name, struct intr_frame *if_) {
 	file_ofs = ehdr.e_phoff;
 	for (i = 0; i < ehdr.e_phnum; i++) {
 		struct Phdr phdr;
-
 		if (file_ofs < 0 || file_ofs > file_length (file))
 			goto done;
 		file_seek (file, file_ofs);
@@ -735,7 +758,6 @@ load (const char *file_name, struct intr_frame *if_) {
 	success = true;
 
 done:
-	/* We arrive here whether the load is successful or not. */
 	return success;
 }
 

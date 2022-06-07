@@ -37,10 +37,10 @@ Executing 'swap-anon':
 (swap-anon) end
 swap-anon: exit(0)
 Execution of 'swap-anon' complete.
-Timer: 1549 ticks
-Thread: 490 idle ticks, 54 kernel ticks, 1005 user ticks
+Timer: 1520 ticks
+Thread: 360 idle ticks, 52 kernel ticks, 1108 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 227 reads, 531 writes
+hd0:1: 275 reads, 536 writes
 hd1:0: 106 reads, 0 writes
 hd1:1: 41064 reads, 72368 writes
 Console: 1803 characters output

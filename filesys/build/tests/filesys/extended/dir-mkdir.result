@@ -1,2 +1,2 @@
 FAIL
-run: open "b": FAILED
+run: mkdir "a": FAILED

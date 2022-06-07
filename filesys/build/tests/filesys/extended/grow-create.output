@@ -22,10 +22,10 @@ Executing 'grow-create':
 (grow-create) end
 grow-create: exit(0)
 Execution of 'grow-create' complete.
-Timer: 94 ticks
-Thread: 37 idle ticks, 53 kernel ticks, 4 user ticks
+Timer: 92 ticks
+Thread: 37 idle ticks, 50 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 154 reads, 528 writes
+hd0:1: 210 reads, 536 writes
 hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1162 characters output

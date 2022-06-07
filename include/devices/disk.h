@@ -34,5 +34,5 @@ void disk_write (struct disk *, disk_sector_t, const void *);
 void disk_read_clst(struct disk *d, cluster_t clst_no, void *buffer);
 void disk_write_clst(struct disk *d, cluster_t clst_no, void *buffer);
 
-void 	register_disk_inspect_intr ();
+void register_disk_inspect_intr (void);
 #endif /* devices/disk.h */

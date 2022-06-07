@@ -10,4 +10,6 @@ vm/uninit.o: ../../vm/uninit.c ../../include/vm/vm.h \
  ../../include/threads/vaddr.h ../../include/lib/debug.h \
  ../../include/threads/loader.h ../../include/threads/synch.h \
  ../../include/filesys/page_cache.h ../../include/threads/thread.h \
- ../../include/threads/interrupt.h ../../include/filesys/filesys.h
+ ../../include/threads/interrupt.h ../../include/filesys/filesys.h \
+ ../../include/filesys/directory.h ../../include/devices/disk.h \
+ ../../include/filesys/fat.h

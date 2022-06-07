@@ -4,7 +4,7 @@ Kernel command line: -q -f put dir-rm-parent put tar run dir-rm-parent
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
+Calibrating timer...  104,755,200 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 229 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -16,20 +16,16 @@ Putting 'tar' into the file system...
 Executing 'dir-rm-parent':
 (dir-rm-parent) begin
 (dir-rm-parent) mkdir "a"
-(dir-rm-parent) chdir "a"
-(dir-rm-parent) mkdir "b"
-(dir-rm-parent) chdir "b"
-(dir-rm-parent) remove "/a" (must fail)
-(dir-rm-parent) end
-dir-rm-parent: exit(0)
+(dir-rm-parent) mkdir "a": FAILED
+dir-rm-parent: exit(1)
 Execution of 'dir-rm-parent' complete.
-Timer: 88 ticks
-Thread: 35 idle ticks, 50 kernel ticks, 3 user ticks
+Timer: 87 ticks
+Thread: 32 idle ticks, 52 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 145 reads, 527 writes
+hd0:1: 180 reads, 534 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1170 characters output
+Console: 1066 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

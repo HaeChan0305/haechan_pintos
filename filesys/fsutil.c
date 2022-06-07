@@ -32,13 +32,16 @@ void
 fsutil_cat (char **argv) {
 	const char *file_name = argv[1];
 
+	struct item *dst_item;
 	struct file *file;
 	char *buffer;
 
 	printf ("Printing '%s' to the console...\n", file_name);
-	file = filesys_open (file_name);
-	if (file == NULL)
+	dst_item = filesys_open (file_name);
+	if (dst_item == NULL || dst_item->is_dir || dst_item->file == NULL)
 		PANIC ("%s: open failed", file_name);
+	file = dst_item->file;
+
 	buffer = palloc_get_page (PAL_ASSERT);
 	for (;;) {
 		off_t pos = file_tell (file);
@@ -49,7 +52,7 @@ fsutil_cat (char **argv) {
 		hex_dump (pos, buffer, n, true); 
 	}
 	palloc_free_page (buffer);
-	file_close (file);
+	item_close (dst_item);
 }
 
 /* Deletes file ARGV[1]. */
@@ -80,6 +83,7 @@ fsutil_put (char **argv) {
 
 	const char *file_name = argv[1];
 	struct disk *src;
+	struct item *dst_item;
 	struct file *dst;
 	off_t size;
 	void *buffer;
@@ -105,11 +109,12 @@ fsutil_put (char **argv) {
 		PANIC ("%s: invalid file size %d", file_name, size);
 
 	/* Create destination file. */
-	if (!filesys_create (file_name, size))
+	if (!filesys_create_file (file_name, size))
 		PANIC ("%s: create failed", file_name);
-	dst = filesys_open (file_name);
-	if (dst == NULL)
+	dst_item = filesys_open (file_name);
+	if (dst_item == NULL || dst_item->is_dir || dst_item->file == NULL)
 		PANIC ("%s: open failed", file_name);
+	dst = dst_item->file;
 
 	/* Do copy. */
 	while (size > 0) {
@@ -120,9 +125,8 @@ fsutil_put (char **argv) {
 					file_name, size);
 		size -= chunk_size;
 	}
-
 	/* Finish up. */
-	file_close (dst);
+	item_close(dst_item);
 	free (buffer);
 }
 
@@ -143,6 +147,7 @@ fsutil_get (char **argv) {
 
 	const char *file_name = argv[1];
 	void *buffer;
+	struct item *src_item;
 	struct file *src;
 	struct disk *dst;
 	off_t size;
@@ -155,9 +160,10 @@ fsutil_get (char **argv) {
 		PANIC ("couldn't allocate buffer");
 
 	/* Open source file. */
-	src = filesys_open (file_name);
-	if (src == NULL)
+	src_item = filesys_open (file_name);
+	if (src_item == NULL || src_item->is_dir || src_item->file == NULL)
 		PANIC ("%s: open failed", file_name);
+	src = src_item->file;
 	size = file_length (src);
 
 	/* Open target disk. */
@@ -184,6 +190,6 @@ fsutil_get (char **argv) {
 	}
 
 	/* Finish up. */
-	file_close (src);
+	item_close (src_item);
 	free (buffer);
 }

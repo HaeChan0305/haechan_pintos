@@ -5,4 +5,6 @@ tests/vm/mmap-exit.o: ../../tests/vm/mmap-exit.c \
  ../../include/lib/stdint.h ../../include/threads/synch.h \
  ../../include/threads/interrupt.h ../../include/filesys/file.h \
  ../../include/filesys/off_t.h ../../include/filesys/filesys.h \
+ ../../include/filesys/directory.h ../../include/devices/disk.h \
+ ../../include/lib/inttypes.h ../../include/filesys/fat.h \
  ../../tests/vm/sample.inc ../../tests/lib.h ../../tests/main.h

@@ -15,9 +15,12 @@
 struct inode_disk {
 	cluster_t start;                	/* First data cluster. */
 	off_t length;                       /* File size in bytes. */
+	cluster_t upper_dir;				/* Upper dircetory cluster index. */ 
+	uint32_t is_dir;					/* If directory 1, Otherwise 0. */
+	off_t items;						/* Number of contents in directory. */
 	unsigned magic;                     /* Magic number. */
-	uint32_t unused[125];               /* Not used. */
-	//uint32_t unused[253];               /* Not used. */
+	uint32_t unused[122];               /* Not used. */
+	//uint32_t unused[253];             /* Not used. */
 };
 
 /* In-memory inode. */
@@ -77,7 +80,7 @@ inode_init (void) {
  * Returns true if successful.
  * Returns false if memory or disk allocation fails. */
 bool
-inode_create (cluster_t cluster, off_t length) {
+inode_create (cluster_t cluster, off_t length, bool is_dir) {
 	struct inode_disk *disk_inode = NULL;
 	bool success = false;
 
@@ -92,6 +95,8 @@ inode_create (cluster_t cluster, off_t length) {
 	if (disk_inode != NULL) {
 		size_t clusters = bytes_to_clusters(length);
 		disk_inode->length = length;
+		disk_inode->is_dir = is_dir;
+		disk_inode->items = 0;
 		disk_inode->magic = INODE_MAGIC;
 		if(fat_create_chain_multiple(clusters, &disk_inode->start, EMPTY)){
 			disk_write_clst(filesys_disk, cluster, disk_inode);
@@ -178,8 +183,8 @@ inode_close (struct inode *inode) {
 			fat_remove_chain(inode->cluster, EMPTY);
 			fat_remove_chain(inode->data.start, EMPTY);
 		}
-		// else
-		// 	disk_write_clst(filesys_disk, inode->cluster, &inode->data);
+		else
+			disk_write_clst(filesys_disk, inode->cluster, &inode->data);
 
 		free (inode); 
 	}
@@ -267,7 +272,7 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		if(cluster_exceed > 0){
 			cluster_t restart;
 			if(!fat_create_chain_multiple(cluster_exceed, &restart, byte_to_cluster(inode, inode_len)))
-				PANIC("inode_write_at: fat_create_chain_multiple() fail/n");
+				PANIC("inode_write_at: fat_create_chain_multiple() fail");
 			ASSERT(fat_get(byte_to_cluster(inode, inode_len)) == restart);
 
 			static char zeros[DISK_CLUSTER_SIZE];
@@ -294,10 +299,8 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 
 		/* Number of bytes to actually write into this cluster. */
 		int chunk_size = size < min_left ? size : min_left;
-		if (chunk_size <= 0){
-			printf("\n\ngotloqkf\n\n");
+		if (chunk_size <= 0)
 			break;
-		}
 
 		if (cluster_ofs == 0 && chunk_size == DISK_CLUSTER_SIZE) {
 			/* Write full cluster directly to disk. */
@@ -355,3 +358,52 @@ off_t
 inode_length (const struct inode *inode) {
 	return inode->data.length;
 }
+
+/* Returns the is_dir of INODE's data. */
+bool
+inode_is_dir (const struct inode *inode) {
+	return (bool)inode->data.is_dir;
+}
+
+/* Returns true if INODE is root directory. */
+bool
+inode_is_root_dir (const struct inode *inode) {
+	ASSERT(inode_is_dir(inode));
+	return inode->cluster == ROOT_DIR_CLUSTER;
+}
+
+/* (Just for debugging)
+   Returns true if INODE is root directory. */
+bool
+inode_is_in_root_dir (const struct inode *inode) {
+	return inode->data.upper_dir == ROOT_DIR_CLUSTER;
+}
+
+/* Returns the open_cnt of INODE. */
+int
+inode_open_cnt (const struct inode *inode) {
+	return inode->open_cnt;
+}
+
+/* Returns the items of INODE's data. */
+off_t
+inode_items (const struct inode *inode) {
+	ASSERT(inode_is_dir(inode));
+	return inode->data.items;
+}
+
+/* Increase the items of INODE's data. */
+void
+inode_items_incr(struct inode *inode) {
+	ASSERT(inode_is_dir(inode));
+	inode->data.items++;
+}
+
+/* Decrease the items of INODE's data. */
+void
+inode_items_decr(struct inode *inode) {
+	ASSERT(inode_is_dir(inode));
+	inode->data.items--;
+}
+
+

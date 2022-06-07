@@ -11,22 +11,30 @@ hd1:0: detected 2,048 sector (1024 kB) disk, model "QEMU HARDDISK", serial "QM00
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
 Boot complete.
 Executing 'tar fs.tar /':
-/: open failed
-
-
-gotloqkf
-
-error writing archive
-tar: exit(1)
-Execution of 'tar' complete.
-Getting 'fs.tar' from the file system...
-Timer: 80 ticks
-Thread: 31 idle ticks, 43 kernel ticks, 6 user ticks
-hd0:0: 0 reads, 0 writes
-hd0:1: 134 reads, 37 writes
-hd1:0: 0 reads, 1 writes
-hd1:1: 0 reads, 0 writes
-Console: 920 characters output
-Keyboard: 0 keys pressed
-Exception: 0 page faults
-Powering off...
+Kernel PANIC at ../../filesys/inode.c:56 in byte_to_cluster(): assertion `result != EMPTY' failed.
+Call stack: 0x800421476f 0x800421de41 0x800421e347 0x800421d0e0 0x80042197bc 0x8004224f53 0x800422432f 0x8004224167 0x8004219f78 0x80042096f1 0x8004209b0fInterrupt 0x0d (#GP General Protection Exception) at rip=80042117a9
+ cr2=000000000040173e error=               0
+rax 000080042c3f6000 rbx 0000000000401000 rcx 00000080040b8000 rdx 00000000000003d4
+rsp 00000080042c3c20 rbp 00000080042c3c30 rsi 000000000000ca0f rdi 0000000000000000
+rip 00000080042117a9 r8 00000080042c3b38  r9 0000008004217be8 r10 0000800422fdf000
+r11 0000000000000000 r12 000000800c022000 r13 0000000000000000 r14 0000000000000000
+r15 000080042c3ed000 rflags 00000006
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
+Interrupt 0x0d (#GP General Protection Exception) at rip=8004214d23
+ cr2=000000000040173e error=               0
+rax cccccccccccccccc rbx 0000000000401000 rcx 0000000000000010 rdx 00000080042bd048
+rsp 00000080042c37c0 rbp 00000080042c37d0 rsi 00000080042bd048 rdi 00000080042bd048
+rip 0000008004214d23 r8 0000008004227bbb  r9 0000008004214694 r10 0000800422fdf000
+r11 0000000000000000 r12 000000800c022000 r13 0000000000000000 r14 0000000000000000
+r15 000080042c3ed000 rflags 00000006
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Interrupt 0x0d (#GP General Protection Exception) at rip=800421e1ea
+ cr2=000000000040173e error=               0
+rax cccccccccccccccc rbx 0000000000401000 rcx 00000080042296d0 rdx 0000000000000031
+rsp 00000080042c35c0 rbp 00000080042c35d0 rsi 000000000000000a rdi cccccccccccccccc
+rip 000000800421e1ea r8 0000008004214694  r9 0000008004217be8 r10 0000800422fdf000
+r11 0000000000000000 r12 000000800c022000 r13 0000000000000000 r14 0000000000000000
+r15 000080042c3ed000 rflags 00000086
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+bad signature on scratch disk

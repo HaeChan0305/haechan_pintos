@@ -5,6 +5,8 @@ tests/vm/swap-file.o: ../../tests/vm/swap-file.c \
  ../../include/lib/kernel/list.h ../../include/lib/stdint.h \
  ../../include/threads/synch.h ../../include/threads/interrupt.h \
  ../../include/filesys/file.h ../../include/filesys/off_t.h \
- ../../include/filesys/filesys.h ../../include/lib/stdio.h \
+ ../../include/filesys/filesys.h ../../include/filesys/directory.h \
+ ../../include/devices/disk.h ../../include/lib/inttypes.h \
+ ../../include/filesys/fat.h ../../include/lib/stdio.h \
  ../../include/lib/stdarg.h ../../include/lib/kernel/stdio.h \
  ../../tests/lib.h ../../tests/main.h ../../tests/vm/large.inc

@@ -18,10 +18,10 @@ Executing 'write-bad-ptr':
 (write-bad-ptr) open "sample.txt"
 write-bad-ptr: exit(-1)
 Execution of 'write-bad-ptr' complete.
-Timer: 87 ticks
-Thread: 33 idle ticks, 52 kernel ticks, 2 user ticks
+Timer: 92 ticks
+Thread: 35 idle ticks, 55 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 257 reads, 533 writes
+hd0:1: 310 reads, 541 writes
 hd1:0: 107 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1055 characters output

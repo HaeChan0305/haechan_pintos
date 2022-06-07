@@ -11,4 +11,5 @@ vm/anon.o: ../../vm/anon.c ../../include/vm/vm.h \
  ../../include/threads/loader.h ../../include/threads/synch.h \
  ../../include/filesys/page_cache.h ../../include/threads/thread.h \
  ../../include/threads/interrupt.h ../../include/filesys/filesys.h \
- ../../include/devices/disk.h
+ ../../include/filesys/directory.h ../../include/devices/disk.h \
+ ../../include/filesys/fat.h

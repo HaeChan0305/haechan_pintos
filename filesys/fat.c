@@ -247,8 +247,11 @@ fat_create_chain_multiple(size_t clusters, cluster_t *start, cluster_t pclst){
 	}
 
 	/* If empty fat entries are less than CLUSTERS. */
-	if(fat_fs->bs.fat_empty < clusters)
+	if(fat_fs->bs.fat_empty < clusters){
+		printf("fat_empty : %d\nclusters : %d\n", fat_fs->bs.fat_empty, clusters);
+		printf("fat_create_chain_multiple: no empty fat entry\n");
 		return false;
+	}
 
 	/* Otherwise.(General case) */
 	cluster_t clst = pclst;

@@ -6,4 +6,6 @@ lib/user/console.o: ../../lib/user/console.c ../../include/lib/stdio.h \
  ../../include/threads/thread.h ../../include/lib/kernel/list.h \
  ../../include/threads/synch.h ../../include/threads/interrupt.h \
  ../../include/filesys/file.h ../../include/filesys/off_t.h \
- ../../include/filesys/filesys.h ../../include/lib/syscall-nr.h
+ ../../include/filesys/filesys.h ../../include/filesys/directory.h \
+ ../../include/devices/disk.h ../../include/lib/inttypes.h \
+ ../../include/filesys/fat.h ../../include/lib/syscall-nr.h

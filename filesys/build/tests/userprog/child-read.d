@@ -8,5 +8,7 @@ tests/userprog/child-read.o: ../../tests/userprog/child-read.c \
  ../../include/lib/kernel/list.h ../../include/threads/synch.h \
  ../../include/threads/interrupt.h ../../include/filesys/file.h \
  ../../include/filesys/off_t.h ../../include/filesys/filesys.h \
+ ../../include/filesys/directory.h ../../include/devices/disk.h \
+ ../../include/lib/inttypes.h ../../include/filesys/fat.h \
  ../../tests/userprog/boundary.h ../../tests/userprog/sample.inc \
  ../../tests/lib.h

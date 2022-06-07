@@ -1,2 +1,2 @@
 FAIL
-run: open "xyzzy": FAILED
+run: write "xyzzy" (must return -1, actually 6): FAILED

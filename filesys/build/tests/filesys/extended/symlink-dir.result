@@ -1,2 +1,2 @@
 FAIL
-run: create symlink "a/link_b": FAILED
+run: mkdir "/a": FAILED

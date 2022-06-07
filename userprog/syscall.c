@@ -14,6 +14,8 @@
 #include "lib/kernel/stdio.h"
 #include "devices/input.h" 
 #include "vm/vm.h" 
+#include "filesys/filesys.h"
+#include "filesys/directory.h"
 
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
@@ -122,7 +124,15 @@ syscall_handler (struct intr_frame *f UNUSED) {
 		case SYS_MUNMAP:
 			munmap(f->R.rdi);
 			break;
-
+		
+		case SYS_CHDIR:
+			f->R.rax = chdir(f->R.rdi);
+			break;
+		
+		case SYS_MKDIR:
+			f->R.rax = mkdir(f->R.rdi);
+			break;
+		
 		default:
 			break;
 	}
@@ -186,7 +196,7 @@ create (const char *file, unsigned initial_size){
 	check_address((void *)file);
 
 	lock_acquire(&file_lock);
-	bool result = filesys_create(file, (off_t)initial_size);
+	bool result = filesys_create_file(file, (off_t)initial_size);
 	lock_release(&file_lock);
 	return result;
 }
@@ -210,16 +220,16 @@ open (const char *file){
 
 	lock_acquire(&file_lock);
 	
-	struct file *new_file = filesys_open(file);
-	if(new_file == NULL){
+	struct item *new_item = filesys_open(file);
+	if(new_item == NULL){
 		lock_release(&file_lock);
-		return -1;			/* filesys_open() fail */
+		return -1;
 	}
 	
-	int result = create_fd(new_file);		
+	int result = create_fd(new_item);		
 	if(result == -1) {
 		printf("open : create_fd() fail\n");
-		file_close(new_file);
+		item_close(new_item);
 	}
 
 	lock_release(&file_lock);
@@ -233,12 +243,12 @@ open (const char *file){
 	lock_acquire(&file_lock);
 
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_ == NULL){
+	if(fdesc_ == NULL || fdesc_->item->is_dir){
 		lock_release(&file_lock);
 		return -1; 	/* No such a fd in fd_list OR stdin, stdout*/
 	}
 
-	int result = file_length(fdesc_->file);
+	int result = file_length(fdesc_->item->file);
 	lock_release(&file_lock);
 	return result;
  }
@@ -254,7 +264,7 @@ open (const char *file){
 
 	struct fdesc *fdesc_ = find_fd(fd);
 	/* No such a fd in fd_table */
-	if(fdesc_ == NULL){
+	if(fdesc_ == NULL || fdesc_->item->is_dir){
 		lock_release(&file_lock);
 		return -1;
 	}
@@ -279,7 +289,7 @@ open (const char *file){
 	else{
 		ASSERT(!(fd == 0 || fd == 1));
 
-		int result = (int) file_read(fdesc_->file, buffer, length);
+		int result = (int) file_read(fdesc_->item->file, buffer, length);
 		lock_release(&file_lock);
 		return result;
 	}
@@ -298,7 +308,7 @@ write (int fd, const void *buffer, unsigned length){
 	struct fdesc *fdesc_ = find_fd(fd);
 	
 	/* No such a fd in fd_table */
-	if(fdesc_ == NULL){
+	if(fdesc_ == NULL || fdesc_->item->is_dir){
 		ASSERT(!(fd == 0 || fd == 1));
 		lock_release(&file_lock);
 		return 0;
@@ -321,7 +331,7 @@ write (int fd, const void *buffer, unsigned length){
 	else{
 		ASSERT(!(fd == 0 || fd == 1));
 
-		int result = (int) file_write(fdesc_->file, buffer, length);
+		int result = (int) file_write(fdesc_->item->file, buffer, length);
 		lock_release(&file_lock);
 		return result;
 	}
@@ -332,8 +342,8 @@ seek (int fd, unsigned position){
 	lock_acquire(&file_lock);
 	
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL)
-		file_seek(fdesc_->file, position);
+	if(fdesc_!= NULL && fdesc_->item != NULL && !fdesc_->item->is_dir)
+		file_seek(fdesc_->item->file, position);
 
 	lock_release(&file_lock);
 }
@@ -345,8 +355,8 @@ tell (int fd){
 	lock_acquire(&file_lock);
 	
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL)
-		result = file_tell(fdesc_->file);
+	if(fdesc_!= NULL && fdesc_->item != NULL && !fdesc_->item->is_dir)
+		result = file_tell(fdesc_->item->file);
 
 	lock_release(&file_lock);
 	return result;
@@ -362,8 +372,8 @@ close (int fd){
 
 	struct fdesc *fdesc_ = find_fd(fd);
 	if(fdesc_ != NULL){
-		if(fdesc_->file != NULL)
-			file_close(fdesc_->file);
+		if(fdesc_->item != NULL)
+			item_close(fdesc_->item);
 
 		list_remove(&fdesc_->fd_elem);
 		free(fdesc_);
@@ -385,8 +395,8 @@ mmap(void *addr, size_t length, int writable, int fd, off_t offset){
 	if(fd == 0 || fd == 1) goto done;
 
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL)
-		va = do_mmap(addr, length, writable, fdesc_->file, offset, fd);
+	if(fdesc_!= NULL && fdesc_->item != NULL && !fdesc_->item->is_dir)
+		va = do_mmap(addr, length, writable, fdesc_->item->file, offset, fd);
 
 done:
 	lock_release(&file_lock);
@@ -400,4 +410,22 @@ munmap (void *addr){
 	lock_acquire(&file_lock);
 	do_munmap(addr);
 	lock_release(&file_lock);
+}
+
+bool 
+chdir (const char *dir){
+	struct dir *ndir = accessing_path(dir, NULL, true);
+	if(ndir == NULL)
+		return false;
+
+	struct thread *curr = thread_current();
+	dir_close(curr->curr_dir);
+	curr->curr_dir = ndir;
+
+	return true;
+}
+
+bool 
+mkdir (const char *dir){
+	return filesys_create_dir(dir);
 }

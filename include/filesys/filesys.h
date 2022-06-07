@@ -11,10 +11,23 @@
 /* Disk used for file system. */
 extern struct disk *filesys_disk;
 
+/* Sturct for contain file and dir both. */
+struct item{
+    bool is_dir;
+    union{
+        struct file *file;
+        struct dir *dir;
+    };
+};
+
 void filesys_init (bool format);
 void filesys_done (void);
-bool filesys_create (const char *name, off_t initial_size);
-struct file *filesys_open (const char *name);
+struct dir *accessing_path(const char *, char **lowest, bool);
+bool filesys_create_file(const char *path, off_t initial_size);
+bool filesys_create_dir(const char *path);
+struct item *filesys_open (const char *name);
 bool filesys_remove (const char *name);
+void item_close(struct item *item);
+struct item *item_duplicate(struct item *);
 
 #endif /* filesys/filesys.h */

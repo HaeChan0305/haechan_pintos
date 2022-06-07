@@ -4,7 +4,7 @@ Kernel command line: -q -f put dir-rmdir put tar run dir-rmdir
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  157,081,600 loops/s.
+Calibrating timer...  104,755,200 loops/s.
 hd0:0: detected 369 sector (184 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 4,032 sector (1 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 228 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -16,17 +16,16 @@ Putting 'tar' into the file system...
 Executing 'dir-rmdir':
 (dir-rmdir) begin
 (dir-rmdir) mkdir "a"
-(dir-rmdir) rmdir "a"
-(dir-rmdir) rmdir "a": FAILED
+(dir-rmdir) mkdir "a": FAILED
 dir-rmdir: exit(1)
 Execution of 'dir-rmdir' complete.
-Timer: 92 ticks
-Thread: 37 idle ticks, 52 kernel ticks, 3 user ticks
+Timer: 88 ticks
+Thread: 37 idle ticks, 49 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 145 reads, 525 writes
+hd0:1: 180 reads, 532 writes
 hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1052 characters output
+Console: 1030 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

@@ -15,12 +15,13 @@
 struct inode;
 
 /* Opening and closing directories. */
-bool dir_create (cluster_t clutser, size_t entry_cnt);
+bool dir_create (cluster_t, cluster_t, size_t);
 struct dir *dir_open (struct inode *);
 struct dir *dir_open_root (void);
 struct dir *dir_reopen (struct dir *);
 void dir_close (struct dir *);
 struct inode *dir_get_inode (struct dir *);
+struct dir *dir_duplicate (struct dir *dir);
 
 /* Reading and writing. */
 bool dir_lookup (const struct dir *, const char *name, struct inode **);

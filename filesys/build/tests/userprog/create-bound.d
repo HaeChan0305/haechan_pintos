@@ -5,4 +5,6 @@ tests/userprog/create-bound.o: ../../tests/userprog/create-bound.c \
  ../../include/lib/stdint.h ../../include/threads/synch.h \
  ../../include/threads/interrupt.h ../../include/filesys/file.h \
  ../../include/filesys/off_t.h ../../include/filesys/filesys.h \
+ ../../include/filesys/directory.h ../../include/devices/disk.h \
+ ../../include/lib/inttypes.h ../../include/filesys/fat.h \
  ../../tests/userprog/boundary.h ../../tests/lib.h ../../tests/main.h

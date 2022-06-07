@@ -29,30 +29,29 @@ child-sort: exit(123)
 child-sort: exit(123)
 child-sort: exit(123)
 child-sort: exit(123)
-child-sort: exit(123)
 (page-merge-par) wait for child 1
+child-sort: exit(123)
+child-sort: exit(123)
+child-sort: exit(123)
+child-sort: exit(123)
 (page-merge-par) wait for child 2
 (page-merge-par) wait for child 3
 (page-merge-par) wait for child 4
 (page-merge-par) wait for child 5
-child-sort: exit(123)
-child-sort: exit(123)
 (page-merge-par) wait for child 6
-child-sort: exit(123)
 (page-merge-par) wait for child 7
 (page-merge-par) merge
 (page-merge-par) verify
-(page-merge-par) success, buf_idx=1,048,576
-(page-merge-par) end
-page-merge-par: exit(0)
+(page-merge-par) bad value 0 in byte 4076: FAILED
+page-merge-par: exit(1)
 Execution of 'page-merge-par' complete.
-Timer: 366 ticks
-Thread: 85 idle ticks, 73 kernel ticks, 208 user ticks
+Timer: 327 ticks
+Thread: 59 idle ticks, 78 kernel ticks, 191 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 4993 reads, 6923 writes
+hd0:1: 4859 reads, 6951 writes
 hd1:0: 222 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1856 characters output
+Console: 1841 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

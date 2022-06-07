@@ -20,10 +20,10 @@ Executing 'mmap-read':
 (mmap-read) end
 mmap-read: exit(0)
 Execution of 'mmap-read' complete.
-Timer: 91 ticks
-Thread: 33 idle ticks, 55 kernel ticks, 3 user ticks
+Timer: 90 ticks
+Thread: 36 idle ticks, 51 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 268 reads, 541 writes
+hd0:1: 321 reads, 549 writes
 hd1:0: 111 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1068 characters output
