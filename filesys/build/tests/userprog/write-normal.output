@@ -20,10 +20,10 @@ Executing 'write-normal':
 (write-normal) end
 write-normal: exit(0)
 Execution of 'write-normal' complete.
-Timer: 93 ticks
-Thread: 39 idle ticks, 51 kernel ticks, 3 user ticks
+Timer: 95 ticks
+Thread: 33 idle ticks, 58 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 343 reads, 548 writes
+hd0:1: 343 reads, 549 writes
 hd1:0: 109 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1096 characters output

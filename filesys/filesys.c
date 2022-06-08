@@ -220,30 +220,29 @@ filesys_create (const char *path, off_t initial_size) {
 done:
 	dir_close (upper_dir);
 	free(lowest);
-	//PANIC("success : %d", success);
 	return success;
 }
 
 bool
 filesys_create_dir (const char *path) {
 	/* Access given PATH and store final file name in LOWEST. */
+	bool success = false;
 	char *lowest = NULL;
 	struct dir *upper_dir = accessing_path(path, &lowest, false);
 	
-	if(upper_dir == NULL){
-		free(lowest);
-		return false;	
-	}
+	if(upper_dir == NULL || lowest == NULL)
+		goto done;
 
 	/* Create file. */
 	cluster_t inode_cluster = EMPTY;
 	cluster_t upper_cluster = inode_get_inumber(dir_get_inode(upper_dir));
-	bool success = (fat_create_chain_multiple(1, &inode_cluster, EMPTY)
-					&& dir_create (inode_cluster, upper_cluster, 16)
-					&& dir_add (upper_dir, lowest, inode_cluster));
+	success = (fat_create_chain_multiple(1, &inode_cluster, EMPTY)
+			&& dir_create (inode_cluster, upper_cluster, 16)
+			&& dir_add (upper_dir, lowest, inode_cluster));
 	if (!success && inode_cluster != EMPTY)
 		fat_remove_chain(inode_cluster, EMPTY);
 	
+done:
 	dir_close (upper_dir);
 	free(lowest);
 	return success;

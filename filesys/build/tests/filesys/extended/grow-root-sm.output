@@ -33,10 +33,10 @@ Executing 'grow-root-sm':
 (grow-root-sm) create "file14": FAILED
 grow-root-sm: exit(1)
 Execution of 'grow-root-sm' complete.
-Timer: 126 ticks
-Thread: 49 idle ticks, 54 kernel ticks, 23 user ticks
+Timer: 131 ticks
+Thread: 47 idle ticks, 54 kernel ticks, 30 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 1007 reads, 619 writes
+hd0:1: 1007 reads, 620 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1721 characters output

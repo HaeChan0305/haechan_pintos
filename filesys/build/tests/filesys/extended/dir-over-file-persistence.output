@@ -17,9 +17,9 @@ tar: exit(1)
 Execution of 'tar' complete.
 Getting 'fs.tar' from the file system...
 Timer: 83 ticks
-Thread: 31 idle ticks, 47 kernel ticks, 5 user ticks
+Thread: 32 idle ticks, 47 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 146 reads, 40 writes
+hd0:1: 146 reads, 41 writes
 hd1:0: 0 reads, 2 writes
 hd1:1: 0 reads, 0 writes
 Console: 908 characters output

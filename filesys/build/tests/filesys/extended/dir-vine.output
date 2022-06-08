@@ -16,16 +16,16 @@ Putting 'tar' into the file system...
 Executing 'dir-vine':
 (dir-vine) begin
 (dir-vine) creating many levels of files and directories...
-(dir-vine) remove "file0": FAILED
+(dir-vine) open "file0": FAILED
 dir-vine: exit(1)
 Execution of 'dir-vine' complete.
-Timer: 98 ticks
-Thread: 35 idle ticks, 60 kernel ticks, 3 user ticks
+Timer: 103 ticks
+Thread: 43 idle ticks, 56 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 220 reads, 551 writes
+hd0:1: 297 reads, 558 writes
 hd1:0: 236 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1065 characters output
+Console: 1064 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

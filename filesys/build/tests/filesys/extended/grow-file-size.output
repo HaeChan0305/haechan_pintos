@@ -21,13 +21,13 @@ Executing 'grow-file-size':
 (grow-file-size) write 37 bytes at offset 0 in "testfile" failed: FAILED
 grow-file-size: exit(1)
 Execution of 'grow-file-size' complete.
-Timer: 103 ticks
-Thread: 34 idle ticks, 65 kernel ticks, 4 user ticks
+Timer: 97 ticks
+Thread: 39 idle ticks, 54 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 210 reads, 537 writes
+hd0:1: 210 reads, 538 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1191 characters output
+Console: 1190 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

@@ -310,6 +310,12 @@ __do_fork (void *aux) {
 		goto error;
 #endif
 
+#ifdef EFILESYS
+	current->curr_dir = dir_reopen(parent->curr_dir);
+	if(current->curr_dir == NULL)
+		goto error;
+#endif
+
 	/* Finally, switch to the newly created process. */
 	if_.R.rax = 0; //Child' fork() return value == 0
 	parent->fork_status = true;
@@ -490,6 +496,10 @@ process_cleanup (void) {
 #ifdef VM
 	supplemental_page_table_kill (&curr->spt);
 	ASSERT(hash_empty(&curr->spt.h_spt));
+#endif
+
+#ifdef EFILESYS
+	dir_close (curr->curr_dir);
 #endif
 
 	uint64_t *pml4;

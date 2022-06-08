@@ -17,16 +17,17 @@ Executing 'dir-rmdir':
 (dir-rmdir) begin
 (dir-rmdir) mkdir "a"
 (dir-rmdir) rmdir "a"
-(dir-rmdir) rmdir "a": FAILED
-dir-rmdir: exit(1)
+(dir-rmdir) chdir "a" (must return false)
+(dir-rmdir) end
+dir-rmdir: exit(0)
 Execution of 'dir-rmdir' complete.
-Timer: 100 ticks
-Thread: 38 idle ticks, 59 kernel ticks, 3 user ticks
+Timer: 97 ticks
+Thread: 39 idle ticks, 54 kernel ticks, 4 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 198 reads, 531 writes
+hd0:1: 271 reads, 539 writes
 hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1053 characters output
+Console: 1080 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

@@ -193,9 +193,9 @@ inode_close (struct inode *inode) {
 	if (inode == NULL)
 		return;
 
-	lock_acquire (&inode->inode_lock);
+	//lock_acquire (&inode->inode_lock);
 	inode->open_cnt--;
-	lock_release (&inode->inode_lock);
+	//lock_release (&inode->inode_lock);
 
 	/* Release resources if this was the last opener. */
 	if (inode->open_cnt == 0) {

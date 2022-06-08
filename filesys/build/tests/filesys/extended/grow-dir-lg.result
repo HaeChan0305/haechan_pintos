@@ -1,2 +1,2 @@
 FAIL
-run: create "/x": FAILED
+run: open "/x": FAILED

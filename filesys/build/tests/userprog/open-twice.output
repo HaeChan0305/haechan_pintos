@@ -20,10 +20,10 @@ Executing 'open-twice':
 (open-twice) end
 open-twice: exit(0)
 Execution of 'open-twice' complete.
-Timer: 96 ticks
-Thread: 37 idle ticks, 55 kernel ticks, 4 user ticks
+Timer: 97 ticks
+Thread: 39 idle ticks, 57 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 321 reads, 540 writes
+hd0:1: 321 reads, 541 writes
 hd1:0: 107 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1089 characters output

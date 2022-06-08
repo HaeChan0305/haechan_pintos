@@ -18,6 +18,7 @@
 void syscall_entry (void);
 void syscall_handler (struct intr_frame *);
 
+int write_cnt = 0;
 /* System call.
  *
  * Previously system call services was handled by the interrupt handler

@@ -181,13 +181,15 @@ done:
 	return success;
 }
 
+/* check remove validation just for directory. */
 static bool
 remove_condition_check(struct inode *inode){
-	return inode != NULL
-		&& inode_is_dir(inode)
-		&& !inode_is_root_dir(inode)
-		&& inode_items(inode) <= 2
-		&& inode_open_cnt(inode) <= 1;
+	ASSERT(inode != NULL);
+	ASSERT(inode_is_dir(inode));
+
+	return !inode_is_root_dir(inode)
+		&& inode_items(inode) == 2
+		&& inode_open_cnt(inode) == 1;
 }
 
 /* Removes any entry for NAME in DIR.
@@ -207,10 +209,14 @@ dir_remove (struct dir *dir, const char *name) {
 	if (!lookup (dir, name, &e, &ofs))
 		goto done;
 
-	/* Open inode. */
+	/* Open inode and Check validation. */
 	inode = inode_open (e.inode_cluster);
-	//if(inode == NULL)
-	if (!remove_condition_check(inode))
+	/* File Case. */
+	if(inode == NULL)
+		goto done;
+
+	/* Directory Case. */
+	if(inode_is_dir(inode) && !remove_condition_check(inode))
 		goto done;
 
 	/* Erase directory entry. */
@@ -219,7 +225,8 @@ dir_remove (struct dir *dir, const char *name) {
 		goto done;
 
 	/* Remove inode. */
-	inode_items_decr(inode);
+	if(inode_is_dir(inode))
+		inode_items_decr(inode);
 	inode_remove (inode);
 	success = true;
 

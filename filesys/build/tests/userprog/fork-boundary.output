@@ -22,9 +22,9 @@ child-simple: exit(54)
 fork-boundary: exit(0)
 Execution of 'fork-boundary' complete.
 Timer: 89 ticks
-Thread: 41 idle ticks, 48 kernel ticks, 1 user ticks
+Thread: 32 idle ticks, 55 kernel ticks, 3 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 275 reads, 540 writes
+hd0:1: 275 reads, 541 writes
 hd1:0: 108 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1071 characters output

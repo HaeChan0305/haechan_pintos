@@ -17,16 +17,18 @@ Executing 'dir-mkdir':
 (dir-mkdir) begin
 (dir-mkdir) mkdir "a"
 (dir-mkdir) create "a/b"
-(dir-mkdir) create "a/b": FAILED
+(dir-mkdir) chdir "a"
+(dir-mkdir) open "b"
+(dir-mkdir) open "b": FAILED
 dir-mkdir: exit(1)
 Execution of 'dir-mkdir' complete.
-Timer: 102 ticks
-Thread: 43 idle ticks, 56 kernel ticks, 3 user ticks
+Timer: 106 ticks
+Thread: 35 idle ticks, 64 kernel ticks, 7 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 198 reads, 533 writes
+hd0:1: 298 reads, 545 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1059 characters output
+Console: 1098 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

@@ -21,10 +21,10 @@ Executing 'symlink-dir':
 (symlink-dir) create symlink "a/link_b": FAILED
 symlink-dir: exit(1)
 Execution of 'symlink-dir' complete.
-Timer: 102 ticks
-Thread: 40 idle ticks, 59 kernel ticks, 3 user ticks
+Timer: 101 ticks
+Thread: 30 idle ticks, 64 kernel ticks, 7 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 182 reads, 539 writes
+hd0:1: 318 reads, 553 writes
 hd1:0: 232 reads, 0 writes
 hd1:1: 0 reads, 0 writes
 Console: 1132 characters output
