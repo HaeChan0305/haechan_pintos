@@ -242,6 +242,9 @@ bool
 dir_readdir (struct dir *dir, char name[NAME_MAX + 1]) {
 	struct dir_entry e;
 
+	ASSERT(dir != NULL);
+	ASSERT(name != NULL);
+
 	while (inode_read_at (dir->inode, &e, sizeof e, dir->pos) == sizeof e) {
 		dir->pos += sizeof e;
 		if (e.in_use) {
@@ -255,6 +258,8 @@ dir_readdir (struct dir *dir, char name[NAME_MAX + 1]) {
 struct dir *
 dir_duplicate (struct dir *dir)
 {
+	ASSERT(dir != NULL);
+	
 	struct dir *ndir = dir_open (inode_reopen (dir->inode));
 	if (ndir) {
 		ndir->pos = dir->pos;

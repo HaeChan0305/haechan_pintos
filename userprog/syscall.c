@@ -299,7 +299,6 @@ open (const char *file){
  * Fail   : return 0 */
 int 
 write (int fd, const void *buffer, unsigned length){
-
 	check_address(buffer);
 
 	lock_acquire(&file_lock);

@@ -82,6 +82,7 @@ free_parsed(char **parsed, int idx){
 
 static char **
 parsing_path(const char *path, int *argc_){
+	ASSERT(path != NULL && argc_ != NULL);
 	// /* Validation check. */
 	// if(path[strlen(path) - 1] == '/'){
 	// 	free(path);
@@ -201,6 +202,8 @@ err:
  * or if internal memory allocation fails. */
 bool
 filesys_create (const char *path, off_t initial_size) {
+	ASSERT(path != NULL);
+
 	/* Access given PATH and store final file name in LOWEST. */
 	bool success = false;
 	char *lowest = NULL;
@@ -225,6 +228,8 @@ done:
 
 bool
 filesys_create_dir (const char *path) {
+	ASSERT(path != NULL);
+
 	/* Access given PATH and store final file name in LOWEST. */
 	bool success = false;
 	char *lowest = NULL;
@@ -254,15 +259,86 @@ done:
  * Fails if no file named NAME exists,
  * or if an internal memory allocation fails. */
 struct file *
-filesys_open (const char *name) {
-	struct dir *dir = dir_open_root ();
+filesys_open (const char *path) {
+	ASSERT(path != NULL);
+	struct file *file = NULL;
+	struct item *item = filesys_open_item(path);
+	if(item == NULL)
+		return NULL;
+
+	/* This function have to deal with only file. */
+	if(!item->is_dir)
+		file = item->file;
+	else
+		dir_close(item->dir);
+
+	free(item);
+	return file;
+}
+/* Opens the file with the given NAME.
+ * Returns the new file if successful or a null pointer
+ * otherwise.
+ * Fails if no file named NAME exists,
+ * or if an internal memory allocation fails. */
+struct item *
+filesys_open_item(const char *path){
+	ASSERT(path != NULL);
+
+	/* Special case : path = "/". */
+	if(strlen(path) == 1 && *path == '/'){
+		struct item *item = (struct item *)malloc(sizeof(struct item));
+		if(item == NULL)
+			return NULL;
+
+		item->is_dir = true;
+		item->dir = dir_open_root();
+		if(item->dir == NULL)
+			return NULL;
+		
+		return item;
+	}
+
+	/* Access proper path and make INODE. */
+	char *lowest = NULL;
+	struct item *item = NULL;
 	struct inode *inode = NULL;
 
-	if (dir != NULL)
-		dir_lookup (dir, name, &inode);
-	dir_close (dir);
+	struct dir *upper_dir = accessing_path(path, &lowest, false);
+	if(upper_dir == NULL || lowest == NULL)
+		goto err;
+	
+	dir_lookup (upper_dir, lowest, &inode);
+	if(inode == NULL)
+		goto err;
 
-	return file_open (inode);
+	/* Determine lowest item in path, directory or file. */
+	item = (struct item *)malloc(sizeof(struct item));
+	if(item == NULL)
+		goto err;
+
+	if(inode_is_dir(inode)){
+		item->is_dir = true;
+		item->dir = dir_open(inode);
+		if(item->dir == NULL)
+			goto err;
+	}
+	else{
+		item->is_dir = false;
+		item->file = file_open(inode);
+		if(item->file == NULL)
+			goto err;
+	}
+
+	dir_close(upper_dir);
+	free(lowest);
+	return item;
+
+err:
+	dir_close(upper_dir);
+	free(lowest);
+	free(item);
+	//printf("filesys_open fail\n");
+	return NULL;
 }
 
 /* Deletes the file named NAME.
@@ -276,6 +352,43 @@ filesys_remove (const char *name) {
 	dir_close (dir);
 
 	return success;
+}
+
+void
+item_close(struct item *item){
+	if(item != NULL){
+		if(item->is_dir){
+			ASSERT(item->dir != NULL);
+			dir_close(item->dir);
+		}
+		else{
+			ASSERT(item->file != NULL);
+			file_close(item->file);
+		}
+
+		free(item);
+	}
+}
+
+struct item *
+item_duplicate(struct item *item){
+	ASSERT(item != NULL);
+
+	struct item *nitem = (struct item *)malloc(sizeof(struct item));
+	if(nitem == NULL) return NULL;
+
+	nitem->is_dir = item->is_dir;
+
+	if(item->is_dir){
+		ASSERT(item->dir != NULL);
+		nitem->dir = dir_duplicate(item->dir);
+		}
+	else{
+		ASSERT(item->file != NULL);
+		nitem->file = file_duplicate(item->file);
+	}
+
+	return nitem;
 }
 
 /* Formats the file system. */

@@ -1,6 +1,6 @@
 FAIL
 Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x8004214774 0x8004219e86 0x80042096f1 0x8004209b0f 0x8004214f26 0x800420c7ec 0x800421eaf4 0x800421d51d 0x8004226930 0x8004224e3f 0x8004225a63 0x8004216d42 0x8004216dc5 0x8004225aa5 0x8004218b6f 0x8004218b3b 0x80042072a7 0x800421a573 0x800421a199 0x800421a03c 0x4010c1
+Call stack: 0x8004214774 0x8004219e86 0x80042096f1 0x8004209b0f 0x8004214f26 0x800420c7ec 0x800421f496 0x800421db75 0x80042272d2 0x80042257e1 0x8004226405 0x8004216d42 0x8004216dc5 0x8004226447 0x8004218b6f 0x8004218b3b 0x80042072a7 0x800421a573 0x800421a199 0x800421a03c 0x4010c1
 Translation of call stack:
 0x0000008004214774: debug_panic (lib/kernel/debug.c:32)
 0x0000008004219e86: kill (userprog/exception.c:103)
@@ -8,14 +8,14 @@ Translation of call stack:
 0x0000008004209b0f: intr_entry (threads/intr-stubs.o:?)
 0x0000008004214f26: list_push_front (lib/kernel/list.c:197)
 0x000000800420c7ec: free (threads/malloc.c:222)
-0x000000800421eaf4: inode_close (filesys/inode.c:215)
-0x000000800421d51d: file_close (filesys/file.c:50)
-0x0000008004226930: file_backed_destroy (vm/file.c:141)
-0x0000008004224e3f: vm_dealloc_page (vm/vm.c:293)
-0x0000008004225a63: supplemental_page_table_entry_kill (vm/vm.c:555)
+0x000000800421f496: inode_close (filesys/inode.c:215)
+0x000000800421db75: file_close (filesys/file.c:52)
+0x00000080042272d2: file_backed_destroy (vm/file.c:141)
+0x00000080042257e1: vm_dealloc_page (vm/vm.c:293)
+0x0000008004226405: supplemental_page_table_entry_kill (vm/vm.c:555)
 0x0000008004216d42: hash_clear (lib/kernel/hash.c:58)
 0x0000008004216dc5: hash_destroy (lib/kernel/hash.c:84)
-0x0000008004225aa5: supplemental_page_table_kill (vm/vm.c:563)
+0x0000008004226447: supplemental_page_table_kill (vm/vm.c:563)
 0x0000008004218b6f: process_cleanup (userprog/process.c:498)
 0x0000008004218b3b: process_exit (userprog/process.c:489)
 0x00000080042072a7: thread_exit (threads/thread.c:347)
