@@ -59,8 +59,24 @@ filesys_done (void) {
 #endif
 }
 
-char **
+static void
+free_parsed(char **parsed, int idx){
+	ASSERT(parsed != NULL);
+	ASSERT(idx >= 0);
+
+	for(int i = 0; i < idx; i++)
+		free(parsed[i]);
+	free(parsed);
+}
+
+static char **
 parsing_path(const char *path, int *argc_){
+	// /* Validation check. */
+	// if(path[strlen(path) - 1] == '/'){
+	// 	free(path);
+	// 	return NULL;
+	// }
+		
 	/* Count nubmer of tokens. */
 	char *c = (char *)path;
 	int tokens = (*c == '/') ? 0 : 1;
@@ -68,28 +84,47 @@ parsing_path(const char *path, int *argc_){
 		if(*c == '/') tokens++;
 		c++;
 	}
+	*argc_ = tokens;
+	ASSERT(tokens > 0);
 
-	/* Token length validation check. */
-	if(strlen(path)/tokens > 14)
+	/* Token length validation check efficiently. */
+	if(strlen(path)/tokens > 14){
+		//free(path);
 		return NULL;
+	}
+
+	/* Allocation. */
+	char **result = (char **)malloc(tokens * sizeof(char *));
+	if(result == NULL){
+		//free(path);
+		return NULL;
+	}
+	for(int i = 0; i < tokens; i++){
+		result[i] = (char *)malloc(sizeof(char) * 15);
+		if(result[i] == NULL){
+			free_parsed(result, i);
+			//free(path);
+			return NULL;
+		}
+	}	
 
 	/* Parsing PATH. */
 	int argc = 0 ;
     char *token;
     char *save_ptr;
-	char **result = (char **)malloc(tokens * sizeof(char *));
-	if(result == NULL) 
-		return NULL;
-
-    for (token = strtok_r ((char *)path, "/", &save_ptr); token != NULL;
+    for (token = strtok_r (path, "/", &save_ptr); token != NULL;
     	 token = strtok_r (NULL, "/", &save_ptr)){
-			if(strlen(token) > 14)
-				return result;
-			result[argc++] = token;
+		
+		/* Token length validation check specifically. */
+		if(strlen(token) > 14){
+			free_parsed(result, tokens);
+			//free(path);
+			return NULL;
+		}
+		strlcpy(result[argc++], token, strlen(token) + 1);
 	}
 	ASSERT(tokens == argc);
-
-	*argc_ = tokens;
+	//free(path);
 	return result;
 }
 
@@ -112,14 +147,16 @@ accessing_path(const char *path, char **lowest, bool to_end){
 		return NULL;
 
 	/* Parsing path */
-	int argc;
+	int argc = 0;
 	char **parsed = parsing_path(path, &argc);
-	if(parsed == NULL) goto err;
+	if(parsed == NULL || argc == 0){
+		dir_close(curr_dir);
+		return NULL;
+	}
 
 	/* Access proper directory. */
-	int i;
 	struct inode *inode_dir;
-	for(i = 0; i < argc - 1 + (int)to_end; i++){
+	for(int i = 0; i < argc - 1 + (int)to_end; i++){
 		if(!dir_lookup(curr_dir, parsed[i], &inode_dir))
 			goto err;
 
@@ -128,20 +165,21 @@ accessing_path(const char *path, char **lowest, bool to_end){
 		if(curr_dir == NULL)
 			goto err;
 	}
-
-	/* Store lowest directory name. */
+	
+	/* Store lowest directory name(last token). */
 	if(!to_end){
-		*lowest = (char *)malloc(strlen(parsed[i]) + 1);
+		*lowest = (char *)malloc(strlen(parsed[argc - 1]) + 1);
 		if(*lowest == NULL)
 			goto err;
-		strlcpy(*lowest, parsed[i], strlen(parsed[i]) + 1);
+			
+		strlcpy(*lowest, parsed[argc - 1], strlen(parsed[argc - 1]) + 1);
 	}
 
-	free(parsed);
+	free_parsed(parsed, argc);
 	return curr_dir;
 
 err:
-	free(parsed);
+	free_parsed(parsed, argc);
 	dir_close(curr_dir);
 	return NULL;
 }

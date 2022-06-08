@@ -8,11 +8,7 @@ Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 377 sector (188 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
-Formatting file system...dir inode_clst : 0
-dir add name   : .
-dir inode_clst : 0
-dir add name   : ..
-done.
+Formatting file system...done.
 Boot complete.
 Executing 'priority-donate-sema':
 (priority-donate-sema) begin
@@ -25,12 +21,12 @@ Executing 'priority-donate-sema':
 (priority-donate-sema) Main thread finished.
 (priority-donate-sema) end
 Execution of 'priority-donate-sema' complete.
-Timer: 82 ticks
-Thread: 34 idle ticks, 48 kernel ticks, 0 user ticks
+Timer: 80 ticks
+Thread: 30 idle ticks, 50 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 201 reads, 323 writes
 hd1:1: 0 reads, 0 writes
-Console: 1225 characters output
+Console: 1148 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

@@ -8,11 +8,7 @@ Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 377 sector (188 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
-Formatting file system...dir inode_clst : 0
-dir add name   : .
-dir inode_clst : 0
-dir add name   : ..
-done.
+Formatting file system...done.
 Boot complete.
 Executing 'alarm-priority':
 (alarm-priority) begin
@@ -28,12 +24,12 @@ Executing 'alarm-priority':
 (alarm-priority) Thread priority 21 woke up.
 (alarm-priority) end
 Execution of 'alarm-priority' complete.
-Timer: 584 ticks
-Thread: 518 idle ticks, 66 kernel ticks, 0 user ticks
+Timer: 579 ticks
+Thread: 520 idle ticks, 59 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 201 reads, 323 writes
 hd1:1: 0 reads, 0 writes
-Console: 1332 characters output
+Console: 1255 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

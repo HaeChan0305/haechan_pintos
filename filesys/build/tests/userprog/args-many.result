@@ -59,4 +59,12 @@ Differences in `diff -u' format:
 - (args) argv[23] = null
 - (args) end
 - args-many: exit(0)
++ args-many
++ args-many
++ args-many
++ args-many
++ args-many
++ args-many
++ args-many
++ args-many
 + args-many: exit(-1)

@@ -8,11 +8,7 @@ Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 377 sector (188 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
-Formatting file system...dir inode_clst : 0
-dir add name   : .
-dir inode_clst : 0
-dir add name   : ..
-done.
+Formatting file system...done.
 Boot complete.
 Executing 'alarm-multiple':
 (alarm-multiple) begin
@@ -58,12 +54,12 @@ Executing 'alarm-multiple':
 (alarm-multiple) thread 4: duration=50, iteration=7, product=350
 (alarm-multiple) end
 Execution of 'alarm-multiple' complete.
-Timer: 638 ticks
-Thread: 584 idle ticks, 54 kernel ticks, 0 user ticks
+Timer: 649 ticks
+Thread: 580 idle ticks, 69 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 201 reads, 323 writes
 hd1:1: 0 reads, 0 writes
-Console: 3447 characters output
+Console: 3370 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

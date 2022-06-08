@@ -7,4 +7,12 @@ Acceptable output:
 Differences in `diff -u' format:
 - (exit) begin
 - exit: exit(57)
++ exit
++ exit
++ exit
++ exit
++ exit
++ exit
++ exit
++ exit
 + exit: exit(-1)

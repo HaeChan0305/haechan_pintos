@@ -8,11 +8,7 @@ Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 377 sector (188 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
-Formatting file system...dir inode_clst : 0
-dir add name   : .
-dir inode_clst : 0
-dir add name   : ..
-done.
+Formatting file system...done.
 Boot complete.
 Executing 'priority-condvar':
 (priority-condvar) begin
@@ -48,12 +44,12 @@ Executing 'priority-condvar':
 (priority-condvar) Thread priority 21 woke up.
 (priority-condvar) end
 Execution of 'priority-condvar' complete.
-Timer: 87 ticks
-Thread: 33 idle ticks, 54 kernel ticks, 0 user ticks
+Timer: 89 ticks
+Thread: 30 idle ticks, 59 kernel ticks, 0 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 201 reads, 323 writes
 hd1:1: 0 reads, 0 writes
-Console: 2160 characters output
+Console: 2083 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

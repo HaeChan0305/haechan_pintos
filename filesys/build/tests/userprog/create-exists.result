@@ -19,4 +19,12 @@ Differences in `diff -u' format:
 - (create-exists) try to re-create quux.dat
 - (create-exists) end
 - create-exists: exit(0)
++ create-exists
++ create-exists
++ create-exists
++ create-exists
++ create-exists
++ create-exists
++ create-exists
++ create-exists
 + create-exists: exit(-1)

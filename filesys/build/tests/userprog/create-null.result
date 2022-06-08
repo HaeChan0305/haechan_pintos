@@ -6,4 +6,12 @@ Acceptable output:
   create-null: exit(-1)
 Differences in `diff -u' format:
 - (create-null) begin
++ create-null
++ create-null
++ create-null
++ create-null
++ create-null
++ create-null
++ create-null
++ create-null
   create-null: exit(-1)

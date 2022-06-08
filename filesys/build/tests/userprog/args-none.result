@@ -15,4 +15,12 @@ Differences in `diff -u' format:
 - (args) argv[1] = null
 - (args) end
 - args-none: exit(0)
++ args-none
++ args-none
++ args-none
++ args-none
++ args-none
++ args-none
++ args-none
++ args-none
 + args-none: exit(-1)

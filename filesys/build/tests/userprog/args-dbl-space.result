@@ -19,4 +19,12 @@ Differences in `diff -u' format:
 - (args) argv[3] = null
 - (args) end
 - args-dbl-space: exit(0)
++ args-dbl-space
++ args-dbl-space
++ args-dbl-space
++ args-dbl-space
++ args-dbl-space
++ args-dbl-space
++ args-dbl-space
++ args-dbl-space
 + args-dbl-space: exit(-1)

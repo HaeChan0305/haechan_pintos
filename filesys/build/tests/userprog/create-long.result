@@ -11,4 +11,12 @@ Differences in `diff -u' format:
 - (create-long) create("x..."): 0
 - (create-long) end
 - create-long: exit(0)
++ create-long
++ create-long
++ create-long
++ create-long
++ create-long
++ create-long
++ create-long
++ create-long
 + create-long: exit(-1)

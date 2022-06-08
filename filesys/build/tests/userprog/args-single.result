@@ -17,4 +17,12 @@ Differences in `diff -u' format:
 - (args) argv[2] = null
 - (args) end
 - args-single: exit(0)
++ args-single
++ args-single
++ args-single
++ args-single
++ args-single
++ args-single
++ args-single
++ args-single
 + args-single: exit(-1)
