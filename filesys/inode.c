@@ -6,6 +6,7 @@
 #include "filesys/filesys.h"
 #include "filesys/free-map.h"
 #include "threads/malloc.h"
+#include "threads/synch.h"
 
 /* Identifies an inode. */
 #define INODE_MAGIC 0x494e4f44
@@ -15,9 +16,12 @@
 struct inode_disk {
 	cluster_t start;                	/* First data cluster. */
 	off_t length;                       /* File size in bytes. */
+	cluster_t upper_dir;				/* Upper dircetory cluster index. */ 
+	uint32_t is_dir;					/* If directory 1, Otherwise 0. */
+	off_t items;						/* Number of contents in directory. */
 	unsigned magic;                     /* Magic number. */
-	uint32_t unused[125];               /* Not used. */
-	//uint32_t unused[253];               /* Not used. */
+	uint32_t unused[122];               /* Not used. */
+	//uint32_t unused[253];             /* Not used. */
 };
 
 /* In-memory inode. */
@@ -28,6 +32,7 @@ struct inode {
 	bool removed;                       /* True if deleted, false otherwise. */
 	int deny_write_cnt;                 /* 0: writes ok, >0: deny writes. */
 	struct inode_disk data;             /* Inode content. */
+	struct lock inode_lock;
 };
 
 /* Returns the number of clusters to allocate for an inode SIZE
@@ -64,11 +69,13 @@ byte_to_cluster(const struct inode *inode, off_t pos){
 /* List of open inodes, so that opening a single inode twice
  * returns the same `struct inode'. */
 static struct list open_inodes;
+static struct lock opend_inodes_lock;
 
 /* Initializes the inode module. */
 void
 inode_init (void) {
 	list_init (&open_inodes);
+	lock_init (&opend_inodes_lock);
 }
 
 /* Initializes an inode with LENGTH bytes of data and
@@ -77,12 +84,12 @@ inode_init (void) {
  * Returns true if successful.
  * Returns false if memory or disk allocation fails. */
 bool
-inode_create (cluster_t cluster, off_t length) {
+inode_create (cluster_t cluster, off_t length, bool is_dir) {
 	struct inode_disk *disk_inode = NULL;
 	bool success = false;
 
 	ASSERT(length >= 0); /* WARNING!!! Consider case of (length == 0) again. */
-	ASSERT(cluster != EMPTY);
+	ASSERT(cluster != EMPTY || cluster != EOChain);
 
 	/* If this assertion fails, the inode structure is not exactly
 	 * one cluster in size, and you should fix that. */
@@ -92,6 +99,8 @@ inode_create (cluster_t cluster, off_t length) {
 	if (disk_inode != NULL) {
 		size_t clusters = bytes_to_clusters(length);
 		disk_inode->length = length;
+		disk_inode->is_dir = is_dir;
+		disk_inode->items = 0;
 		disk_inode->magic = INODE_MAGIC;
 		if(fat_create_chain_multiple(clusters, &disk_inode->start, EMPTY)){
 			disk_write_clst(filesys_disk, cluster, disk_inode);
@@ -120,20 +129,24 @@ inode_open (cluster_t cluster) {
 	struct list_elem *e;
 	struct inode *inode;
 
+	lock_acquire(&opend_inodes_lock);
 	/* Check whether this inode is already open. */
 	for (e = list_begin (&open_inodes); e != list_end (&open_inodes);
 			e = list_next (e)) {
 		inode = list_entry (e, struct inode, elem);
 		if (inode->cluster == cluster) {
 			inode_reopen (inode);
+			lock_release(&opend_inodes_lock);
 			return inode; 
 		}
 	}
 
 	/* Allocate memory. */
 	inode = malloc (sizeof *inode);
-	if (inode == NULL)
+	if (inode == NULL){
+		lock_release(&opend_inodes_lock);
 		return NULL;
+	}
 
 	/* Initialize. */
 	list_push_front (&open_inodes, &inode->elem);
@@ -142,21 +155,33 @@ inode_open (cluster_t cluster) {
 	inode->deny_write_cnt = 0;
 	inode->removed = false;
 	disk_read_clst(filesys_disk, inode->cluster, &inode->data);
+	lock_init (&inode->inode_lock);
+	
+	lock_release(&opend_inodes_lock);
 	return inode;
 }
 
 /* Reopens and returns INODE. */
 struct inode *
 inode_reopen (struct inode *inode) {
-	if (inode != NULL)
+	if (inode != NULL){
+		lock_acquire (&inode->inode_lock);
 		inode->open_cnt++;
+		lock_release (&inode->inode_lock);
+	}
 	return inode;
 }
 
 /* Returns INODE's inode number. */
 cluster_t
 inode_get_inumber (const struct inode *inode) {
-	return inode->cluster;
+	ASSERT(inode != NULL);
+	
+	lock_acquire (&inode->inode_lock);
+	cluster_t result = inode->cluster;
+	lock_release (&inode->inode_lock);
+	
+	return result;
 }
 
 /* Closes INODE and writes it to disk.
@@ -168,18 +193,24 @@ inode_close (struct inode *inode) {
 	if (inode == NULL)
 		return;
 
+	lock_acquire (&inode->inode_lock);
+	inode->open_cnt--;
+	lock_release (&inode->inode_lock);
+
 	/* Release resources if this was the last opener. */
-	if (--inode->open_cnt == 0) {
+	if (inode->open_cnt == 0) {
 		/* Remove from inode list and release lock. */
+		lock_acquire(&opend_inodes_lock);
 		list_remove (&inode->elem);
+		lock_release(&opend_inodes_lock);
 
 		/* Deallocate blocks if removed. */
 		if (inode->removed) {
 			fat_remove_chain(inode->cluster, EMPTY);
 			fat_remove_chain(inode->data.start, EMPTY);
 		}
-		// else
-		// 	disk_write_clst(filesys_disk, inode->cluster, &inode->data);
+		else
+			disk_write_clst(filesys_disk, inode->cluster, &inode->data);
 
 		free (inode); 
 	}
@@ -190,7 +221,10 @@ inode_close (struct inode *inode) {
 void
 inode_remove (struct inode *inode) {
 	ASSERT (inode != NULL);
+	
+	lock_acquire(&inode->inode_lock);
 	inode->removed = true;
+	lock_release(&inode->inode_lock);
 }
 
 /* Reads SIZE bytes from INODE into BUFFER, starting at position OFFSET.
@@ -202,6 +236,7 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset) {
 	off_t bytes_read = 0;
 	uint8_t *bounce = NULL;
 
+	lock_acquire(&inode->inode_lock);
 	while (size > 0) {
 		/* Disk cluster to read, starting byte offset within cluster. */
 		cluster_t cluster_idx = byte_to_cluster(inode, offset);
@@ -237,8 +272,9 @@ inode_read_at (struct inode *inode, void *buffer_, off_t size, off_t offset) {
 		offset += chunk_size;
 		bytes_read += chunk_size;
 	}
+	
 	free (bounce);
-
+	lock_release(&inode->inode_lock);
 	return bytes_read;
 }
 
@@ -255,8 +291,12 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 	off_t inode_len = inode_length(inode);
 	uint8_t *bounce = NULL;
 
-	if (inode->deny_write_cnt)
+	lock_acquire(&inode->inode_lock);
+
+	if (inode->deny_write_cnt){
+		lock_release(&inode->inode_lock);
 		return 0;
+	}
 
 	/* File extension : Case 1 : offset > inode->data.length */
 	int bytes_exceed = (int)offset + (int)size - (int)inode_len;
@@ -267,7 +307,7 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		if(cluster_exceed > 0){
 			cluster_t restart;
 			if(!fat_create_chain_multiple(cluster_exceed, &restart, byte_to_cluster(inode, inode_len)))
-				PANIC("inode_write_at: fat_create_chain_multiple() fail/n");
+				PANIC("inode_write_at: fat_create_chain_multiple() fail");
 			ASSERT(fat_get(byte_to_cluster(inode, inode_len)) == restart);
 
 			static char zeros[DISK_CLUSTER_SIZE];
@@ -294,10 +334,8 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 
 		/* Number of bytes to actually write into this cluster. */
 		int chunk_size = size < min_left ? size : min_left;
-		if (chunk_size <= 0){
-			printf("\n\ngotloqkf\n\n");
+		if (chunk_size <= 0)
 			break;
-		}
 
 		if (cluster_ofs == 0 && chunk_size == DISK_CLUSTER_SIZE) {
 			/* Write full cluster directly to disk. */
@@ -326,17 +364,20 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		offset += chunk_size;
 		bytes_written += chunk_size;
 	}
+	
 	free (bounce);
-
+	lock_release(&inode->inode_lock);
 	return bytes_written;
 }
 
 /* Disables writes to INODE.
    May be called at most once per inode opener. */
-	void
-inode_deny_write (struct inode *inode) 
-{
+void
+inode_deny_write (struct inode *inode) {
+	ASSERT(inode != NULL);
+	lock_acquire(&inode->inode_lock);
 	inode->deny_write_cnt++;
+	lock_release(&inode->inode_lock);
 	ASSERT (inode->deny_write_cnt <= inode->open_cnt);
 }
 
@@ -345,13 +386,78 @@ inode_deny_write (struct inode *inode)
  * inode_deny_write() on the inode, before closing the inode. */
 void
 inode_allow_write (struct inode *inode) {
+	ASSERT(inode != NULL);
 	ASSERT (inode->deny_write_cnt > 0);
 	ASSERT (inode->deny_write_cnt <= inode->open_cnt);
+	
+	lock_acquire(&inode->inode_lock);
 	inode->deny_write_cnt--;
+	lock_release(&inode->inode_lock);
 }
 
 /* Returns the length, in bytes, of INODE's data. */
 off_t
 inode_length (const struct inode *inode) {
+	ASSERT(inode != NULL);
 	return inode->data.length;
+}
+
+/* Returns the is_dir of INODE's data. */
+bool
+inode_is_dir (const struct inode *inode) {
+	ASSERT(inode != NULL);
+	return (bool)inode->data.is_dir;
+}
+
+/* Returns true if INODE is root directory. */
+bool
+inode_is_root_dir (const struct inode *inode) {
+	ASSERT(inode != NULL);
+	ASSERT(inode_is_dir(inode));
+	return inode->cluster == ROOT_DIR_CLUSTER;
+}
+
+/* (Just for debugging)
+   Returns true if INODE is root directory. */
+bool
+inode_is_in_root_dir (const struct inode *inode) {
+	ASSERT(inode != NULL);
+	return inode->data.upper_dir == ROOT_DIR_CLUSTER;
+}
+
+/* Returns the open_cnt of INODE. */
+int
+inode_open_cnt (const struct inode *inode) {
+	ASSERT(inode != NULL);
+	return inode->open_cnt;
+}
+
+/* Returns the items of INODE's data. */
+off_t
+inode_items (const struct inode *inode) {
+	ASSERT(inode != NULL);
+	ASSERT(inode_is_dir(inode));
+	return inode->data.items;
+}
+
+/* Increase the items of INODE's data. */
+void
+inode_items_incr(struct inode *inode) {
+	ASSERT(inode != NULL);
+	ASSERT(inode_is_dir(inode));
+	
+	lock_acquire(&inode->inode_lock);
+	inode->data.items++;
+	lock_release(&inode->inode_lock);
+}
+
+/* Decrease the items of INODE's data. */
+void
+inode_items_decr(struct inode *inode) {
+	ASSERT(inode != NULL);
+	ASSERT(inode_is_dir(inode));
+	
+	lock_acquire(&inode->inode_lock);
+	inode->data.items--;
+	lock_release(&inode->inode_lock);
 }

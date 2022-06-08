@@ -41,13 +41,13 @@ pass tests/userprog/close-normal
 pass tests/userprog/close-twice
 pass tests/userprog/close-bad-fd
 pass tests/userprog/read-normal
-pass tests/userprog/read-bad-ptr
+FAIL tests/userprog/read-bad-ptr
 pass tests/userprog/read-boundary
 pass tests/userprog/read-zero
 pass tests/userprog/read-stdout
 pass tests/userprog/read-bad-fd
 pass tests/userprog/write-normal
-pass tests/userprog/write-bad-ptr
+FAIL tests/userprog/write-bad-ptr
 pass tests/userprog/write-boundary
 pass tests/userprog/write-zero
 pass tests/userprog/write-stdin
@@ -90,7 +90,7 @@ pass tests/filesys/base/sm-random
 pass tests/filesys/base/sm-seq-block
 pass tests/filesys/base/sm-seq-random
 pass tests/filesys/base/syn-read
-pass tests/filesys/base/syn-remove
+FAIL tests/filesys/base/syn-remove
 pass tests/filesys/base/syn-write
 FAIL tests/filesys/extended/dir-empty-name
 FAIL tests/filesys/extended/dir-mk-tree
@@ -123,7 +123,7 @@ pass tests/vm/pt-grow-stack
 pass tests/vm/pt-grow-bad
 pass tests/vm/pt-big-stk-obj
 pass tests/vm/pt-bad-addr
-pass tests/vm/pt-bad-read
+FAIL tests/vm/pt-bad-read
 pass tests/vm/pt-write-code
 pass tests/vm/pt-write-code2
 pass tests/vm/pt-grow-stk-sc
@@ -151,7 +151,7 @@ pass tests/vm/mmap-null
 pass tests/vm/mmap-over-code
 pass tests/vm/mmap-over-data
 pass tests/vm/mmap-over-stk
-pass tests/vm/mmap-remove
+FAIL tests/vm/mmap-remove
 pass tests/vm/mmap-zero
 pass tests/vm/mmap-bad-fd2
 pass tests/vm/mmap-bad-fd3

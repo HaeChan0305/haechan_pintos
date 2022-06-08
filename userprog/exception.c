@@ -160,7 +160,7 @@ page_fault (struct intr_frame *f) {
 
 #else
 	thread_current()->sharing_info_->kernel_kill = true;
-	//printf("page fault: vm_try_handle_fault() fail\n");
+	//PANIC("page fault: vm_try_handle_fault() fail\n");
 	exit(-1);
 #endif
 

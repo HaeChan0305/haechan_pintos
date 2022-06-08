@@ -22,18 +22,33 @@ struct dir_entry {
 /* Creates a directory with space for ENTRY_CNT entries in the
  * given CLUSTER. Returns true if successful, false on failure. */
 bool
-dir_create (cluster_t cluster, size_t entry_cnt) {
-	return inode_create (cluster, entry_cnt * sizeof (struct dir_entry));
+dir_create (cluster_t cluster, cluster_t upper_cluster, size_t entry_cnt) {
+	/* Create inode. */
+	if(!inode_create(cluster, (entry_cnt + 2) * sizeof (struct dir_entry), true))
+		return false;
+
+	/* Open directory coressponding CLUSTER. */
+	struct dir *dir = dir_open(inode_open(cluster));
+	if(dir == NULL)
+		PANIC("dir_create: dir_open() fail\n");
+
+	/* Add "." and ".." directory. */
+	bool result = 
+		dir_add(dir, ".", cluster) && dir_add(dir, "..", upper_cluster);
+
+	dir_close(dir);
+	return result;
 }
 
 /* Opens and returns the directory for the given INODE, of which
  * it takes ownership.  Returns a null pointer on failure. */
 struct dir *
 dir_open (struct inode *inode) {
+	ASSERT(inode_is_dir(inode));
 	struct dir *dir = calloc (1, sizeof *dir);
 	if (inode != NULL && dir != NULL) {
 		dir->inode = inode;
-		dir->pos = 0;
+		dir->pos = sizeof (struct dir_entry) * 2;
 		return dir;
 	} else {
 		inode_close (inode);
@@ -53,6 +68,7 @@ dir_open_root (void) {
  * Returns a null pointer on failure. */
 struct dir *
 dir_reopen (struct dir *dir) {
+	ASSERT(dir != NULL);
 	return dir_open (inode_reopen (dir->inode));
 }
 
@@ -68,6 +84,7 @@ dir_close (struct dir *dir) {
 /* Returns the inode encapsulated by DIR. */
 struct inode *
 dir_get_inode (struct dir *dir) {
+	ASSERT(dir != NULL);
 	return dir->inode;
 }
 
@@ -133,7 +150,9 @@ dir_add (struct dir *dir, const char *name, cluster_t inode_cluster) {
 	ASSERT (name != NULL);
 
 	/* Check NAME for validity. */
-	if (*name == '\0' || strlen (name) > NAME_MAX)
+	if (*name == '\0' 
+	|| strlen (name) > NAME_MAX 
+	|| name[strlen(name) - 1] == '/')
 		return false;
 
 	/* Check that NAME is not in use. */
@@ -143,7 +162,6 @@ dir_add (struct dir *dir, const char *name, cluster_t inode_cluster) {
 	/* Set OFS to offset of free slot.
 	 * If there are no free slots, then it will be set to the
 	 * current end-of-file.
-
 	 * inode_read_at() will only return a short read at end of file.
 	 * Otherwise, we'd need to verify that we didn't get a short
 	 * read due to something intermittent such as low memory. */
@@ -157,9 +175,19 @@ dir_add (struct dir *dir, const char *name, cluster_t inode_cluster) {
 	strlcpy (e.name, name, sizeof e.name);
 	e.inode_cluster = inode_cluster;
 	success = inode_write_at (dir->inode, &e, sizeof e, ofs) == sizeof e;
-
+	if(success)
+		inode_items_incr(dir->inode);
 done:
 	return success;
+}
+
+static bool
+remove_condition_check(struct inode *inode){
+	return inode != NULL
+		&& inode_is_dir(inode)
+		&& !inode_is_root_dir(inode)
+		&& inode_items(inode) <= 2
+		&& inode_open_cnt(inode) <= 1;
 }
 
 /* Removes any entry for NAME in DIR.
@@ -181,7 +209,8 @@ dir_remove (struct dir *dir, const char *name) {
 
 	/* Open inode. */
 	inode = inode_open (e.inode_cluster);
-	if (inode == NULL)
+	//if(inode == NULL)
+	if (!remove_condition_check(inode))
 		goto done;
 
 	/* Erase directory entry. */
@@ -190,6 +219,7 @@ dir_remove (struct dir *dir, const char *name) {
 		goto done;
 
 	/* Remove inode. */
+	inode_items_decr(inode);
 	inode_remove (inode);
 	success = true;
 
@@ -213,4 +243,20 @@ dir_readdir (struct dir *dir, char name[NAME_MAX + 1]) {
 		}
 	}
 	return false;
+}
+
+struct dir *
+dir_duplicate (struct dir *dir)
+{
+	struct dir *ndir = dir_open (inode_reopen (dir->inode));
+	if (ndir) {
+		ndir->pos = dir->pos;
+	}
+	return ndir;
+}
+
+off_t
+dir_get_pos(struct dir *dir){
+	ASSERT(dir != NULL);
+	return dir->pos;
 }

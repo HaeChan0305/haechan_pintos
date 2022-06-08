@@ -1,1 +1,2 @@
-PASS
+FAIL
+run: remove "sample.txt": FAILED

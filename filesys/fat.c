@@ -220,15 +220,12 @@ fat_create_chain (cluster_t clst) {
 		printf("No empty entry\n");
 		return EMPTY;
 	}
-
 	ASSERT(new_clst >= 0 && new_clst < fat_fs->fat_length);
-	lock_acquire(&fat_lock);
 
 	if(clst != EMPTY)
 		fat_put(clst, new_clst);
 	fat_put(new_clst, EOChain);
 
-	lock_release(&fat_lock);
 	return new_clst;
 }
 
@@ -241,14 +238,15 @@ fat_create_chain (cluster_t clst) {
 bool
 fat_create_chain_multiple(size_t clusters, cluster_t *start, cluster_t pclst){
 	/* If CLUSTERS == 0, return true. */
-	if(clusters == 0){
-		*start = EMPTY;
-		return true;
-	}
-
-	/* If empty fat entries are less than CLUSTERS. */
-	if(fat_fs->bs.fat_empty < clusters)
+	if(clusters == 0)
 		return false;
+
+	lock_acquire(&fat_lock);
+	/* If empty fat entries are less than CLUSTERS. */
+	if(fat_fs->bs.fat_empty < clusters){
+		lock_release(&fat_lock);
+		return false;
+	}
 
 	/* Otherwise.(General case) */
 	cluster_t clst = pclst;
@@ -260,6 +258,7 @@ fat_create_chain_multiple(size_t clusters, cluster_t *start, cluster_t pclst){
 		if(i == 0)
 			*start = clst;
 	}
+	lock_release(&fat_lock);
 
 	return true;
 }
@@ -297,7 +296,9 @@ fat_put (cluster_t clst, cluster_t val) {
 	ASSERT(clst < fat_fs->fat_length && clst >= 0);
 	ASSERT(val == EOChain || val == EMPTY || (val < fat_fs->fat_length && val >= 0));
 
+	lock_acquire(&fat_fs->write_lock);
 	fat_fs->fat[clst] = val;
+	lock_release(&fat_fs->write_lock);
 }
 
 /* Fetch a value in the FAT table. */
@@ -305,7 +306,11 @@ cluster_t
 fat_get (cluster_t clst) {
 	ASSERT(clst < fat_fs->fat_length && clst >= 0);
 	
-	return fat_fs->fat[clst];
+	lock_acquire(&fat_fs->write_lock);
+	cluster_t result = fat_fs->fat[clst];
+	lock_release(&fat_fs->write_lock);
+	
+	return result;
 }
 
 /* Covert a cluster # to a sector number. */

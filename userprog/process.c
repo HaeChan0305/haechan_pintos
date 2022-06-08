@@ -351,8 +351,18 @@ process_exec (void *f_name) {
 	/* We first kill the current context */
 	process_cleanup ();
 
+#ifdef VM
 	/* build spt before load() */
 	supplemental_page_table_init(&thread_current()->spt);
+#endif
+
+#ifdef EFILESYS
+	thread_current()->curr_dir = dir_open_root();
+	if(thread_current()->curr_dir == NULL){
+		sema_up(&process_sema);
+		return -1;
+	}
+#endif
 
 	/* And then load the binary */
 	success = load (name_copy, &_if);

@@ -123,6 +123,14 @@ syscall_handler (struct intr_frame *f UNUSED) {
 			munmap(f->R.rdi);
 			break;
 
+		case SYS_CHDIR:
+			f->R.rax = chdir(f->R.rdi);
+			break;
+		
+		case SYS_MKDIR:
+			f->R.rax = mkdir(f->R.rdi);
+			break;
+		
 		default:
 			break;
 	}
@@ -400,4 +408,22 @@ munmap (void *addr){
 	lock_acquire(&file_lock);
 	do_munmap(addr);
 	lock_release(&file_lock);
+}
+
+bool 
+chdir (const char *dir){
+	struct dir *ndir = accessing_path(dir, NULL, true);
+	if(ndir == NULL)
+		return false;
+
+	struct thread *curr = thread_current();
+	dir_close(curr->curr_dir);
+	curr->curr_dir = ndir;
+
+	return true;
+}
+
+bool 
+mkdir (const char *dir){
+	return filesys_create_dir(dir);
 }

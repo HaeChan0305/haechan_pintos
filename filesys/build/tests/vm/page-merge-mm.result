@@ -1,2 +1,25 @@
 FAIL
-run: bad value 1 in byte 1542: FAILED
+Kernel panic in run: PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x8004214774 0x8004219e2d 0x80042096f1 0x8004209b0f 0x8004214f26 0x800420c7ec 0x800421e92c 0x800421d3dd 0x8004226768 0x8004224c77 0x800422589b 0x8004216d42 0x8004216dc5 0x80042258dd 0x8004218b30 0x8004218afc 0x80042072a7 0x800421a4cf 0x800421a140 0x8004219fe3 0x4010c1
+Translation of call stack:
+0x0000008004214774: debug_panic (lib/kernel/debug.c:32)
+0x0000008004219e2d: kill (userprog/exception.c:103)
+0x00000080042096f1: intr_handler (threads/interrupt.c:352)
+0x0000008004209b0f: intr_entry (threads/intr-stubs.o:?)
+0x0000008004214f26: list_push_front (lib/kernel/list.c:197)
+0x000000800420c7ec: free (threads/malloc.c:222)
+0x000000800421e92c: inode_close (filesys/inode.c:215)
+0x000000800421d3dd: file_close (filesys/file.c:50)
+0x0000008004226768: file_backed_destroy (vm/file.c:141)
+0x0000008004224c77: vm_dealloc_page (vm/vm.c:293)
+0x000000800422589b: supplemental_page_table_entry_kill (vm/vm.c:555)
+0x0000008004216d42: hash_clear (lib/kernel/hash.c:58)
+0x0000008004216dc5: hash_destroy (lib/kernel/hash.c:84)
+0x00000080042258dd: supplemental_page_table_kill (vm/vm.c:563)
+0x0000008004218b30: process_cleanup (userprog/process.c:492)
+0x0000008004218afc: process_exit (userprog/process.c:483)
+0x00000080042072a7: thread_exit (threads/thread.c:347)
+0x000000800421a4cf: fork (userprog/syscall.c:161)
+0x000000800421a140: syscall_handler (userprog/syscall.c:71)
+0x0000008004219fe3: no_sti (userprog/syscall-entry.o:?)
+0x00000000004010c1: (unknown)
