@@ -33,6 +33,7 @@ struct inode {
 	int deny_write_cnt;                 /* 0: writes ok, >0: deny writes. */
 	struct inode_disk data;             /* Inode content. */
 	struct lock inode_lock;
+	struct lock inode_lock2;
 };
 
 /* Returns the number of clusters to allocate for an inode SIZE
@@ -156,6 +157,7 @@ inode_open (cluster_t cluster) {
 	inode->removed = false;
 	disk_read_clst(filesys_disk, inode->cluster, &inode->data);
 	lock_init (&inode->inode_lock);
+	lock_init (&inode->inode_lock2);
 	
 	lock_release(&opend_inodes_lock);
 	return inode;
@@ -193,9 +195,9 @@ inode_close (struct inode *inode) {
 	if (inode == NULL)
 		return;
 
-	//lock_acquire (&inode->inode_lock);
+	//lock_acquire (&inode->inode_lock2);
 	inode->open_cnt--;
-	//lock_release (&inode->inode_lock);
+	//lock_release (&inode->inode_lock2);
 
 	/* Release resources if this was the last opener. */
 	if (inode->open_cnt == 0) {

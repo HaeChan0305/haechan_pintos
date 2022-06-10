@@ -22,13 +22,13 @@ Executing 'bc-easy':
 (bc-easy) check read_cnt: FAILED
 bc-easy: exit(1)
 Execution of 'bc-easy' complete.
-Timer: 469 ticks
-Thread: 142 idle ticks, 55 kernel ticks, 272 user ticks
+Timer: 414 ticks
+Thread: 42 idle ticks, 56 kernel ticks, 316 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 8404 reads, 4655 writes
 hd1:0: 232 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1097 characters output
+Console: 1096 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

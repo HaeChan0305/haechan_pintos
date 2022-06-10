@@ -82,25 +82,35 @@ free_parsed(char **parsed, int idx){
 static char **
 parsing_path(const char *path_, int *argc_){
 	ASSERT(path_ != NULL && argc_ != NULL);
-
-	/* Copy to protect origin string. */
-	char *path = (char *) malloc (sizeof(char) * (strlen(path_) + 1));
-    if(path== NULL)
-        return NULL;
-    strlcpy(path, path_, strlen(path_) + 1);
+	ASSERT(!(strlen(path_) == 1 && *path_ == '/'));
+	//printf("path : %s\n", path_);
 
 	/* Count nubmer of tokens. */
-	char *c = (char *)path;
-	int tokens = (*c == '/') ? 0 : 1;
+	char *c = (char *)path_;
+	if(*path_ == '/')
+		c++;
+	
+	int tokens = 1;	
 	while(*c != '\0'){
 		if(*c == '/') tokens++;
 		c++;
 	}
-	*argc_ = tokens;
 	ASSERT(tokens > 0);
+	*argc_ = tokens;
+	//printf("tokens : %d\n", tokens);
+
+	/* Copy to protect origin string. */
+	c = (char *)path_;
+	if(*path_ == '/')
+		c++;
+	char *path = (char *) malloc (sizeof(char) * (strlen(c) + 1));
+    if(path == NULL)
+        return NULL;
+    strlcpy(path, c, strlen(c) + 1);
+	ASSERT(*path != '/');
 
 	/* Token length validation check efficiently. */
-	if(strlen(path)/tokens > 14){
+	if(strlen(path) / tokens > 14){
 		free(path);
 		return NULL;
 	}
@@ -111,15 +121,7 @@ parsing_path(const char *path_, int *argc_){
 		free(path);
 		return NULL;
 	}
-	for(int i = 0; i < tokens; i++){
-		result[i] = (char *)malloc(sizeof(char) * 15);
-		if(result[i] == NULL){
-			free_parsed(result, i);
-			free(path);
-			return NULL;
-		}
-	}	
-
+	
 	/* Parsing PATH. */
 	int argc = 0 ;
     char *token;
@@ -129,13 +131,25 @@ parsing_path(const char *path_, int *argc_){
 		
 		/* Token length validation check specifically. */
 		if(strlen(token) > 14){
-			free_parsed(result, tokens);
+			free_parsed(result, argc);
 			free(path);
 			return NULL;
 		}
-		strlcpy(result[argc++], token, strlen(token) + 1);
+		else{
+			result[argc] = (char *)malloc(sizeof(char) * (strlen(token) + 1));
+			if(result[argc] == NULL){
+				free_parsed(result, argc);
+				free(path);
+				return NULL;
+			}
+			strlcpy(result[argc++], token, strlen(token) + 1);
+		}
 	}
-	//ASSERT(tokens == argc);
+	//printf("argc : %d\n", argc);
+	//print_parsed(result, argc);
+	if(tokens != argc)
+		PANIC("(%s, %s) : tokens, argc = %d, %d", path_, path, tokens, argc);
+	ASSERT(tokens == argc);
 	free(path);
 	return result;
 }
@@ -165,7 +179,8 @@ accessing_path(const char *path, char **lowest, bool to_end){
 	/* Parsing path */
 	int argc = 0;
 	char **parsed = parsing_path(path, &argc);
-	if(parsed == NULL || argc == 0){
+	ASSERT(argc > 0);
+	if(parsed == NULL){
 		dir_close(curr_dir);
 		return NULL;
 	}
@@ -183,6 +198,7 @@ accessing_path(const char *path, char **lowest, bool to_end){
 				goto err;
 		}
 		else{
+			PANIC("accessing path: access file");
 			inode_close(inode_dir);
 			goto err;
 		}

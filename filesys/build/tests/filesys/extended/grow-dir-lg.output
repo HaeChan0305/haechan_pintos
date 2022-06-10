@@ -69,13 +69,13 @@ Executing 'grow-dir-lg':
 (grow-dir-lg) end
 grow-dir-lg: exit(0)
 Execution of 'grow-dir-lg' complete.
-Timer: 349 ticks
-Thread: 118 idle ticks, 65 kernel ticks, 166 user ticks
+Timer: 317 ticks
+Thread: 62 idle ticks, 58 kernel ticks, 198 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 7008 reads, 994 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 3428 characters output
+Console: 3427 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

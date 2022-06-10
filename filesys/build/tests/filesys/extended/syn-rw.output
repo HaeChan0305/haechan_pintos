@@ -33,8 +33,8 @@ child-syn-rw: exit(1)
 (syn-rw) end
 syn-rw: exit(0)
 Execution of 'syn-rw' complete.
-Timer: 134 ticks
-Thread: 51 idle ticks, 54 kernel ticks, 30 user ticks
+Timer: 146 ticks
+Thread: 54 idle ticks, 58 kernel ticks, 34 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 1028 reads, 1302 writes
 hd1:0: 350 reads, 0 writes

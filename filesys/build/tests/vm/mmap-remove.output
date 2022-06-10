@@ -23,13 +23,13 @@ Executing 'mmap-remove':
 (mmap-remove) end
 mmap-remove: exit(0)
 Execution of 'mmap-remove' complete.
-Timer: 95 ticks
-Thread: 30 idle ticks, 60 kernel ticks, 5 user ticks
+Timer: 100 ticks
+Thread: 39 idle ticks, 54 kernel ticks, 7 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 368 reads, 633 writes
 hd1:0: 112 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1192 characters output
+Console: 1193 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

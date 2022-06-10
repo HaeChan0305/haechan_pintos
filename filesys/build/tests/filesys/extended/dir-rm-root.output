@@ -20,13 +20,13 @@ Executing 'dir-rm-root':
 (dir-rm-root) end
 dir-rm-root: exit(0)
 Execution of 'dir-rm-root' complete.
-Timer: 99 ticks
-Thread: 40 idle ticks, 57 kernel ticks, 3 user ticks
+Timer: 102 ticks
+Thread: 42 idle ticks, 59 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 204 reads, 535 writes
 hd1:0: 228 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1073 characters output
+Console: 1074 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

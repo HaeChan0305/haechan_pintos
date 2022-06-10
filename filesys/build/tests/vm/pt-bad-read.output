@@ -18,8 +18,8 @@ Executing 'pt-bad-read':
 (pt-bad-read) open "sample.txt"
 pt-bad-read: exit(-1)
 Execution of 'pt-bad-read' complete.
-Timer: 97 ticks
-Thread: 35 idle ticks, 59 kernel ticks, 3 user ticks
+Timer: 89 ticks
+Thread: 33 idle ticks, 55 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 310 reads, 543 writes
 hd1:0: 108 reads, 0 writes

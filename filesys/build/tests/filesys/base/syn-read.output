@@ -30,15 +30,15 @@ Executing 'syn-read':
 (syn-read) exec child 9 of 10: "child-syn-read 8"
 (syn-read) exec child 10 of 10: "child-syn-read 9"
 child-syn-read: exit(6)
-child-syn-read: exit(4)
+child-syn-read: exit(1)
 child-syn-read: exit(7)
-child-syn-read: exit(2)
+child-syn-read: exit(3)
+child-syn-read: exit(5)
+child-syn-read: exit(4)
+child-syn-read: exit(9)
 child-syn-read: exit(8)
 child-syn-read: exit(0)
-child-syn-read: exit(5)
-child-syn-read: exit(1)
-child-syn-read: exit(9)
-child-syn-read: exit(3)
+child-syn-read: exit(2)
 (syn-read) wait for child 1 of 10 returned 0 (expected 0)
 (syn-read) wait for child 2 of 10 returned 1 (expected 1)
 (syn-read) wait for child 3 of 10 returned 2 (expected 2)
@@ -52,13 +52,13 @@ child-syn-read: exit(3)
 (syn-read) end
 syn-read: exit(0)
 Execution of 'syn-read' complete.
-Timer: 425 ticks
-Thread: 115 idle ticks, 63 kernel ticks, 247 user ticks
+Timer: 379 ticks
+Thread: 36 idle ticks, 63 kernel ticks, 280 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 11156 reads, 804 writes
+hd0:1: 11152 reads, 800 writes
 hd1:0: 230 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 2433 characters output
+Console: 2432 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...
