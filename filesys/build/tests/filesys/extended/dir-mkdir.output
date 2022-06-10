@@ -22,13 +22,13 @@ Executing 'dir-mkdir':
 (dir-mkdir) end
 dir-mkdir: exit(0)
 Execution of 'dir-mkdir' complete.
-Timer: 93 ticks
-Thread: 41 idle ticks, 48 kernel ticks, 4 user ticks
+Timer: 112 ticks
+Thread: 43 idle ticks, 63 kernel ticks, 6 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 284 reads, 546 writes
 hd1:0: 229 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1084 characters output
+Console: 1085 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

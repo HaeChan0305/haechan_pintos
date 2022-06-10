@@ -16,16 +16,4 @@ Putting 'tar' into the file system...
 Executing 'dir-vine':
 (dir-vine) begin
 (dir-vine) creating many levels of files and directories...
-(dir-vine) remove "file0": FAILED
-dir-vine: exit(1)
-Execution of 'dir-vine' complete.
-Timer: 97 ticks
-Thread: 33 idle ticks, 57 kernel ticks, 7 user ticks
-hd0:0: 0 reads, 0 writes
-hd0:1: 301 reads, 559 writes
-hd1:0: 236 reads, 0 writes
-hd1:1: 0 reads, 0 writes
-Console: 1065 characters output
-Keyboard: 0 keys pressed
-Exception: 0 page faults
-Powering off...
+TIMEOUT

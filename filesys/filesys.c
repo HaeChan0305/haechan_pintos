@@ -69,7 +69,6 @@ print_parsed(char **parsed, int idx){
 		printf("parsed[%d] : %s\n", i, parsed[i]);
 }
 
-
 static void
 free_parsed(char **parsed, int idx){
 	ASSERT(parsed != NULL);
@@ -81,14 +80,15 @@ free_parsed(char **parsed, int idx){
 }
 
 static char **
-parsing_path(const char *path, int *argc_){
-	ASSERT(path != NULL && argc_ != NULL);
-	// /* Validation check. */
-	// if(path[strlen(path) - 1] == '/'){
-	// 	free(path);
-	// 	return NULL;
-	// }
-		
+parsing_path(const char *path_, int *argc_){
+	ASSERT(path_ != NULL && argc_ != NULL);
+
+	/* Copy to protect origin string. */
+	char *path = (char *) malloc (sizeof(char) * (strlen(path_) + 1));
+    if(path== NULL)
+        return NULL;
+    strlcpy(path, path_, strlen(path_) + 1);
+
 	/* Count nubmer of tokens. */
 	char *c = (char *)path;
 	int tokens = (*c == '/') ? 0 : 1;
@@ -101,21 +101,21 @@ parsing_path(const char *path, int *argc_){
 
 	/* Token length validation check efficiently. */
 	if(strlen(path)/tokens > 14){
-		//free(path);
+		free(path);
 		return NULL;
 	}
 
 	/* Allocation. */
 	char **result = (char **)malloc(tokens * sizeof(char *));
 	if(result == NULL){
-		//free(path);
+		free(path);
 		return NULL;
 	}
 	for(int i = 0; i < tokens; i++){
 		result[i] = (char *)malloc(sizeof(char) * 15);
 		if(result[i] == NULL){
 			free_parsed(result, i);
-			//free(path);
+			free(path);
 			return NULL;
 		}
 	}	
@@ -130,13 +130,13 @@ parsing_path(const char *path, int *argc_){
 		/* Token length validation check specifically. */
 		if(strlen(token) > 14){
 			free_parsed(result, tokens);
-			//free(path);
+			free(path);
 			return NULL;
 		}
 		strlcpy(result[argc++], token, strlen(token) + 1);
 	}
-	ASSERT(tokens == argc);
-	//free(path);
+	//ASSERT(tokens == argc);
+	free(path);
 	return result;
 }
 
@@ -151,6 +151,10 @@ accessing_path(const char *path, char **lowest, bool to_end){
 
 	if(*path == '\0')
 		return NULL;
+
+	/* Special case. */
+	if(strlen(path) == 1 && *path == '/')
+		return dir_open_root();
 
 	/* Set current directory. */
 	struct dir *curr_dir;
@@ -173,9 +177,15 @@ accessing_path(const char *path, char **lowest, bool to_end){
 			goto err;
 
 		dir_close(curr_dir);
-		curr_dir = dir_open(inode_dir);
-		if(curr_dir == NULL)
+		if(inode_is_dir(inode_dir)){
+			curr_dir = dir_open(inode_dir);
+			if(curr_dir == NULL)
+				goto err;
+		}
+		else{
+			inode_close(inode_dir);
 			goto err;
+		}
 	}
 	
 	/* Store lowest directory name(last token). */
@@ -346,11 +356,26 @@ err:
  * Fails if no file named NAME exists,
  * or if an internal memory allocation fails. */
 bool
-filesys_remove (const char *name) {
-	struct dir *dir = dir_open_root ();
-	bool success = dir != NULL && dir_remove (dir, name);
-	dir_close (dir);
+filesys_remove (const char *path) {
+	ASSERT(path != NULL);
 
+	/* Special case : path = "/". */
+	if(strlen(path) == 1 && *path == '/')
+		return false;
+
+	/* Access given PATH and store final file name in LOWEST. */
+	bool success = false;
+	char *lowest = NULL;
+	
+	struct dir *upper_dir = accessing_path(path, &lowest, false);
+	if(upper_dir == NULL || lowest == NULL)
+		goto done;
+	
+	success = dir_remove (upper_dir, lowest);
+	
+done:
+	dir_close (upper_dir);
+	free(lowest);
 	return success;
 }
 
@@ -382,7 +407,7 @@ item_duplicate(struct item *item){
 	if(item->is_dir){
 		ASSERT(item->dir != NULL);
 		nitem->dir = dir_duplicate(item->dir);
-		}
+	}
 	else{
 		ASSERT(item->file != NULL);
 		nitem->file = file_duplicate(item->file);

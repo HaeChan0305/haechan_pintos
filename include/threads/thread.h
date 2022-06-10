@@ -45,7 +45,7 @@ typedef int tid_t;
 struct fdesc{
 	int fd;
 
-	struct file *file;
+	struct item *item;
 	struct list_elem fd_elem;
 };
 

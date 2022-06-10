@@ -172,9 +172,9 @@ duplicate_fd(struct thread *parent, struct thread *child){
 		if(child_fd == NULL)
 			return false;
 
-		child_fd->file = file_duplicate(parent_fd->file);
-		if(child_fd->file == NULL){
-			file_close(child_fd->file);
+		child_fd->item = item_duplicate(parent_fd->item);
+		if(child_fd->item == NULL){
+			item_close(child_fd->item);
 			free(child_fd);
 			remove_all_fdesc(child);
 			return false;
@@ -203,12 +203,12 @@ fd_list_init(struct list *fd_list){
 
 	/* Make and insert stdin file descriptor. */
 	stdin_fdesc->fd = 0;
-	stdin_fdesc->file = NULL;
+	stdin_fdesc->item = NULL;
 	list_push_back(fd_list, &stdin_fdesc->fd_elem);
 	
 	/* Make and insert stdout file descriptor. */
 	stdout_fdesc->fd = 1;
-	stdout_fdesc->file = NULL;
+	stdout_fdesc->item = NULL;
 	list_push_back(fd_list, &stdout_fdesc->fd_elem);
 
 	return true;
@@ -218,7 +218,7 @@ fd_list_init(struct list *fd_list){
 /* Create file descriptor about NEW_FILE, and allocate fd to unallocated lowest number.
  * return allocated new_fd for success or -1 for fail. */
 int
-create_fd(struct file *new_file){
+create_fd(struct item *new_item){
 	struct thread *curr = thread_current();
 	struct list *fd_table_ = &curr->fd_table;
 
@@ -237,7 +237,7 @@ create_fd(struct file *new_file){
 	}
 
 	new_fdesc->fd = cnt;
-	new_fdesc->file = new_file;
+	new_fdesc->item = new_item;
 	list_insert(temp, &new_fdesc->fd_elem);
 
 	lock_release(&fd_lock);
@@ -269,7 +269,7 @@ remove_all_fdesc(struct thread *t){
 	for(struct list_elem *temp = list_begin(fd_table_) ;
 		temp != list_end(fd_table_) ; ){
 			struct fdesc *fdesc_ = list_entry(temp, struct fdesc, fd_elem);
-			file_close(fdesc_->file);
+			item_close(fdesc_->item);
 			temp = list_remove(&fdesc_->fd_elem);
 			free(fdesc_);
 	}

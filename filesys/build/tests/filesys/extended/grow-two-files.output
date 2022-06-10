@@ -20,16 +20,24 @@ Executing 'grow-two-files':
 (grow-two-files) open "a"
 (grow-two-files) open "b"
 (grow-two-files) write "a" and "b" alternately
-(grow-two-files) write 4 bytes at offset 0 in "a" returned 0: FAILED
-grow-two-files: exit(1)
+(grow-two-files) close "a"
+(grow-two-files) close "b"
+(grow-two-files) open "a" for verification
+(grow-two-files) verified contents of "a"
+(grow-two-files) close "a"
+(grow-two-files) open "b" for verification
+(grow-two-files) verified contents of "b"
+(grow-two-files) close "b"
+(grow-two-files) end
+grow-two-files: exit(0)
 Execution of 'grow-two-files' complete.
-Timer: 102 ticks
-Thread: 35 idle ticks, 63 kernel ticks, 4 user ticks
+Timer: 105 ticks
+Thread: 39 idle ticks, 58 kernel ticks, 8 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 244 reads, 548 writes
+hd0:1: 350 reads, 647 writes
 hd1:0: 232 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1238 characters output
+Console: 1468 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

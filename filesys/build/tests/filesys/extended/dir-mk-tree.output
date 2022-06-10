@@ -17,17 +17,17 @@ Executing 'dir-mk-tree':
 (dir-mk-tree) begin
 (dir-mk-tree) creating /0/0/0/0 through /3/2/2/3...
 (dir-mk-tree) open "/0/2/0/3"
-(dir-mk-tree) close "/0"
+(dir-mk-tree) close "/0/2/0/3"
 (dir-mk-tree) end
 dir-mk-tree: exit(0)
 Execution of 'dir-mk-tree' complete.
-Timer: 400 ticks
-Thread: 61 idle ticks, 57 kernel ticks, 282 user ticks
+Timer: 449 ticks
+Thread: 146 idle ticks, 55 kernel ticks, 248 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 10039 reads, 1806 writes
 hd1:0: 233 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1123 characters output
+Console: 1130 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

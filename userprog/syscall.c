@@ -10,6 +10,8 @@
 #include "userprog/process.h"
 #include "threads/init.h"
 #include "filesys/file.h"
+#include "filesys/directory.h"
+#include "filesys/inode.h"
 #include "threads/mmu.h"
 #include "lib/kernel/stdio.h"
 #include "devices/input.h" 
@@ -132,6 +134,17 @@ syscall_handler (struct intr_frame *f UNUSED) {
 			f->R.rax = mkdir(f->R.rdi);
 			break;
 		
+		case SYS_READDIR:
+			f->R.rax = readdir(f->R.rdi, f->R.rsi);
+			break;
+		
+		case SYS_ISDIR:
+			f->R.rax = isdir(f->R.rdi);
+			break;
+		
+		case SYS_INUMBER:
+			f->R.rax = inumber(f->R.rdi);
+			break;
 		default:
 			break;
 	}
@@ -192,6 +205,7 @@ wait (tid_t tid){
 
 bool 
 create (const char *file, unsigned initial_size){
+	//printf("create : %s\n", file);
 	check_address((void *)file);
 
 	lock_acquire(&file_lock);
@@ -203,7 +217,7 @@ create (const char *file, unsigned initial_size){
 bool 
 remove (const char *file){
 	check_address((void *)file);
-
+//printf("remove : %s\n", file);
 	lock_acquire(&file_lock);
 	bool result = filesys_remove(file);
 	lock_release(&file_lock);
@@ -215,23 +229,25 @@ remove (const char *file){
  * Fail   : return -1 */
 int 
 open (const char *file){
+	//printf("open : %s\n", file);
 	check_address((void *)file);
 
 	lock_acquire(&file_lock);
-	
-	struct file *new_file = filesys_open(file);
-	if(new_file == NULL){
+
+	struct item *item = filesys_open_item(file);
+	if(item == NULL){
 		lock_release(&file_lock);
 		return -1;			/* filesys_open() fail */
 	}
-	
-	int result = create_fd(new_file);		
+
+	int result = create_fd(item);		
 	if(result == -1) {
 		printf("open : create_fd() fail\n");
-		file_close(new_file);
+		item_close(item);
 	}
-
+	
 	lock_release(&file_lock);
+	//printf("open : %s(%d)\n", file, result);
 	return result;
 }
 
@@ -242,12 +258,15 @@ open (const char *file){
 	lock_acquire(&file_lock);
 
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_ == NULL){
+	if(fdesc_ == NULL || fdesc_->item->is_dir){
 		lock_release(&file_lock);
 		return -1; 	/* No such a fd in fd_list OR stdin, stdout*/
 	}
 
-	int result = file_length(fdesc_->file);
+	struct file *file = fdesc_->item->file;
+	ASSERT(file != NULL);
+
+	int result = file_length(file);
 	lock_release(&file_lock);
 	return result;
  }
@@ -287,8 +306,9 @@ open (const char *file){
 	/* Case of general file */
 	else{
 		ASSERT(!(fd == 0 || fd == 1));
+		ASSERT(fdesc_->item != NULL && !fdesc_->item->is_dir);
 
-		int result = (int) file_read(fdesc_->file, buffer, length);
+		int result = (int) file_read(fdesc_->item->file, buffer, length);
 		lock_release(&file_lock);
 		return result;
 	}
@@ -309,13 +329,13 @@ write (int fd, const void *buffer, unsigned length){
 	if(fdesc_ == NULL){
 		ASSERT(!(fd == 0 || fd == 1));
 		lock_release(&file_lock);
-		return 0;
+		return -1;
 	}
 
 	/* Case of STDIN : return 0 */
 	if(fdesc_->fd == 0){
 		lock_release(&file_lock);
-		return 0;
+		return -1;
 	}
 
 	/* Case of STDOUT */
@@ -328,8 +348,14 @@ write (int fd, const void *buffer, unsigned length){
 	/* Case of general file */
 	else{
 		ASSERT(!(fd == 0 || fd == 1));
+		ASSERT(fdesc_->item != NULL);
 
-		int result = (int) file_write(fdesc_->file, buffer, length);
+		if(fdesc_->item->is_dir){
+			lock_release(&file_lock);
+			return -1;
+		}
+
+		int result = (int) file_write(fdesc_->item->file, buffer, length);
 		lock_release(&file_lock);
 		return result;
 	}
@@ -340,8 +366,8 @@ seek (int fd, unsigned position){
 	lock_acquire(&file_lock);
 	
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL)
-		file_seek(fdesc_->file, position);
+	if(fdesc_!= NULL && !fdesc_->item->is_dir && fdesc_->item->file != NULL)
+		file_seek(fdesc_->item->file, position);
 
 	lock_release(&file_lock);
 }
@@ -353,8 +379,8 @@ tell (int fd){
 	lock_acquire(&file_lock);
 	
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL)
-		result = file_tell(fdesc_->file);
+	if(fdesc_!= NULL && !fdesc_->item->is_dir && fdesc_->item->file != NULL)
+		result = file_tell(fdesc_->item->file);
 
 	lock_release(&file_lock);
 	return result;
@@ -366,13 +392,12 @@ tell (int fd){
  * as if by calling this function for each one.*/
 void 
 close (int fd){
+	//printf("close : %d\n", fd);
 	lock_acquire(&file_lock);
 
 	struct fdesc *fdesc_ = find_fd(fd);
 	if(fdesc_ != NULL){
-		if(fdesc_->file != NULL)
-			file_close(fdesc_->file);
-
+		item_close(fdesc_->item);
 		list_remove(&fdesc_->fd_elem);
 		free(fdesc_);
 	}
@@ -393,8 +418,8 @@ mmap(void *addr, size_t length, int writable, int fd, off_t offset){
 	if(fd == 0 || fd == 1) goto done;
 
 	struct fdesc *fdesc_ = find_fd(fd);
-	if(fdesc_!= NULL && fdesc_->file != NULL)
-		va = do_mmap(addr, length, writable, fdesc_->file, offset, fd);
+	if(fdesc_!= NULL && !fdesc_->item->is_dir && fdesc_->item->file != NULL)
+		va = do_mmap(addr, length, writable, fdesc_->item->file, offset, fd);
 
 done:
 	lock_release(&file_lock);
@@ -412,6 +437,7 @@ munmap (void *addr){
 
 bool 
 chdir (const char *dir){
+	//printf("chdir : %s\n", dir);
 	struct dir *ndir = accessing_path(dir, NULL, true);
 	if(ndir == NULL)
 		return false;
@@ -425,5 +451,64 @@ chdir (const char *dir){
 
 bool 
 mkdir (const char *dir){
+	//printf("mkdir : %s\n", dir);
 	return filesys_create_dir(dir);
+}
+
+bool 
+readdir (int fd, char *name){
+	lock_acquire(&file_lock);
+	
+	bool result = false;
+	if(fd == 0 || fd == 1)
+		goto end;
+
+	struct fdesc *fdesc = find_fd(fd);
+	if(fdesc == NULL || fdesc->item == NULL || !fdesc->item->is_dir)
+		goto end;
+
+	if(fdesc->item->dir != NULL)
+		result = dir_readdir(fdesc->item->dir, name);
+
+end:
+	lock_release(&file_lock);
+	return result;
+}
+
+bool 
+isdir (int fd){
+	lock_acquire(&file_lock);
+	
+	bool result = false;
+	if(fd == 0 || fd == 1)
+		goto end;
+	
+	struct fdesc *fdesc = find_fd(fd);
+	result = 
+		(fdesc != NULL) && (fdesc->item != NULL) && (fdesc->item->is_dir);
+		
+end:
+	lock_release(&file_lock);
+	return result;
+}
+
+int 
+inumber (int fd){
+	lock_acquire(&file_lock);
+	
+	int result = -1;
+	if(fd == 0 || fd == 1)
+		goto end;
+
+	struct fdesc *fdesc = find_fd(fd);
+	if(fdesc == NULL || fdesc->item == NULL)
+		goto end;
+
+	result = (fdesc->item->is_dir) ? 
+			(int)inode_get_inumber(dir_get_inode(fdesc->item->dir)): 
+			(int)inode_get_inumber(file_get_inode(fdesc->item->file));
+
+end:
+	lock_release(&file_lock);
+	return result;		
 }

@@ -16,7 +16,7 @@ void process_exit (void);
 void process_activate (struct thread *next);
 
 struct sharing_info *create_sharing_info(struct thread *parent, tid_t tid);
-int create_fd(struct file *new_file);
+int create_fd(struct item *);
 struct fdsec *find_fd(int fd_);
 bool fd_list_init(struct list *fd_list);
 void remove_all_fdesc(struct thread *);

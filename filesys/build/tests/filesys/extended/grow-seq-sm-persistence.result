@@ -1,2 +1,30 @@
 FAIL
-Prerequisite test tests/filesys/extended/grow-seq-sm failed.
+Kernel panic in file system extraction run: PANIC at ../../threads/synch.c:208 in lock_acquire(): assertion `!lock_held_by_current_thread (lock)' failed.
+Call stack: 0x8004214774 0x800420ac18 0x800420c7ce 0x800421e22b 0x800421c801 0x8004218404 0x8004218abb 0x80042072a7 0x800421a5f3 0x8004219fc7 0x80042096f1 0x8004209b0f 0x800421502f 0x800420c560 0x800421baef 0x800421bdd6 0x800421c4b2 0x800421a7d8 0x800421a288 0x800421a03c 0x400353 0x40067f 0x4003e6 0x400294 0x400137 0x401765
+Translation of call stack:
+0x0000008004214774: debug_panic (lib/kernel/debug.c:32)
+0x000000800420ac18: lock_acquire (threads/synch.c:210)
+0x000000800420c7ce: free (threads/malloc.c:219)
+0x000000800421e22b: file_close (filesys/file.c:54)
+0x000000800421c801: item_close (filesys/filesys.c:394)
+0x0000008004218404: remove_all_fdesc (userprog/process.c:273)
+0x0000008004218abb: process_exit (userprog/process.c:479)
+0x00000080042072a7: thread_exit (threads/thread.c:347)
+0x000000800421a5f3: fork (userprog/syscall.c:183)
+0x0000008004219fc7: page_fault (userprog/exception.c:146)
+0x00000080042096f1: intr_handler (threads/interrupt.c:352)
+0x0000008004209b0f: intr_entry (threads/intr-stubs.o:?)
+0x000000800421502f: list_pop_front (lib/kernel/list.c:254)
+0x000000800420c560: malloc (threads/malloc.c:139)
+0x000000800421baef: parsing_path (filesys/filesys.c:115)
+0x000000800421bdd6: accessing_path (filesys/filesys.c:167)
+0x000000800421c4b2: filesys_open_item (filesys/filesys.c:316)
+0x000000800421a7d8: open (userprog/syscall.c:237)
+0x000000800421a288: syscall_handler (userprog/syscall.c:94)
+0x000000800421a03c: no_sti (userprog/syscall-entry.o:?)
+0x0000000000400353: (unknown)
+0x000000000040067f: (unknown)
+0x00000000004003e6: (unknown)
+0x0000000000400294: (unknown)
+0x0000000000400137: (unknown)
+0x0000000000401765: (unknown)

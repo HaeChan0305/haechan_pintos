@@ -22,23 +22,24 @@ Executing 'syn-rw':
 (syn-rw) exec child 2 of 4: "child-syn-rw 1"
 (syn-rw) exec child 3 of 4: "child-syn-rw 2"
 (syn-rw) exec child 4 of 4: "child-syn-rw 3"
-(syn-rw) write 8 bytes at offset 0 in "logfile": FAILED
-syn-rw: exit(1)
-(child-syn-rw) 8 bytes read starting at offset 0 in "logfile" differ from expected.
-(child-syn-rw) Data actually read:
-0000000000000000  00 00 00 00 00 00 00 00-                        |........        |
-(child-syn-rw) Expected data:
-0000000000000000  de 18 89 41 a3 37 5d 3a-                        |...A.7]:        |
-(child-syn-rw) 8 bytes read starting at offset 0 in "logfile" differ from expected: FAILED
+child-syn-rw: exit(0)
+child-syn-rw: exit(3)
+child-syn-rw: exit(2)
+(syn-rw) wait for child 1 of 4 returned 0 (expected 0)
 child-syn-rw: exit(1)
+(syn-rw) wait for child 2 of 4 returned 1 (expected 1)
+(syn-rw) wait for child 3 of 4 returned 2 (expected 2)
+(syn-rw) wait for child 4 of 4 returned 3 (expected 3)
+(syn-rw) end
+syn-rw: exit(0)
 Execution of 'syn-rw' complete.
-Timer: 108 ticks
-Thread: 30 idle ticks, 68 kernel ticks, 10 user ticks
+Timer: 134 ticks
+Thread: 51 idle ticks, 54 kernel ticks, 30 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 309 reads, 780 writes
+hd0:1: 1028 reads, 1302 writes
 hd1:0: 350 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1741 characters output
+Console: 1576 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

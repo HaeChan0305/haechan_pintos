@@ -313,6 +313,26 @@ fat_get (cluster_t clst) {
 	return result;
 }
 
+/* Get last cluster value in the FAT table. */
+cluster_t
+fat_get_last (cluster_t clst) {
+	ASSERT(clst < fat_fs->fat_length && clst >= 0);
+	
+	lock_acquire(&fat_lock);
+	cluster_t curr = clst;
+	cluster_t next = fat_get(curr);
+
+	while(next != EOChain)
+	{
+		curr = next;
+		next = fat_get(next);
+	}
+
+	lock_release(&fat_lock);
+	
+	return curr;
+}
+
 /* Covert a cluster # to a sector number. */
 disk_sector_t
 cluster_to_sector (cluster_t clst) {

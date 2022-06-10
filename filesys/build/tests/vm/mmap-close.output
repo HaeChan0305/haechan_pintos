@@ -20,8 +20,8 @@ Executing 'mmap-close':
 (mmap-close) end
 mmap-close: exit(0)
 Execution of 'mmap-close' complete.
-Timer: 95 ticks
-Thread: 35 idle ticks, 58 kernel ticks, 2 user ticks
+Timer: 97 ticks
+Thread: 37 idle ticks, 58 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 320 reads, 549 writes
 hd1:0: 111 reads, 0 writes

@@ -17,4 +17,6 @@ userprog/syscall.o: ../../userprog/syscall.c \
  ../../include/userprog/gdt.h ../../include/threads/flags.h \
  ../../include/intrinsic.h ../../include/threads/mmu.h \
  ../../include/userprog/process.h ../../include/threads/init.h \
+ ../../include/filesys/directory.h ../../include/devices/disk.h \
+ ../../include/filesys/fat.h ../../include/filesys/inode.h \
  ../../include/lib/kernel/stdio.h ../../include/devices/input.h

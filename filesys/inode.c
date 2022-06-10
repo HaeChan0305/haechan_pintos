@@ -300,15 +300,16 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 
 	/* File extension : Case 1 : offset > inode->data.length */
 	int bytes_exceed = (int)offset + (int)size - (int)inode_len;
+	//printf("bytes_exceed : %d\n", bytes_exceed);
 	if(bytes_exceed > 0){
 		size_t cluster_exceed = 
 			((bytes_exceed + inode_len) / DISK_CLUSTER_SIZE) - (inode_len / DISK_CLUSTER_SIZE);
-		
+		//printf("cluster_exceed : %d\n", cluster_exceed);
 		if(cluster_exceed > 0){
 			cluster_t restart;
 			if(!fat_create_chain_multiple(cluster_exceed, &restart, byte_to_cluster(inode, inode_len)))
+			//if(!fat_create_chain_multiple(cluster_exceed, &restart, fat_get_last(inode->data.start)))
 				PANIC("inode_write_at: fat_create_chain_multiple() fail");
-			ASSERT(fat_get(byte_to_cluster(inode, inode_len)) == restart);
 
 			static char zeros[DISK_CLUSTER_SIZE];
 			cluster_t clst_idx = restart;
@@ -322,6 +323,7 @@ inode_write_at (struct inode *inode, const void *buffer_, off_t size,
 		inode->data.length += bytes_exceed;
 	}
 
+	inode_len = inode_length(inode);
 	while (size > 0) {
 		/* Cluster to write, starting byte offset within cluster. */
 		cluster_t cluster_idx = byte_to_cluster(inode, offset);

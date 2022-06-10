@@ -225,8 +225,8 @@ dir_remove (struct dir *dir, const char *name) {
 		goto done;
 
 	/* Remove inode. */
-	if(inode_is_dir(inode))
-		inode_items_decr(inode);
+	if(inode_is_dir(dir->inode))
+		inode_items_decr(dir->inode);
 	inode_remove (inode);
 	success = true;
 
