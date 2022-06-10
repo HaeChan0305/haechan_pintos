@@ -1,2 +1,1 @@
-FAIL
-run: create symlink "a/link_b": FAILED
+PASS

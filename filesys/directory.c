@@ -24,7 +24,7 @@ struct dir_entry {
 bool
 dir_create (cluster_t cluster, cluster_t upper_cluster, size_t entry_cnt) {
 	/* Create inode. */
-	if(!inode_create(cluster, (entry_cnt + 2) * sizeof (struct dir_entry), true))
+	if(!inode_create(cluster, (entry_cnt + 2) * sizeof (struct dir_entry), true, false))
 		return false;
 
 	/* Open directory coressponding CLUSTER. */
@@ -133,6 +133,15 @@ dir_lookup (const struct dir *dir, const char *name,
 
 	return *inode != NULL;
 }
+
+bool
+dir_lookup_not_open (const struct dir *dir, const char *name){
+	ASSERT (dir != NULL);
+	ASSERT (name != NULL);
+
+	return lookup (dir, name, NULL, NULL);
+}
+
 
 /* Adds a file named NAME to DIR, which must not already contain a
  * file by that name.  The file's inode is in cluster

@@ -20,7 +20,7 @@ struct item{
     };
 };
 
-struct dir *accessing_path(const char *, char **, bool);
+struct dir *accessing_path(const char *, char **, bool, bool);
 
 void filesys_init (bool format);
 void filesys_done (void);

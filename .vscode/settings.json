@@ -10,7 +10,8 @@
         "syn-read.h": "c",
         "mmu.h": "c",
         "thread.h": "c",
-        "filesys.h": "c"
+        "filesys.h": "c",
+        "file.h": "c"
     },
     "C_Cpp.default.compilerArgs": ["-DUSERPROG", "-DVM", "-DEFILESYS", "-DFILESYS"],
     "C_Cpp.errorSquiggles": "Disabled"

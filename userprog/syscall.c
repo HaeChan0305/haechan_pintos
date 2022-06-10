@@ -145,6 +145,11 @@ syscall_handler (struct intr_frame *f UNUSED) {
 		case SYS_INUMBER:
 			f->R.rax = inumber(f->R.rdi);
 			break;
+
+		case SYS_SYMLINK:
+			f->R.rax = symlink(f->R.rdi, f->R.rsi);
+			break;
+
 		default:
 			break;
 	}
@@ -322,7 +327,7 @@ write (int fd, const void *buffer, unsigned length){
 	check_address(buffer);
 
 	lock_acquire(&file_lock);
-
+	//printf("write : %d\n", fd);
 	struct fdesc *fdesc_ = find_fd(fd);
 	
 	/* No such a fd in fd_table */
@@ -436,9 +441,9 @@ munmap (void *addr){
 }
 
 bool 
-chdir (const char *dir){
+chdir(const char *dir){
 	//printf("chdir : %s\n", dir);
-	struct dir *ndir = accessing_path(dir, NULL, true);
+	struct dir *ndir = accessing_path(dir, NULL, true, true);
 	if(ndir == NULL)
 		return false;
 
@@ -450,13 +455,13 @@ chdir (const char *dir){
 }
 
 bool 
-mkdir (const char *dir){
+mkdir(const char *dir){
 	//printf("mkdir : %s\n", dir);
 	return filesys_create_dir(dir);
 }
 
 bool 
-readdir (int fd, char *name){
+readdir(int fd, char *name){
 	lock_acquire(&file_lock);
 	
 	bool result = false;
@@ -476,7 +481,7 @@ end:
 }
 
 bool 
-isdir (int fd){
+isdir(int fd){
 	lock_acquire(&file_lock);
 	
 	bool result = false;
@@ -493,7 +498,7 @@ end:
 }
 
 int 
-inumber (int fd){
+inumber(int fd){
 	lock_acquire(&file_lock);
 	
 	int result = -1;
@@ -511,4 +516,12 @@ inumber (int fd){
 end:
 	lock_release(&file_lock);
 	return result;		
+}
+
+int 
+symlink(const char *target, const char *linkpath){
+	lock_acquire(&file_lock);
+	int result = filesys_symlink_create (target, linkpath);
+	lock_release(&file_lock);
+	return result;
 }

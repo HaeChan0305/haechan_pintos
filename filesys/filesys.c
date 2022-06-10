@@ -69,6 +69,23 @@ print_parsed(char **parsed, int idx){
 		printf("parsed[%d] : %s\n", i, parsed[i]);
 }
 
+static char*
+get_sym_path(struct inode *inode){
+	ASSERT(inode != NULL);
+	ASSERT(inode_is_sym(inode));
+	ASSERT(!inode_is_dir(inode));
+
+	off_t sym_len = inode_length(inode); 
+	char *sym_path = (char *)malloc(sizeof(char) * (sym_len + 1));
+	if(sym_path == NULL)
+		return NULL;
+	
+	if(inode_read_at(inode, sym_path, sym_len, 0) != sym_len)
+		PANIC("sym_path copy fail");
+
+	return sym_path;
+}
+
 static void
 free_parsed(char **parsed, int idx){
 	ASSERT(parsed != NULL);
@@ -145,7 +162,7 @@ parsing_path(const char *path_, int *argc_){
    If TO_END is false, store lowest directory or file name in LOWEST. 
    Return right upper directory struct if it exist, otherwise NULL. */
 struct dir *
-accessing_path(const char *path, char **lowest, bool to_end){
+accessing_path(const char *path, char **lowest, bool to_end, bool sym){
 	ASSERT(path != NULL);
 	ASSERT(!((lowest == NULL) ^ to_end));
 
@@ -171,8 +188,69 @@ accessing_path(const char *path, char **lowest, bool to_end){
 	}
 
 	/* Access proper directory. */
+	int i;
 	struct inode *inode_dir;
-	for(int i = 0; i < argc - 1 + (int)to_end; i++){
+	for(i = 0; i < argc - 1; i++){
+		if(!dir_lookup(curr_dir, parsed[i], &inode_dir))
+			goto err;
+
+		dir_close(curr_dir);
+		if(inode_is_dir(inode_dir)){
+			curr_dir = dir_open(inode_dir);
+			if(curr_dir == NULL)
+				goto err;
+		}
+		else{
+			if(inode_is_sym(inode_dir)){
+				char *sym_path = get_sym_path(inode_dir);
+				if(sym_path == NULL)
+					goto err;
+
+				curr_dir = accessing_path(sym_path, NULL, true, true);
+				free(sym_path);
+				if(curr_dir == NULL)
+					goto err;
+			}
+			else{
+				inode_close(inode_dir);
+				goto err;
+			}
+		}
+	}
+
+	/* If lowest path is symlink. */
+	if(sym){
+		if(!dir_lookup (curr_dir, parsed[i], &inode_dir))
+			goto err;
+
+		if(inode_is_sym(inode_dir)){
+			dir_close(curr_dir);
+			char *sym_path = get_sym_path(inode_dir);
+			if(sym_path == NULL)
+				goto err;
+
+			curr_dir = accessing_path(sym_path, lowest, to_end, sym);
+			free(sym_path);
+			if(curr_dir == NULL || lowest == NULL)
+				goto err;
+
+			inode_close(inode_dir);
+			free_parsed(parsed, argc);
+			return curr_dir;
+		}
+
+		inode_close(inode_dir);
+	}
+
+	/* Store lowest directory name(last token). */
+	if(!to_end){
+		*lowest = (char *)malloc(strlen(parsed[i]) + 1);
+		if(*lowest == NULL)
+			goto err;
+	
+		strlcpy(*lowest, parsed[i], strlen(parsed[i]) + 1);
+	}
+	else{
 		if(!dir_lookup(curr_dir, parsed[i], &inode_dir))
 			goto err;
 
@@ -187,19 +265,10 @@ accessing_path(const char *path, char **lowest, bool to_end){
 			goto err;
 		}
 	}
-	
-	/* Store lowest directory name(last token). */
-	if(!to_end){
-		*lowest = (char *)malloc(strlen(parsed[argc - 1]) + 1);
-		if(*lowest == NULL)
-			goto err;
-			
-		strlcpy(*lowest, parsed[argc - 1], strlen(parsed[argc - 1]) + 1);
-	}
 
 	free_parsed(parsed, argc);
 	return curr_dir;
-
+	
 err:
 	free_parsed(parsed, argc);
 	dir_close(curr_dir);
@@ -217,15 +286,15 @@ filesys_create (const char *path, off_t initial_size) {
 	/* Access given PATH and store final file name in LOWEST. */
 	bool success = false;
 	char *lowest = NULL;
-	struct dir *upper_dir = accessing_path(path, &lowest, false);
+	struct dir *upper_dir = accessing_path(path, &lowest, false, false);
 	if(lowest == NULL)
 		goto done;
-	
+
 	/* Create file. */
 	cluster_t inode_cluster = EMPTY;
 	success = (upper_dir != NULL
 			&& fat_create_chain_multiple(1, &inode_cluster, EMPTY)
-			&& inode_create (inode_cluster, initial_size, false)
+			&& inode_create (inode_cluster, initial_size, false, false)
 			&& dir_add (upper_dir, lowest, inode_cluster));
 	if (!success && inode_cluster != EMPTY)
 		fat_remove_chain(inode_cluster, EMPTY);
@@ -243,7 +312,7 @@ filesys_create_dir (const char *path) {
 	/* Access given PATH and store final file name in LOWEST. */
 	bool success = false;
 	char *lowest = NULL;
-	struct dir *upper_dir = accessing_path(path, &lowest, false);
+	struct dir *upper_dir = accessing_path(path, &lowest, false, false);
 	
 	if(upper_dir == NULL || lowest == NULL)
 		goto done;
@@ -261,6 +330,39 @@ done:
 	dir_close (upper_dir);
 	free(lowest);
 	return success;
+}
+
+int
+filesys_symlink_create (const char *target, const char *link_path) {
+	ASSERT(target != NULL);
+	ASSERT(link_path != NULL);
+
+	/* Access given PATH and store final file name in LOWEST. */
+	bool success = false;
+	char *lowest = NULL;
+	struct dir *upper_dir = accessing_path(link_path, &lowest, false, false);
+	if(lowest == NULL)
+		goto done;
+	
+	/* Create file. */
+	cluster_t inode_cluster = EMPTY;
+	success = (upper_dir != NULL
+			&& fat_create_chain_multiple(1, &inode_cluster, EMPTY)
+			&& inode_create (inode_cluster, strlen(target) + 1, false, true)
+			&& dir_add (upper_dir, lowest, inode_cluster));
+	if (!success && inode_cluster != EMPTY)
+		fat_remove_chain(inode_cluster, EMPTY);
+
+done:
+	dir_close (upper_dir);
+	free(lowest);
+	if(success){
+		struct inode *sym_inode = inode_open(inode_cluster);
+		if(inode_write_at(sym_inode, target, strlen(target) + 1, 0) != strlen(target) + 1)
+			PANIC("symlink_create: inode_write_at() fail");
+		inode_close(sym_inode);
+	}
+	return success ? 0 : -1;
 }
 
 /* Opens the file with the given NAME.
@@ -313,7 +415,7 @@ filesys_open_item(const char *path){
 	struct item *item = NULL;
 	struct inode *inode = NULL;
 
-	struct dir *upper_dir = accessing_path(path, &lowest, false);
+	struct dir *upper_dir = accessing_path(path, &lowest, false, true);
 	if(upper_dir == NULL || lowest == NULL)
 		goto err;
 	
@@ -367,10 +469,11 @@ filesys_remove (const char *path) {
 	bool success = false;
 	char *lowest = NULL;
 	
-	struct dir *upper_dir = accessing_path(path, &lowest, false);
+	struct dir *upper_dir = accessing_path(path, &lowest, false, false);
 	if(upper_dir == NULL || lowest == NULL)
 		goto done;
 	
+	//printf("lowsest : %s\n", lowest);
 	success = dir_remove (upper_dir, lowest);
 	
 done:

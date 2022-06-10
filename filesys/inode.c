@@ -18,9 +18,10 @@ struct inode_disk {
 	off_t length;                       /* File size in bytes. */
 	cluster_t upper_dir;				/* Upper dircetory cluster index. */ 
 	uint32_t is_dir;					/* If directory 1, Otherwise 0. */
+	uint32_t is_sym;					/* If symlink 1, Otherwise 0. */
 	off_t items;						/* Number of contents in directory. */
 	unsigned magic;                     /* Magic number. */
-	uint32_t unused[122];               /* Not used. */
+	uint32_t unused[121];               /* Not used. */
 	//uint32_t unused[253];             /* Not used. */
 };
 
@@ -84,7 +85,7 @@ inode_init (void) {
  * Returns true if successful.
  * Returns false if memory or disk allocation fails. */
 bool
-inode_create (cluster_t cluster, off_t length, bool is_dir) {
+inode_create (cluster_t cluster, off_t length, bool is_dir, bool is_sym) {
 	struct inode_disk *disk_inode = NULL;
 	bool success = false;
 
@@ -100,6 +101,7 @@ inode_create (cluster_t cluster, off_t length, bool is_dir) {
 		size_t clusters = bytes_to_clusters(length);
 		disk_inode->length = length;
 		disk_inode->is_dir = is_dir;
+		disk_inode->is_sym = is_sym;
 		disk_inode->items = 0;
 		disk_inode->magic = INODE_MAGIC;
 		if(fat_create_chain_multiple(clusters, &disk_inode->start, EMPTY)){
@@ -402,6 +404,13 @@ off_t
 inode_length (const struct inode *inode) {
 	ASSERT(inode != NULL);
 	return inode->data.length;
+}
+
+/* Returns the is_sym of INODE's data. */
+bool
+inode_is_sym (const struct inode *inode) {
+	ASSERT(inode != NULL);
+	return (bool)inode->data.is_sym;
 }
 
 /* Returns the is_dir of INODE's data. */
