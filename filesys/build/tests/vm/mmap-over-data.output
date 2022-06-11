@@ -20,8 +20,8 @@ Executing 'mmap-over-data':
 (mmap-over-data) end
 mmap-over-data: exit(0)
 Execution of 'mmap-over-data' complete.
-Timer: 89 ticks
-Thread: 33 idle ticks, 55 kernel ticks, 2 user ticks
+Timer: 93 ticks
+Thread: 38 idle ticks, 54 kernel ticks, 1 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 327 reads, 547 writes
 hd1:0: 108 reads, 0 writes

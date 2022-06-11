@@ -24,7 +24,7 @@ Executing 'pt-grow-stk-sc':
 pt-grow-stk-sc: exit(0)
 Execution of 'pt-grow-stk-sc' complete.
 Timer: 95 ticks
-Thread: 36 idle ticks, 55 kernel ticks, 4 user ticks
+Thread: 33 idle ticks, 57 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 340 reads, 555 writes
 hd1:0: 109 reads, 0 writes

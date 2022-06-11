@@ -99,6 +99,9 @@ free_parsed(char **parsed, int idx){
 static char **
 parsing_path(const char *path_, int *argc_){
 	ASSERT(path_ != NULL && argc_ != NULL);
+	if(*path_ == '/')
+		PANIC("path : %s\n", path_);
+	//ASSERT(*path_ != '/');
 
 	/* Copy to protect origin string. */
 	char *path = (char *) malloc (sizeof(char) * (strlen(path_) + 1));
@@ -108,7 +111,7 @@ parsing_path(const char *path_, int *argc_){
 
 	/* Count nubmer of tokens. */
 	char *c = (char *)path;
-	int tokens = (*c == '/') ? 0 : 1;
+	int tokens = 1;
 	while(*c != '\0'){
 		if(*c == '/') tokens++;
 		c++;
@@ -128,15 +131,7 @@ parsing_path(const char *path_, int *argc_){
 		free(path);
 		return NULL;
 	}
-	for(int i = 0; i < tokens; i++){
-		result[i] = (char *)malloc(sizeof(char) * 15);
-		if(result[i] == NULL){
-			free_parsed(result, i);
-			free(path);
-			return NULL;
-		}
-	}	
-
+	
 	/* Parsing PATH. */
 	int argc = 0 ;
     char *token;
@@ -146,13 +141,21 @@ parsing_path(const char *path_, int *argc_){
 		
 		/* Token length validation check specifically. */
 		if(strlen(token) > 14){
-			free_parsed(result, tokens);
+			free_parsed(result, argc);
 			free(path);
 			return NULL;
 		}
-		strlcpy(result[argc++], token, strlen(token) + 1);
+		else{
+			result[argc] = (char *)malloc(sizeof(char) * (strlen(token) + 1));
+			if(result[argc] == NULL){
+				free_parsed(result, argc);
+				free(path);
+				return NULL;
+			}
+			strlcpy(result[argc++], token, strlen(token) + 1);
+		}
 	}
-	//ASSERT(tokens == argc);
+	ASSERT(tokens == argc);
 	free(path);
 	return result;
 }
@@ -175,7 +178,16 @@ accessing_path(const char *path, char **lowest, bool to_end, bool sym){
 
 	/* Set current directory. */
 	struct dir *curr_dir;
-	curr_dir = (*path == '/') ? dir_open_root() : dir_reopen(thread_current()->curr_dir);
+	if(*path == '/'){
+		curr_dir = dir_open_root();
+		path++;
+		if(*path == '/')
+			path++;
+	}
+	else{
+		curr_dir = dir_reopen(thread_current()->curr_dir);
+	}
+
 	if(curr_dir == NULL)
 		return NULL;
 
