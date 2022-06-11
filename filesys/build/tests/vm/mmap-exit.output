@@ -27,13 +27,13 @@ child-mm-wrt: exit(0)
 (mmap-exit) end
 mmap-exit: exit(0)
 Execution of 'mmap-exit' complete.
-Timer: 93 ticks
-Thread: 30 idle ticks, 57 kernel ticks, 6 user ticks
+Timer: 106 ticks
+Thread: 46 idle ticks, 55 kernel ticks, 5 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 441 reads, 771 writes
 hd1:0: 215 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1300 characters output
+Console: 1301 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

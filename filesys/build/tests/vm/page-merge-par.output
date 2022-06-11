@@ -4,7 +4,7 @@ Kernel command line: -q -f put page-merge-par put child-sort run page-merge-par
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
-Calibrating timer...  152,166,400 loops/s.
+Calibrating timer...  157,081,600 loops/s.
 hd0:0: detected 393 sector (196 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 222 sector (111 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -32,10 +32,10 @@ child-sort: exit(123)
 child-sort: exit(123)
 child-sort: exit(123)
 child-sort: exit(123)
+child-sort: exit(123)
 (page-merge-par) wait for child 1
 (page-merge-par) wait for child 2
 (page-merge-par) wait for child 3
-child-sort: exit(123)
 (page-merge-par) wait for child 4
 (page-merge-par) wait for child 5
 (page-merge-par) wait for child 6
@@ -46,13 +46,13 @@ child-sort: exit(123)
 (page-merge-par) end
 page-merge-par: exit(0)
 Execution of 'page-merge-par' complete.
-Timer: 659 ticks
-Thread: 128 idle ticks, 77 kernel ticks, 454 user ticks
+Timer: 613 ticks
+Thread: 62 idle ticks, 79 kernel ticks, 473 user ticks
 hd0:0: 0 reads, 0 writes
-hd0:1: 5375 reads, 6983 writes
+hd0:1: 5387 reads, 6995 writes
 hd1:0: 222 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1857 characters output
+Console: 1856 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

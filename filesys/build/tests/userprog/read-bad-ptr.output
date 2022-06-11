@@ -18,8 +18,8 @@ Executing 'read-bad-ptr':
 (read-bad-ptr) open "sample.txt"
 read-bad-ptr: exit(-1)
 Execution of 'read-bad-ptr' complete.
-Timer: 91 ticks
-Thread: 40 idle ticks, 50 kernel ticks, 1 user ticks
+Timer: 85 ticks
+Thread: 30 idle ticks, 53 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 328 reads, 545 writes
 hd1:0: 107 reads, 0 writes

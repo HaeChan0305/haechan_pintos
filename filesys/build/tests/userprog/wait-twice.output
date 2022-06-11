@@ -22,13 +22,13 @@ child-simple: exit(81)
 (wait-twice) end
 wait-twice: exit(0)
 Execution of 'wait-twice' complete.
-Timer: 97 ticks
-Thread: 39 idle ticks, 54 kernel ticks, 4 user ticks
+Timer: 100 ticks
+Thread: 41 idle ticks, 57 kernel ticks, 2 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 375 reads, 747 writes
 hd1:0: 208 reads, 0 writes
 hd1:1: 0 reads, 0 writes
-Console: 1125 characters output
+Console: 1126 characters output
 Keyboard: 0 keys pressed
 Exception: 0 page faults
 Powering off...

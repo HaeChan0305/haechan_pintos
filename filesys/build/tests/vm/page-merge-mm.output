@@ -31,6 +31,7 @@ child-qsort-mm: exit(80)
 child-qsort-mm: exit(80)
 child-qsort-mm: exit(80)
 child-qsort-mm: exit(80)
+child-qsort-mm: exit(80)
 (page-merge-mm) wait for child 1
 (page-merge-mm) wait for child 2
 child-qsort-mm: exit(80)
@@ -38,37 +39,19 @@ child-qsort-mm: exit(80)
 (page-merge-mm) wait for child 4
 (page-merge-mm) wait for child 5
 (page-merge-mm) wait for child 6
-Interrupt 0x0d (#GP General Protection Exception) at rip=8004214d28
- cr2=000000001001c000 error=               0
-rax cccccccccccccccc rbx 000000001000f000 rcx 0000000000000400 rdx 00000080042aa018
-rsp 000000800429eca0 rbp 000000800429ecb0 rsi 00000080042aa018 rdi 00000080042aa018
-rip 0000008004214d28 r8 000000800429ee08  r9 0000008004217bed r10 0000000000000000
-r11 0000000000000206 r12 000000800421a113 r13 0000800427302000 r14 0000000000000200
-r15 0000800429ee2000 rflags 00000206
-es: 001b ds: 001b cs: 0008 ss: 0010
-Kernel PANIC at ../../userprog/exception.c:97 in kill(): Kernel bug - unexpected interrupt in kernel
-Call stack: 0x8004214774 0x8004219e86 0x80042096f1 0x8004209b0f 0x8004214f26 0x800420c7ec 0x8004220357 0x800421e960 0x800422819b 0x80042266aa 0x80042272ce 0x8004216d42 0x8004216dc5 0x8004227310 0x8004218b6f 0x8004218b3b 0x80042072a7 0x800421a628 0x800421a199 0x800421a03c 0x4010c1 0Interrupt 0x0d (#GP General Protection Exception) at rip=80042117ae
- cr2=000000001001c000 error=               0
-rax 0000800429ee7000 rbx 000000001000f000 rcx 00000080040b8000 rdx 00000000000003d4
-rsp 000000800429eae0 rbp 000000800429eaf0 rsi 000000000000aa0f rdi 0000000000000000
-rip 00000080042117ae r8 000000800429e9f8  r9 0000008004217bed r10 0000000000000000
-r11 0000000000000206 r12 000000800421a113 r13 0000800427302000 r14 0000000000000200
-r15 0000800429ee2000 rflags 00000006
-es: 0010 ds: 0010 cs: 0008 ss: 0010
-Kernel PANIC recursion at ../../userprog/exception.c:97 in kill().
-Interrupt 0x0d (#GP General Protection Exception) at rip=8004214d28
- cr2=000000001001c000 error=               0
-rax cccccccccccccccc rbx 000000001000f000 rcx 0000000000000010 rdx 000000800425c048
-rsp 000000800429e680 rbp 000000800429e690 rsi 000000800425c048 rdi 000000800425c048
-rip 0000008004214d28 r8 000000800422a0db  r9 0000008004214699 r10 0000000000000000
-r11 0000000000000206 r12 000000800421a113 r13 0000800427302000 r14 0000000000000200
-r15 0000800429ee2000 rflags 00000006
-es: 0010 ds: 0010 cs: 0008 ss: 0010
-Interrupt 0x0d (#GP General Protection Exception) at rip=800422027a
- cr2=000000001001c000 error=               0
-rax cccccccccccccccc rbx 000000001000f000 rcx 000000800422bbf0 rdx 0000000000000025
-rsp 000000800429e480 rbp 000000800429e490 rsi 000000000000000a rdi cccccccccccccccc
-rip 000000800422027a r8 0000008004214699  r9 0000008004217bed r10 0000000000000000
-r11 0000000000000206 r12 000000800421a113 r13 0000800427302000 r14 0000000000000200
-r15 0000800429ee2000 rflags 00000086
-es: 0010 ds: 0010 cs: 0008 ss: 0010
+(page-merge-mm) wait for child 7
+(page-merge-mm) merge
+(page-merge-mm) verify
+(page-merge-mm) bad value 1 in byte 2995: FAILED
+page-merge-mm: exit(1)
+Execution of 'page-merge-mm' complete.
+Timer: 633 ticks
+Thread: 69 idle ticks, 69 kernel ticks, 495 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 5388 reads, 6989 writes
+hd1:0: 227 reads, 0 writes
+hd1:1: 0 reads, 0 writes
+Console: 1846 characters output
+Keyboard: 0 keys pressed
+Exception: 0 page faults
+Powering off...

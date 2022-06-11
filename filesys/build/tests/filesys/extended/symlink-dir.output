@@ -29,7 +29,7 @@ Executing 'symlink-dir':
 symlink-dir: exit(0)
 Execution of 'symlink-dir' complete.
 Timer: 110 ticks
-Thread: 30 idle ticks, 58 kernel ticks, 23 user ticks
+Thread: 30 idle ticks, 58 kernel ticks, 22 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 632 reads, 878 writes
 hd1:0: 232 reads, 0 writes
